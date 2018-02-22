@@ -28,6 +28,19 @@ int main()
 			Motor1.write(0.5); 
 			Motor2.period_us(200);
 			Motor2.write(0.5); 
+	    		wait(0.5);
+	    
+	    		Motor1.period_us(200);
+			Motor1.write(0.8); 
+			Motor2.period_us(200);
+			Motor2.write(0.2); 
+	    		wait(0.5);
+	    		
+	    		Motor1.period_us(200);
+			Motor1.write(0.2); 
+			Motor2.period_us(200);
+			Motor2.write(0.8); 
+	    		wait(0.5);
 			  
     }
 }
