@@ -3,10 +3,18 @@
 #include "QEI.h"
 #include "Timer.h"
 #include "mbed.h"
+#include "PinDetect.h"
 
-#define LEFT_SCALE 1
+#define LEFT_SCALE 0.9
 #define RIGHT_SCALE 1
-#define DEMOTIME 1
+
+
+
+#define LEFT_BIAS 0
+#define RIGHT_BIAS 0.03
+
+
+#define DEMOTIME 2
 
 PwmOut motorLeft(PC_8);
 PwmOut motorRight(PC_9);
@@ -19,13 +27,13 @@ DigitalOut motorRightDir(PA_10);
 
 DigitalOut motorEn(PA_5);
 
-InterruptIn startBtn(PC_13);
+PinDetect startBtn(PC_13);
 
 
 Serial esp(PA_11, PA_12);
 
-QEI leftWheel(PA_0, PA_1, NC, 256);
-QEI rightWheel(PA_15, PB3, NC, 256);
+//QEI leftWheel(PA_0, PA_1, NC, 256);
+//QEI rightWheel(PA_15, PB_3, NC, 256);
 
 enum Direction {
   forward,
@@ -48,8 +56,8 @@ void startDemo(){
   motorEn = 1;
   motorLeftDir = 0;
   motorRightDir = 0;
-  motorLeft.write(0.7*LEFT_SCALE);
-  motorRight.write(0.7*RIGHT_SCALE);
+  motorLeft.write(1-(0.5*LEFT_SCALE+LEFT_BIAS));
+  motorRight.write(1-(0.5*RIGHT_SCALE+RIGHT_BIAS));
   
   wait(DEMOTIME);
   //Stop
@@ -61,8 +69,8 @@ void startDemo(){
   motorEn = 1;
   motorLeftDir = 1;
   motorRightDir = 1;
-  motorLeft.write(0.7*LEFT_SCALE);
-  motorRight.write(0.7*RIGHT_SCALE);
+  motorLeft.write(1-(0.5*LEFT_SCALE+LEFT_BIAS));
+  motorRight.write(1-(0.5*RIGHT_SCALE+RIGHT_BIAS));
   
   wait(DEMOTIME);
   motorEn = 0;
@@ -73,10 +81,10 @@ void startDemo(){
   motorEn = 1;
   motorLeftDir = 0;
   motorRightDir = 0;
-  motorLeft.write(0.7*LEFT_SCALE);
-  motorRight.write(0.3*RIGHT_SCALE);
+  motorLeft.write(1-(0.5*LEFT_SCALE+LEFT_BIAS));
+  motorRight.write(1-(0.2*RIGHT_SCALE+RIGHT_BIAS));
   
-  wait(DEMOTIME);
+  wait(DEMOTIME-1);
   motorEn = 0;
   
   wait(0.2*DEMOTIME);
@@ -86,10 +94,10 @@ void startDemo(){
   motorEn = 1;
   motorLeftDir = 1;
   motorRightDir = 1;
-  motorLeft.write(0.7*LEFT_SCALE);
-  motorRight.write(0.3*RIGHT_SCALE);
+  motorLeft.write(1-(0.5*LEFT_SCALE+LEFT_BIAS));
+  motorRight.write(1-(0.2*RIGHT_SCALE+RIGHT_BIAS));
   
-  wait(DEMOTIME);
+  wait(DEMOTIME-1);
   motorEn = 0;
   
   wait(0.2*DEMOTIME);
@@ -98,10 +106,10 @@ void startDemo(){
   motorEn = 1;
   motorLeftDir = 0;
   motorRightDir = 0;
-  motorLeft.write(0.3*LEFT_SCALE);
-  motorRight.write(0.7*RIGHT_SCALE);
+  motorLeft.write(1-(0.2*LEFT_SCALE+LEFT_BIAS));
+  motorRight.write(1-(0.5*RIGHT_SCALE+RIGHT_BIAS));
   
-  wait(DEMOTIME);
+  wait(DEMOTIME-1);
   motorEn = 0;
   
   wait(0.2*DEMOTIME);
@@ -111,9 +119,11 @@ void startDemo(){
   motorEn = 1;
   motorLeftDir = 1;
   motorRightDir = 1;
-  motorLeft.write(0.3*LEFT_SCALE);
-  motorRight.write(0.7*RIGHT_SCALE);
+  motorLeft.write(1-(0.2*LEFT_SCALE+LEFT_BIAS));
+  motorRight.write(1-(0.5*RIGHT_SCALE+RIGHT_BIAS));
   
+  wait(DEMOTIME-1);
+  motorEn = 0;
   demoRunning = false;
 }
 
@@ -124,29 +134,29 @@ void updateMotors(Direction dir) {
       motorEn = 1;
       motorLeftDir = 0;
       motorRightDir = 0;
-      motorLeft.write(speed);
-      motorRight.write(speed);
+      motorLeft.write(1-speed*LEFT_SCALE);
+      motorRight.write(1-speed*RIGHT_SCALE);
       break;
     case backward:
       motorEn = 1;
       motorLeftDir = 1;
       motorRightDir = 1;
-      motorLeft.write(speed);
-      motorRight.write(speed);
+      motorLeft.write(1-speed*LEFT_SCALE);
+      motorRight.write(1-speed*RIGHT_SCALE);
       break;
     case leftFturn:
       motorEn = 1;
       motorLeftDir = 0;
       motorRightDir = 0;
-      motorLeft.write(speed);
-      motorRight.write(0.5 * speed);
+      motorLeft.write(1-speed*LEFT_SCALE);
+      motorRight.write(1-0.5 * speed * RIGHT_SCALE);
       break;
     case rightFturn:
       motorEn = 1;
       motorLeftDir = 0;
       motorRightDir = 0;
-      motorLeft.write(0.5*speed);
-      motorRight.write(speed);
+      motorLeft.write(1-0.5*speed*LEFT_SCALE);
+      motorRight.write(1-speed*RIGHT_SCALE);
       break;
     case leftBturn:
       break;
@@ -162,14 +172,16 @@ int main() {
   esp.baud(115200);
   //esp.attach(&callback);
   
-  startBtn.rise(&startDemo);
+  startBtn.mode(PullUp);
+  startBtn.attach_asserted(&startDemo);
+  startBtn.setSampleFrequency();
   
   motorLeftBp = 0;
   motorRightBp = 0;
    
   motorLeftDir = 0;
   motorRightDir = 0;
-   
+    esp.printf("The value is %d\n", val);
   motorLeft.period(1.0/20000);
   motorRight.period(1.0/20000);
    
