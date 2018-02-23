@@ -1,4 +1,3 @@
 # 2-infinity-and-beyond
-Super Fast buggy car
+SuperFast buggy
 
-We are amazing
