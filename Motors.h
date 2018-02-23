@@ -1,0 +1,47 @@
+#include "PID.h"
+#include "Encoders.h"
+#include "configuration.h"
+
+
+#ifndef __MOTORS_H
+#define __MOTORS_H
+
+
+typedef struct {
+	PID * pid;
+	QEncoder * encoder;
+	double speed;
+} Motor;
+
+
+
+typedef struct {
+	Motor * motorLeft;
+	Motor * motorRight;
+	
+} Motors;
+
+
+
+Motor * Motor_Left_init(PID_Values values);
+Motor * Motor_Right_init(PID_Values values);
+
+Motors * Motors_init(PID_Values valuesM1, PID_Values valuesM2);
+
+
+
+void Motor_Left_setSpeed(Motor * motor, double speed);
+void Motor_Right_setSpeed(Motor * motor, double speed);
+void Motor_Left_PID_action(Motor * motor);
+void Motor_Right_PID_action(Motor * motor);
+
+void Motors_setSpeed(Motors * motors, double speedL, double speedR);
+void Motors_PID_action(Motors * motors);
+
+void Configure_Motor_Right(void);
+void Configure_Motor_Left(void);
+void Set_DutyCycle_Motor_Left(float D);
+void Set_DutyCycle_Motor_Right(float D);
+
+
+#endif
