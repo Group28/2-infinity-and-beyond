@@ -98,5 +98,3 @@ void SysTick_Callback(void){
 	//use this as a 1 ms interrupt
 	
 }
-
-
