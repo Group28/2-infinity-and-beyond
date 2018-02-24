@@ -5,6 +5,7 @@
 // Constants
 
 #define WHEEL_RADIUS 0.0417 // Wheel radius [m]
+#define ENCODER_TICKS_PER_REV 1024 // Counter ticks per revolution 
 
 #define MOTOR_SAMPLE_FREQ 500.0 // Motor speed sample frequency [Hz]
 #define SENSOR_SAMPLE_FREQ 1000.0 // Sensor sample frequency [Hz]
@@ -77,10 +78,11 @@
 
 // LCD screen
 #define IO_LCD_SCK      GPIOC, LL_GPIO_PIN_10
-#define IO_LCD_RESET    GPIOC, LL_GPIO_PIN_11
+#define IO_LCD_MISO     GPIOC, LL_GPIO_PIN_11
 #define IO_LCD_MOSI     GPIOC, LL_GPIO_PIN_12
 #define IO_LCD_nCS      GPIOD, LL_GPIO_PIN_2
 #define IO_LCD_A0       GPIOB, LL_GPIO_PIN_7
+#define IO_LCD_RESET    GPIOB, LL_GPIO_PIN_12
 
 // Other IO
 #define IO_SPEAKER      GPIOB, LL_GPIO_PIN_6

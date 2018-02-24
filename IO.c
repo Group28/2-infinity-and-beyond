@@ -164,6 +164,7 @@ void IO_initEncoders(void){
 	LL_TIM_CC_EnableChannel(TIM5, LL_TIM_CHANNEL_CH1);
 	LL_TIM_CC_EnableChannel(TIM5, LL_TIM_CHANNEL_CH2);
 	LL_TIM_EnableCounter(TIM5);
+	LL_TIM_GenerateEvent_UPDATE(TIM5);
 	
 	
 	/* Rigth Encoder */
@@ -203,6 +204,7 @@ void IO_initEncoders(void){
 	LL_TIM_CC_EnableChannel(TIM2, LL_TIM_CHANNEL_CH1);
 	LL_TIM_CC_EnableChannel(TIM2, LL_TIM_CHANNEL_CH2);
 	LL_TIM_EnableCounter(TIM2);
+	LL_TIM_GenerateEvent_UPDATE(TIM2);
 	
 	
 }
@@ -214,5 +216,50 @@ void IO_initAnalogueSensors(void){
 	ADC_GPIO_InitStruct.Mode = LL_GPIO_MODE_ANALOG;
 	ADC_GPIO_InitStruct.Pull = LL_GPIO_PULL_NO;
 	LL_GPIO_Init(GPIOC, &ADC_GPIO_InitStruct);
+	
+}
+
+
+void IO_initLCD(void){
+	/* Configure Instruction_Or_Data Pin */
+
+  LL_GPIO_SetPinMode(  IO_LCD_A0, LL_GPIO_MODE_OUTPUT);
+  LL_GPIO_SetPinSpeed( IO_LCD_A0, LL_GPIO_SPEED_FREQ_VERY_HIGH);
+  LL_GPIO_SetPinPull(  IO_LCD_A0, LL_GPIO_PULL_UP);
+	LL_GPIO_SetOutputPin(GPIOA, LL_GPIO_PIN_8);
+	
+	/* Configure LCD Reset Pin */
+
+  LL_GPIO_SetPinMode(  IO_LCD_RESET, LL_GPIO_MODE_OUTPUT);
+  LL_GPIO_SetPinSpeed( IO_LCD_RESET, LL_GPIO_SPEED_FREQ_VERY_HIGH);
+  LL_GPIO_SetPinPull(  IO_LCD_RESET, LL_GPIO_PULL_UP);
+	LL_GPIO_SetOutputPin(IO_LCD_RESET);
+	
+	/* Configure LCD Chip Select Pin */
+
+  LL_GPIO_SetPinMode(  IO_LCD_nCS, LL_GPIO_MODE_OUTPUT);
+  LL_GPIO_SetPinSpeed( IO_LCD_nCS, LL_GPIO_SPEED_FREQ_VERY_HIGH);
+  LL_GPIO_SetPinPull(  IO_LCD_nCS, LL_GPIO_PULL_UP);
+	LL_GPIO_SetOutputPin(IO_LCD_nCS);
+	
+	/* Configure SCK Pin */
+
+  LL_GPIO_SetPinMode(  IO_LCD_SCK, LL_GPIO_MODE_ALTERNATE);
+  LL_GPIO_SetAFPin_8_15(IO_LCD_SCK, LL_GPIO_AF_6);
+  LL_GPIO_SetPinSpeed( IO_LCD_SCK, LL_GPIO_SPEED_FREQ_VERY_HIGH);
+  LL_GPIO_SetPinPull(  IO_LCD_SCK, LL_GPIO_PULL_DOWN);
+
+  /* Configure MOSI Pin */
+
+  LL_GPIO_SetPinMode(  IO_LCD_MOSI, LL_GPIO_MODE_ALTERNATE);
+  LL_GPIO_SetAFPin_8_15(IO_LCD_MOSI, LL_GPIO_AF_6);
+  LL_GPIO_SetPinSpeed( IO_LCD_MOSI, LL_GPIO_SPEED_FREQ_VERY_HIGH);
+  LL_GPIO_SetPinPull(  IO_LCD_MOSI, LL_GPIO_PULL_DOWN);
+	
+	/* Configure MISO Pin */
+	LL_GPIO_SetPinMode(  IO_LCD_MISO, LL_GPIO_MODE_ALTERNATE);
+  LL_GPIO_SetAFPin_8_15(IO_LCD_MISO, LL_GPIO_AF_6);
+  LL_GPIO_SetPinSpeed( IO_LCD_MISO, LL_GPIO_SPEED_FREQ_VERY_HIGH);
+  LL_GPIO_SetPinPull(  IO_LCD_MISO, LL_GPIO_PULL_DOWN);
 	
 }

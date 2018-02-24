@@ -1,5 +1,5 @@
 #include "main.h"
-#include <stdbool.h>
+
 
 
 #ifndef __ENCODERS_H
@@ -7,23 +7,23 @@
 
 
 typedef struct {
-	double speed;
-	double samplePeriod;
-	int lastCount;
-	double revolutions;
+	double speed; 				// Revolutions per second
+	double samplePeriod; 	// Time between measuremnts
+	int lastCount; 				// Last value of counter
+	double revolutions; 	// Number of total revolutions
+	TIM_TypeDef * timer; 	// Timer attached to encoders 
 } Encoder;
 
 
-Encoder * Configure_Encoder_Left(void);
-Encoder * Configure_Encoder_Right(void);
+Encoder * Encoder_init(TIM_TypeDef * timer, double samplePeriod, int ticks);
 
 double Encoder_getSpeed(Encoder * encoder);
 
+double Encoder_getRevolutions(Encoder *encoder);
 
-int Get_Encoder_Left(void);
-int Get_Encoder_Right(void);
+void Encoder_Reset(Encoder *encoder);
 
-
+void Encoder_Update(Encoder *encoder);
 
 
 #endif
