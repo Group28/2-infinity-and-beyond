@@ -10,7 +10,7 @@
 #define SENSOR_SAMPLE_FREQ 1000.0 // Sensor sample frequency [Hz]
 
 #define DEFAULT_PWM_FREQ 20000.0 // Default PWM switching frequency [Hz]
-
+#define DEFAULT_MOTOR_MODE 0 // 0 = unipolar, 1 = bipolar
 
 #define HALL_SENSOR_POLARITY 1 // Hall sensor polarity -1 = South, 1 = North, 0 = Both
 
@@ -25,6 +25,8 @@
 #define IO_SENSOR_3     GPIOC, LL_GPIO_PIN_13
 #define IO_SENSOR_4     GPIOC, LL_GPIO_PIN_14
 #define IO_SENSOR_5     GPIOC, LL_GPIO_PIN_15
+#define IO_ALL_SENSORS  LL_GPIO_PIN_10|LL_GPIO_PIN_11|LL_GPIO_PIN_12|LL_GPIO_PIN_13|LL_GPIO_PIN_14|LL_GPIO_PIN_15
+
 
 // Shift register
 #define IO_SR_CLK       GPIOB, LL_GPIO_PIN_13
