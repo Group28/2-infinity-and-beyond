@@ -9,7 +9,7 @@
 
 typedef struct {
 	PID * pid;
-	QEncoder * encoder;
+	Encoder * encoder;
 	double speed;
 } Motor;
 

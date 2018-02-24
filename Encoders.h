@@ -8,15 +8,19 @@
 
 typedef struct {
 	double speed;
-} QEncoder;
+	double samplePeriod;
+	int lastCount;
+	double revolutions;
+} Encoder;
 
 
-double Encoder_getSpeed(QEncoder * encoder);
+Encoder * Configure_Encoder_Left(void);
+Encoder * Configure_Encoder_Right(void);
 
-void Configure_Encoder_Left(void);
+double Encoder_getSpeed(Encoder * encoder);
+
+
 int Get_Encoder_Left(void);
-
-void Configure_Encoder_Right(void);
 int Get_Encoder_Right(void);
 
 
