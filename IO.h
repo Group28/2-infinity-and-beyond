@@ -27,4 +27,9 @@ void IO_initMotors(void);
 void IO_initEncoders(void);
 void IO_initAnalogueSensors(void);
 
+void IO_initLCD(void);
+void IO_initUSART_USB(void);
+void IO_initUSART_ESP(void);
+
+void IO_initJoyButton(void);
 #endif
