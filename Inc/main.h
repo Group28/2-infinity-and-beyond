@@ -40,7 +40,7 @@
 #define __MAIN_H
 
 
-
+#define STM32F401xE
 /* Includes ------------------------------------------------------------------*/
 
 /* LL drivers common to all LL examples */
