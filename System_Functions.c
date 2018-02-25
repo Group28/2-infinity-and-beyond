@@ -1,71 +1,6 @@
 #include  "System_Functions.h"
 
-
-void Configure_User_LED(void){
-	//Debug Pin Bit = PB8
-	LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOA); // Enable CLK to GPIOB
-  LL_GPIO_SetPinMode(GPIOA,     LL_GPIO_PIN_5, LL_GPIO_MODE_OUTPUT);
-  LL_GPIO_SetPinPull(GPIOA,     LL_GPIO_PIN_5, LL_GPIO_PULL_NO);
-  LL_GPIO_SetPinSpeed(GPIOA,    LL_GPIO_PIN_5, LL_GPIO_SPEED_FREQ_HIGH);
-	LL_GPIO_ResetOutputPin(GPIOA, LL_GPIO_PIN_5);
-}
-
-void Configure_User_Button(void)
-{
-  //Setup User Button GPIO PC13
-	LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOC);
-	LL_GPIO_SetPinMode(GPIOC, LL_GPIO_PIN_13, LL_GPIO_MODE_INPUT);
-	LL_GPIO_SetPinPull(GPIOC, LL_GPIO_PIN_13, LL_GPIO_PULL_UP);
-	
-	//Setup Interrupts for Line 13 EXTI
-	LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_SYSCFG);                  \
-  LL_SYSCFG_SetEXTISource(LL_SYSCFG_EXTI_PORTC, LL_SYSCFG_EXTI_LINE13); 
-	LL_EXTI_EnableFallingTrig_0_31(LL_EXTI_LINE_13);
-	LL_EXTI_EnableIT_0_31(LL_EXTI_LINE_13);
-	NVIC_EnableIRQ(EXTI15_10_IRQn); // Enable IRQ for EXTI line 13 in NVIC
-}
-
-
-void Configure_USB_UART(void){
-	/* (1) Enable GPIO clock and configures the USART pins *********************/
-  // USART2 PINS: TX = PA2,  RX = PA3
-  /* Enable the peripheral clock of GPIO Port */
-	LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOA);
-
-  /* Configure Tx Pin as : Alternate function, High Speed, Push pull, Pull up */
-  LL_GPIO_SetPinMode(GPIOA, LL_GPIO_PIN_2, LL_GPIO_MODE_ALTERNATE);
-  LL_GPIO_SetAFPin_0_7(GPIOA, LL_GPIO_PIN_2, LL_GPIO_AF_7);        //See AF Mapping PDF in Useful Information Folder
-  LL_GPIO_SetPinSpeed(GPIOA, LL_GPIO_PIN_2, LL_GPIO_SPEED_FREQ_VERY_HIGH);
-  LL_GPIO_SetPinOutputType(GPIOA, LL_GPIO_PIN_2, LL_GPIO_OUTPUT_PUSHPULL);
-  LL_GPIO_SetPinPull(GPIOA, LL_GPIO_PIN_2,LL_GPIO_PULL_UP);
-
-  /* Configure Rx Pin as : Alternate function, High Speed, Push pull, Pull up */
-  LL_GPIO_SetPinMode(GPIOA, LL_GPIO_PIN_3, LL_GPIO_MODE_ALTERNATE);
-  LL_GPIO_SetAFPin_0_7(GPIOA, LL_GPIO_PIN_3, LL_GPIO_AF_7);        //See AF Mapping PDF in Useful Information Folder
-  LL_GPIO_SetPinSpeed(GPIOA, LL_GPIO_PIN_3, LL_GPIO_SPEED_FREQ_VERY_HIGH);
-  LL_GPIO_SetPinOutputType(GPIOA, LL_GPIO_PIN_3, LL_GPIO_OUTPUT_PUSHPULL);
-  LL_GPIO_SetPinPull(GPIOA, LL_GPIO_PIN_3, LL_GPIO_PULL_UP);
-
-  /* Enable USART peripheral clock and clock source ***********************/
-  LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_USART2);
-
-  /* Configure USART functional parameters ********************************/
-  /* Note: Commented as corresponding to Reset value */
-  LL_USART_Disable(USART2);
-
-  /* TX/RX direction */
-  LL_USART_SetTransferDirection(USART2, LL_USART_DIRECTION_TX_RX);
-
-  /* 8 data bit, 1 start bit, 1 stop bit, no parity */
-  LL_USART_ConfigCharacter(USART2, LL_USART_DATAWIDTH_8B, LL_USART_PARITY_NONE, LL_USART_STOPBITS_1);
- 
-  LL_USART_SetBaudRate(USART2,SystemCoreClock/2, LL_USART_OVERSAMPLING_16, 9600); 
-
-  /* (4) Enable USART *********************************************************/
-  LL_USART_Enable(USART2);
-}
-
-
+static volatile uint32_t SysTick_ticks;
 
 /**
   *         The system Clock is configured as follow :
@@ -114,10 +49,47 @@ void SystemClock_Config(void)
   LL_RCC_SetAPB1Prescaler(LL_RCC_APB1_DIV_2);
   LL_RCC_SetAPB2Prescaler(LL_RCC_APB2_DIV_1);
 
-  /* Set systick to 1ms */
-  SysTick_Config(84000000 / 1000);
+  /* Set systick to 1us */
+  SysTick_Config(84000000 / 1000000);
 
   /* Update CMSIS variable (which can be updated also through SystemCoreClockUpdate function) */
   SystemCoreClock = 84000000;
 }
 
+/**
+  * @brief  This function handles SysTick Handler.
+  * @param  None
+  * @retval None
+  */
+void SysTick_Handler(void)
+{
+	SysTick_ticks++;
+}
+
+void delay_us(uint32_t t){
+	uint32_t start, end;
+	start = SysTick_ticks;
+	end = start + end;
+	if(start < end){
+		while((SysTick_ticks >= start) && (SysTick_ticks < end));
+	} else {
+		while((SysTick_ticks >= start) || (SysTick_ticks < end));
+	}
+}
+
+void delay_ms(uint32_t t){
+	for(uint32_t i = 0; i < t; i++){
+		delay_us(1000);
+	}
+}
+
+void delay(double t){
+	uint32_t seconds = (uint32_t) t;
+	uint32_t ms = (uint32_t)(t - seconds)*1000;
+	uint32_t us = (uint32_t)(t - seconds - ms/1000.0)*1000000;
+	for(uint32_t i = 0; i< seconds; i++){
+		delay_ms(1000);
+	}
+	delay_ms(ms);
+	delay_us(us);
+}

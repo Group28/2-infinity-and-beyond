@@ -22,21 +22,22 @@ void IO_init(void){
 	IO_initEncoders();
 	
 	// Motor contorlls
-	
-	
 	IO_initMotors();
 	
 	// ESP Serial
+	IO_initUSART_ESP();
 	
 	// Usart2 serial
+	IO_initUSART_USB();
 	
 	// I2C
 	
 	// LCD
+	IO_initLCD();
 	
 	
 	// Other IO
-	
+	IO_initJoyButton();
 	
 
 }
@@ -219,7 +220,6 @@ void IO_initAnalogueSensors(void){
 	
 }
 
-
 void IO_initLCD(void){
 	/* Configure Instruction_Or_Data Pin */
 
@@ -262,4 +262,51 @@ void IO_initLCD(void){
   LL_GPIO_SetPinSpeed( IO_LCD_MISO, LL_GPIO_SPEED_FREQ_VERY_HIGH);
   LL_GPIO_SetPinPull(  IO_LCD_MISO, LL_GPIO_PULL_DOWN);
 	
+}
+
+void IO_initUSART_USB(void){
+	LL_GPIO_SetPinMode(IO_USART2_TX, LL_GPIO_MODE_ALTERNATE);
+  LL_GPIO_SetAFPin_0_7(IO_USART2_TX, LL_GPIO_AF_7);        //See AF Mapping PDF in Useful Information Folder
+  LL_GPIO_SetPinSpeed(IO_USART2_TX, LL_GPIO_SPEED_FREQ_VERY_HIGH);
+  LL_GPIO_SetPinOutputType(IO_USART2_TX, LL_GPIO_OUTPUT_PUSHPULL);
+  LL_GPIO_SetPinPull(IO_USART2_TX,LL_GPIO_PULL_UP);
+
+  /* Configure Rx Pin as : Alternate function, High Speed, Push pull, Pull up */
+  LL_GPIO_SetPinMode(IO_USART2_RX, LL_GPIO_MODE_ALTERNATE);
+  LL_GPIO_SetAFPin_0_7(IO_USART2_RX, LL_GPIO_AF_7);        //See AF Mapping PDF in Useful Information Folder
+  LL_GPIO_SetPinSpeed(IO_USART2_RX, LL_GPIO_SPEED_FREQ_VERY_HIGH);
+  LL_GPIO_SetPinOutputType(IO_USART2_RX, LL_GPIO_OUTPUT_PUSHPULL);
+  LL_GPIO_SetPinPull(IO_USART2_RX, LL_GPIO_PULL_UP);
+}
+
+void IO_initUSART_ESP(void){
+	
+	  /* Configure Tx Pin as : Alternate function, High Speed, Push pull, Pull up */
+	  LL_GPIO_SetPinMode(IO_ESP_TX, LL_GPIO_MODE_ALTERNATE);
+	  LL_GPIO_SetAFPin_8_15(IO_ESP_TX, LL_GPIO_AF_8);        //See AF Mapping PDF in Useful Information Folder
+	  LL_GPIO_SetPinSpeed(IO_ESP_TX, LL_GPIO_SPEED_FREQ_VERY_HIGH);
+	  LL_GPIO_SetPinOutputType(IO_ESP_TX, LL_GPIO_OUTPUT_PUSHPULL);
+	  LL_GPIO_SetPinPull(IO_ESP_TX,LL_GPIO_PULL_UP);
+
+	  /* Configure Rx Pin as : Alternate function, High Speed, Push pull, Pull up */
+	  LL_GPIO_SetPinMode(IO_ESP_RX, LL_GPIO_MODE_ALTERNATE);
+	  LL_GPIO_SetAFPin_8_15(IO_ESP_RX, LL_GPIO_AF_8);        //See AF Mapping PDF in Useful Information Folder
+	  LL_GPIO_SetPinSpeed(IO_ESP_RX, LL_GPIO_SPEED_FREQ_VERY_HIGH);
+	  LL_GPIO_SetPinOutputType(IO_ESP_RX, LL_GPIO_OUTPUT_PUSHPULL);
+	  LL_GPIO_SetPinPull(IO_ESP_RX, LL_GPIO_PULL_UP);
+
+
+}
+
+void IO_initJoyButton(void){
+  //Setup User Button GPIO PC13
+	LL_GPIO_SetPinMode(IO_CENTER_JOY, LL_GPIO_MODE_INPUT);
+	LL_GPIO_SetPinPull(IO_CENTER_JOY, LL_GPIO_PULL_UP);
+	
+	//Setup Interrupts for Line 13 EXTI
+	LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_SYSCFG);                  \
+  LL_SYSCFG_SetEXTISource(LL_SYSCFG_EXTI_PORTC, LL_SYSCFG_EXTI_LINE13); 
+	LL_EXTI_EnableFallingTrig_0_31(LL_EXTI_LINE_13);
+	LL_EXTI_EnableIT_0_31(LL_EXTI_LINE_13);
+	NVIC_EnableIRQ(EXTI15_10_IRQn); // Enable IRQ for EXTI line 13 in NVIC
 }
