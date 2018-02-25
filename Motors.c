@@ -7,20 +7,21 @@
 #include "math.h"
 
 
-Motor * Motor_init(PID_Values values){
+Motor * Motor_init(PID_Values values, Encoder * encoder){
 	Motor * motor = (Motor*) malloc(sizeof(Motor));
 	motor->pid = PID_init(values);
 	motor->speed = 0;
-	Configure_Motor_Right();
+	
+	motor->encoder = encoder;
 	
 	
 	return motor;
 }
 
-Motors * Motors_init(PID_Values valuesL, PID_Values valuesR){
+Motors * Motors_init(PID_Values valuesL, PID_Values valuesR, Encoder * encL, Encoder * encR){
 	Motors * motors = (Motors*) malloc(sizeof(Motors));
-	motors->motorLeft = Motor_init(valuesL);
-	motors->motorRight = Motor_init(valuesR);
+	motors->motorLeft = Motor_init(valuesL, encL);
+	motors->motorRight = Motor_init(valuesR, encR);
 	
 	return motors;
 }
