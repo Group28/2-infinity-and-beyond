@@ -42,24 +42,29 @@ String webSite =R"(<!DOCTYPE HTML><html>
     }
   }
   function button(){
-   websock.send('COMMAND=' + document.getElementById('tx').value + '\\n');
+   websock.send('COMMAND=' + document.getElementById('tx').value + '\n');
    document.getElementById('tx').value = '';
   }
   var keys = [];
   function checkKeys(){
-   if(keys[38]) {websock.send('COMMAND=w\\n');}
-   if(keys[40]) {websock.send('COMMAND=s\\n');}
-   if(keys[37]) {websock.send('COMMAND=a\\n');}
-   if(keys[39]) {websock.send('COMMAND=d\\n');}
-   if(!keys[38] && !keys[40] && !keys[37] && !keys[39]){websock.send('COMMAND=f\\n');}
+   if(keys[38]) {websock.send('COMMAND=w\n');}
+   if(keys[40]) {websock.send('COMMAND=s\n');}
+   if(keys[37]) {websock.send('COMMAND=a\n');}
+   if(keys[39]) {websock.send('COMMAND=d\n');}
+   if(!keys[38] && !keys[40] && !keys[37] && !keys[39]){websock.send('COMMAND=f\n');}
   }
   document.addEventListener('keydown', function(event){
-   keys[event.keyCode] = true;
-   checkKeys();
+    if(event.repeat){return;}
+   if(event.keyCode == 37 || event.keyCode == 38 || event.keyCode == 39 || event.keyCode == 40){
+    keys[event.keyCode] = true;
+    checkKeys();
+   }
   });
   document.addEventListener('keyup', function(event){
-   keys[event.keyCode] = false;
-   checkKeys();
+    if(event.keyCode == 37 || event.keyCode == 38 || event.keyCode == 39 || event.keyCode == 40){
+      keys[event.keyCode] = false;
+      checkKeys();
+    }
   });
   function search(){
    if(event.keyCode == 13) {button()};
