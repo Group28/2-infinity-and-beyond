@@ -18,7 +18,6 @@
 
 
 
-
 int main(void)
 {
 	/* Configure the system clock to 84 MHz */
@@ -50,4 +49,11 @@ int main(void)
   while (1)
   {
 	}
+	free(encoderLeft);
+	free(encoderRight);
+	free(motors);
+	free(lcd);
+	free(usb);
+	free(esp);
+	return 0;
 }
