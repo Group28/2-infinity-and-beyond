@@ -1,9 +1,15 @@
 
 
 #include <ESP8266WiFi.h>
+#include <WiFiClient.h> 
 #include <WebSocketsServer.h>
 #include <ESP8266WebServer.h>
 #include <SimpleTimer.h>
+
+
+// If defned, configures the ESP in clinent mode
+// Comment out for AP mode
+#define CLIENT
 
 const char* ssid     = "Your Mum!";
 const char* password = "nPHFPSfDRRfedqaYQyZcdXJLaJa1uuNAkwtQQDBntOQ=";
@@ -118,20 +124,28 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t wsleng
 
 void setup() {
   Serial.begin(115200); 
-  //pinMode(LED,OUTPUT);
+
   WiFi.hostname("buggy28");
+
+#ifdef CLIENT
+  
+  // Set up WIFI in clinet mode
   WiFi.begin(ssid,password);
   while(WiFi.status()!=WL_CONNECTED){
     //Serial.print(".");
     delay(500);
   }
   WiFi.mode(WIFI_STA);
-  //Serial.print("\nConnected to ");
-  //Serial.println(ssid);
-  //Serial.print("Station IP address = ");
-  //Serial.println(WiFi.localIP());
 
+#else
   
+  // Set up WIFI in AP mode  
+  WiFi.softAP(ssid,password);
+  IPAddress myIP = WiFi.softAPIP();
+  Serial.print("AP IP address: ");
+  Serial.println(myIP);
+  
+#endif
   
   server.on("/",handleWebsite);
   server.begin();
