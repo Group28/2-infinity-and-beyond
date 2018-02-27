@@ -1,7 +1,7 @@
 #include "Motors.h"
 
 #include "main.h"
-
+#include "configuration.h"
 #include <stdbool.h>
 #include <stdlib.h>
 #include "math.h"
@@ -9,7 +9,7 @@
 
 Motor * Motor_init(PID_Values values, Encoder * encoder){
 	Motor * motor = (Motor*) malloc(sizeof(Motor));
-	motor->pid = PID_init(values);
+	motor->pid = PID_init(values, MOTOR_SAMPLE_FREQ, -1,1);
 	motor->speed = 0;
 	
 	motor->encoder = encoder;
@@ -27,7 +27,7 @@ Motors * Motors_init(PID_Values valuesL, PID_Values valuesR, Encoder * encL, Enc
 }
 
 void Motor_Left_PID_action(Motor * motor){
-	double realSpeed =  Encoder_getSpeed(motor->encoder);
+	//double realSpeed =  Encoder_getSpeed(motor->encoder);
 }
 
 void Motor_Right_PID_action(Motor * motor){

@@ -1,6 +1,5 @@
 #include  "System_Functions.h"
-
-static volatile uint32_t SysTick_ticks;
+#include "stm32f4xx_it.h"
 
 /**
   *         The system Clock is configured as follow :
@@ -61,19 +60,17 @@ void SystemClock_Config(void)
   * @param  None
   * @retval None
   */
-void SysTick_Handler(void)
-{
-	SysTick_ticks++;
-}
+
+
 
 void delay_us(uint32_t t){
 	uint32_t start, end;
-	start = SysTick_ticks;
-	end = start + end;
+	start = micros();
+	end = start + t;
 	if(start < end){
-		while((SysTick_ticks >= start) && (SysTick_ticks < end));
+		while((micros() >= start) && (micros() < end));
 	} else {
-		while((SysTick_ticks >= start) || (SysTick_ticks < end));
+		while((micros() >= start) || (micros() < end));
 	}
 }
 
@@ -84,12 +81,5 @@ void delay_ms(uint32_t t){
 }
 
 void delay(double t){
-	uint32_t seconds = (uint32_t) t;
-	uint32_t ms = (uint32_t)(t - seconds)*1000;
-	uint32_t us = (uint32_t)(t - seconds - ms/1000.0)*1000000;
-	for(uint32_t i = 0; i< seconds; i++){
-		delay_ms(1000);
-	}
-	delay_ms(ms);
-	delay_us(us);
+	delay_ms((uint32_t) (t*1000.0));
 }

@@ -1,5 +1,6 @@
 #include "IO.h"
 #include "configuration.h"
+#include "main.h"
 
 void IO_init(void){
 	LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOA); // Enable CLK to GPIOA
@@ -43,15 +44,11 @@ void IO_init(void){
 }
 
 void IO_Output_init(GPIO_TypeDef * port, uint32_t pin){
-	LL_GPIO_InitTypeDef gpio_struct;
 	
-	gpio_struct.Pin = pin;
-	gpio_struct.Mode = LL_GPIO_MODE_OUTPUT;
-	gpio_struct.Speed = LL_GPIO_SPEED_FREQ_VERY_HIGH;
-	gpio_struct.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
-	gpio_struct.Pull = LL_GPIO_PULL_NO;
-	
-	LL_GPIO_Init(port, &gpio_struct);
+	LL_GPIO_SetPinMode(port, pin, LL_GPIO_MODE_OUTPUT);
+	LL_GPIO_SetPinSpeed(port, pin, LL_GPIO_SPEED_FREQ_VERY_HIGH);
+	LL_GPIO_SetPinOutputType(port, pin, LL_GPIO_OUTPUT_PUSHPULL);
+	LL_GPIO_SetPinPull(port,pin, LL_GPIO_PULL_NO);
 	
 }
 
@@ -74,8 +71,8 @@ void IO_initMotors(void){
 	
 	// Set the default mode of motors
 	if(DEFAULT_MOTOR_MODE){
-		LL_GPIO_SetPinMode(IO_MOTOR_1_BP);
-		LL_GPIO_SetPinMode(IO_MOTOR_2_BP);
+		LL_GPIO_SetOutputPin(IO_MOTOR_1_BP);
+		LL_GPIO_SetOutputPin(IO_MOTOR_2_BP);
 	} else {
 		LL_GPIO_ResetOutputPin(IO_MOTOR_1_BP);
 		LL_GPIO_ResetOutputPin(IO_MOTOR_2_BP);
@@ -211,12 +208,12 @@ void IO_initEncoders(void){
 }
 
 void IO_initAnalogueSensors(void){
-	LL_ADC_InitTypeDef ADC_InitStruct;
-	LL_GPIO_InitTypeDef ADC_GPIO_InitStruct;
-	ADC_GPIO_InitStruct.Pin = IO_ALL_SENSORS;
-	ADC_GPIO_InitStruct.Mode = LL_GPIO_MODE_ANALOG;
-	ADC_GPIO_InitStruct.Pull = LL_GPIO_PULL_NO;
-	LL_GPIO_Init(GPIOC, &ADC_GPIO_InitStruct);
+	//LL_ADC_InitTypeDef ADC_InitStruct;
+	//LL_GPIO_InitTypeDef ADC_GPIO_InitStruct;
+	//ADC_GPIO_InitStruct.Pin = IO_ALL_SENSORS;
+	//ADC_GPIO_InitStruct.Mode = LL_GPIO_MODE_ANALOG;
+	//ADC_GPIO_InitStruct.Pull = LL_GPIO_PULL_NO;
+	//LL_GPIO_Init(GPIOC, &ADC_GPIO_InitStruct);
 	
 }
 
@@ -245,20 +242,20 @@ void IO_initLCD(void){
 	/* Configure SCK Pin */
 
   LL_GPIO_SetPinMode(  IO_LCD_SCK, LL_GPIO_MODE_ALTERNATE);
-  LL_GPIO_SetAFPin_8_15(IO_LCD_SCK, LL_GPIO_AF_6);
+  LL_GPIO_SetAFPin_0_7(IO_LCD_SCK, LL_GPIO_AF_5);
   LL_GPIO_SetPinSpeed( IO_LCD_SCK, LL_GPIO_SPEED_FREQ_VERY_HIGH);
   LL_GPIO_SetPinPull(  IO_LCD_SCK, LL_GPIO_PULL_DOWN);
 
   /* Configure MOSI Pin */
 
   LL_GPIO_SetPinMode(  IO_LCD_MOSI, LL_GPIO_MODE_ALTERNATE);
-  LL_GPIO_SetAFPin_8_15(IO_LCD_MOSI, LL_GPIO_AF_6);
+  LL_GPIO_SetAFPin_0_7(IO_LCD_MOSI, LL_GPIO_AF_5);
   LL_GPIO_SetPinSpeed( IO_LCD_MOSI, LL_GPIO_SPEED_FREQ_VERY_HIGH);
   LL_GPIO_SetPinPull(  IO_LCD_MOSI, LL_GPIO_PULL_DOWN);
 	
 	/* Configure MISO Pin */
 	LL_GPIO_SetPinMode(  IO_LCD_MISO, LL_GPIO_MODE_ALTERNATE);
-  LL_GPIO_SetAFPin_8_15(IO_LCD_MISO, LL_GPIO_AF_6);
+  LL_GPIO_SetAFPin_0_7(IO_LCD_MISO, LL_GPIO_AF_5);
   LL_GPIO_SetPinSpeed( IO_LCD_MISO, LL_GPIO_SPEED_FREQ_VERY_HIGH);
   LL_GPIO_SetPinPull(  IO_LCD_MISO, LL_GPIO_PULL_DOWN);
 	

@@ -23,10 +23,9 @@ typedef struct {
 
 
 
-Motor * Motor_Left_init(PID_Values values);
-Motor * Motor_Right_init(PID_Values values);
+Motor * Motor_init(PID_Values values, Encoder * encoder);
 
-Motors * Motors_init(PID_Values valuesM1, PID_Values valuesM2);
+Motors * Motors_init(PID_Values valuesL, PID_Values valuesR, Encoder * encL, Encoder * encR);
 
 
 

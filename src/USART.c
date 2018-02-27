@@ -27,8 +27,7 @@ USART *  USART_ESP_init(void){
   USART * usart = malloc(sizeof(USART));
   usart->usart = USART6;
     /* Enable USART peripheral clock and clock source ***********************/
-  LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_USART6);
-
+  LL_APB1_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_USART6);
   /* Configure USART functional parameters ********************************/
   /* Note: Commented as corresponding to Reset value */
   LL_USART_Disable(USART6);

@@ -40,8 +40,9 @@
 #define __MAIN_H
 
 
-#define STM32F401xE
 /* Includes ------------------------------------------------------------------*/
+#include "stm32f4xx.h"
+
 
 /* LL drivers common to all LL examples */
 #include "stm32f4xx_ll_bus.h"
