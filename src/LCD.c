@@ -20,22 +20,22 @@ LCD * LCD_init(void){
 	LL_mDelay(1);
 	__LCD_reset(1)
 	LL_mDelay(5);
-  __LCD_writeCommand(0xAE);   //  display off
-  __LCD_writeCommand(0xA2);   //  bias voltage
+  __LCD_writeCommand(__LCD_CMD_DISPLAY_OFF);   //  display off
+  __LCD_writeCommand(__LCD_CMD_LCD_BIAS_1_9);   //  bias voltage
  
-  __LCD_writeCommand(0xA0);
-  __LCD_writeCommand(0xC8);   //  column normal
+  __LCD_writeCommand(__LCD_CMD_ADC_NORMAL);
+  __LCD_writeCommand(__LCD_CMD_COMMON_OUT_REVERSE);   //  column normal
  
-  __LCD_writeCommand(0x22);   //  voltage resistor ratio
-  __LCD_writeCommand(0x2F);   //  power on
+  __LCD_writeCommand(__LCD_CMD_RESISTOR_RATIO | 0x02);   //  voltage resistor ratio
+  __LCD_writeCommand(__LCD_CMD_PWR_MODE | 0x07);   //  power on
 
-  __LCD_writeCommand(0x40);   //  start line = 0
-  __LCD_writeCommand(0xAF);   //  display ON
+  __LCD_writeCommand(__LCD_CMD_DISPLAY_SL);   //  start line = 0
+  __LCD_writeCommand(__LCD_CMD_DISPLAY_ON);   //  display ON
  
-  __LCD_writeCommand(0x81);   //  set contrast
+  __LCD_writeCommand(__LCD_CMD_CONTRAST);   //  set contrast
   __LCD_writeCommand(0x17);   //  set contrast
  
-  __LCD_writeCommand(0xA6);   // display normal	
+  __LCD_writeCommand(__LCD_CMD_DISP_NORMAL);   // display normal	
   return lcd;
 }
 
@@ -170,15 +170,12 @@ void LCD_pixel(LCD* lcd, uint8_t x, uint8_t y, uint8_t color)
       lcd->buffer[x] |= (1  << (y%32));   // set pixel
 }
 
+
 void LCD_setContrast(LCD* lcd, unsigned int o)
 {
-    Write_Command_To_LCD(0x81);      
+    Write_Command_To_LCD(__LCD_CMD_CONTRAST);      
     Write_Command_To_LCD(o & 0x3F);
 }
-
-
-
-
 
 void LCD_fillPage(LCD* lcd, unsigned char Page){
 	if(Page == 0){  //Line 1
@@ -205,62 +202,36 @@ void LCD_fillPage(LCD* lcd, unsigned char Page){
 }
 
 
-void __LCD_copyDataBuffer(LCD * lcd)
-{    
-    //To set 8-bit column address data will start, the address is split into 2 nibbles
-	  //to send the lower nibble, 0x0 then the lower nibble of the 8 bit address, so nibble of 0 would be 0x00
-	  //to send the higher nibble 0x1 then the higher nibble of the 8 bit address, so nibble of 0 would be 0x10
-	  //to set the column start to 0, send 0x00 then 0x10
-	
-	  int i=0;
-	  
-	  // Page 0
-    __LCD_writeCommand(0x00);      // set column low nibble to 0  
-    __LCD_writeCommand(0x10);      // set column hi nibble to 0
-    __LCD_writeCommand(0xB0);      // set page address  0
-    for(i=0; i<32; i++) {
-        __LCD_writeData(lcd->buffer[i]);
-    }
- 
-    // Page 1
-    __LCD_writeCommand(0x00);      // set column low nibble to 0
-    __LCD_writeCommand(0x10);      // set column hi nibble to 0
-    __LCD_writeCommand(0xB1);      // set page address  1
-    for(i=32; i<64; i++) {
-        __LCD_writeData(lcd->buffer[i]);
-    }
-
-    //Page 2
-    __LCD_writeCommand(0x00);      // set column low nibble to 0
-    __LCD_writeCommand(0x10);      // set column hi nibble to 0
-    __LCD_writeCommand(0xB2);      // set page address  2
-    for(i=64; i<96; i++) {
-        __LCD_writeData(lcd->buffer[i]);
-    }
- 
-    //Page 3
-    __LCD_writeCommand(0x00);      // set column low nibble to 0
-    __LCD_writeCommand(0x10);      // set column hi nibble to 0
-    __LCD_writeCommand(0xB3);      // set page address  3
- 
-    __LCD_chipSelect(1);
+void __LCD_copyDataBuffer(LCD * lcd) {   
+  
+  // Loop through all pages
+  for(uint8_t page = 0; page < 4; page++){
+    __LCD_writeCommand(__LCD_CMD_LOWER_BIT | 0x00);
+    __LCD_writeCommand(__LCD_CMD_UPPER_BIT | 0x00);
+    __LCD_writeCommand(__LCD_CMD_PAGE_ADDR | page);
     
-    for(i=96; i<128; i++) {
-        __LCD_writeData(lcd->buffer[i]);
+    // Copy the local buffer to the 
+    for(uint16_t bufferIndex = 0; bufferIndex < 32; bufferIndex++){
+      __LCD_writeData(lcd->buffer[32 * page + bufferIndex] & 0xF000 >> 24);
+      __LCD_writeData(lcd->buffer[32 * page + bufferIndex] & 0x0F00 >> 16);
+      __LCD_writeData(lcd->buffer[32 * page + bufferIndex] & 0x00F0 >> 8);
+      __LCD_writeData(lcd->buffer[32 * page + bufferIndex] & 0x000F >> 0);
     }
+  }
+  
+  // End transmission
+  __LCD_writeCommand(__LCD_CMD_END);
 }
 
 
-void __LCD_writeData(unsigned char data)
-{
+void __LCD_writeData(unsigned char data) {
     __LCD_data;
     __LCD_chipSelect(0);
 	  __LCD_SPI_SendByte(data);
     __LCD_chipSelect(1);
 }
 
-void __LCD_writeCommand(unsigned char command)
-{
+void __LCD_writeCommand(unsigned char command) {
     __LCD_instruction;
     __LCD_chipSelect(0);
 	  __LCD_SPI_SendByte(command);
