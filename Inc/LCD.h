@@ -31,7 +31,7 @@ int      LCD_rows         (LCD* lcd);
 int      LCD_width        (LCD* lcd);
 int      LCD_height       (LCD* lcd);
 void     LCD_setFont      (LCD* lcd, unsigned char* f);
-void     LCD_character    (LCD* lcd, uint8_t x, uint8_t y, int c);
+void     LCD_character    (LCD* lcd, uint8_t x, uint8_t y, char c);
 int      LCD_putc         (LCD* lcd, char);
 int      LCD_puts         (LCD* lcd, uint8_t x, uint8_t y, char* stringToSend);
 int      LCD_printf       (LCD* lcd, const char *format, ...);
@@ -40,13 +40,13 @@ int      LCD_printf       (LCD* lcd, const char *format, ...);
 #define  __LCD_reset(x) if(x)                                   \
                           LL_GPIO_SetOutputPin(IO_LCD_RESET);   \
                         else                                    \
-                          LL_GPIO_ResetOutputPin(IO_LCD_RESET)
+                          LL_GPIO_ResetOutputPin(IO_LCD_RESET);
                         
 
 #define  __LCD_chipSelect(x) if(x)                             \
                           LL_GPIO_SetOutputPin(IO_LCD_nCS);    \
                          else                                  \
-                          LL_GPIO_ResetOutputPin(IO_LCD_nCS)
+                          LL_GPIO_ResetOutputPin(IO_LCD_nCS);
                         
                   
 

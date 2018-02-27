@@ -1,25 +1,48 @@
 #include "LCD.h"
+#include "configuration.h"
+#include "System_Functions.h"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <stdarg.h>
 
 
 
 LCD * LCD_init(void){
-  LCD* lcd = malloc(sizeof(LCD));
-  memset(lcd->buffer, 0x00, LCD_BUFFER_SIZE);
+  LCD* lcd = (LCD*)malloc(sizeof(LCD));
+	//lcd->buffer = (uint32_t*)calloc(LCD_BUFFER_SIZE, sizeof(uint32_t));
+  memset(lcd->buffer, 0x00, sizeof(lcd->buffer[0])*LCD_BUFFER_SIZE);
+	
   lcd->char_x = 0;
   lcd->char_y = 0;
   lcd->orientation=0;
   
   __LCD_SPI_init();
-  __LCD_SPI_Activate();
+  __LCD_SPI_activate();
   
 	__LCD_instruction;
-	__LCD_reset(0)
-	LL_mDelay(1);
-	__LCD_reset(1)
-	LL_mDelay(5);
+	__LCD_reset(0);
+	delay_ms(1);
+	__LCD_reset(1);
+	delay_ms(5);
+	
+	 __LCD_writeCommand(0xAE);   //  display off
+  __LCD_writeCommand(0xA2);   //  bias voltage
+ 
+  __LCD_writeCommand(0xA0);
+  __LCD_writeCommand(0xC8);   //  column normal
+ 
+  __LCD_writeCommand(0x22);   //  voltage resistor ratio
+  __LCD_writeCommand(0x2F);   //  power on
+
+  __LCD_writeCommand(0x40);   //  start line = 0
+  __LCD_writeCommand(0xAF);   //  display ON
+ 
+  __LCD_writeCommand(0x81);   //  set contrast
+  __LCD_writeCommand(0x17);   //  set contrast
+ 
+  __LCD_writeCommand(0xA6);   // display normal	
+	/*
   __LCD_writeCommand(__LCD_CMD_DISPLAY_OFF);   //  display off
   __LCD_writeCommand(__LCD_CMD_LCD_BIAS_1_9);   //  bias voltage
  
@@ -36,7 +59,8 @@ LCD * LCD_init(void){
   __LCD_writeCommand(0x17);   //  set contrast
  
   __LCD_writeCommand(__LCD_CMD_DISP_NORMAL);   // display normal	
-  return lcd;
+  */
+	return lcd;
 }
 
 int LCD_printf(LCD* lcd, const char *format, ...){
@@ -45,10 +69,10 @@ int LCD_printf(LCD* lcd, const char *format, ...){
   va_start(argptr, format);
   vsprintf(outputString, format, argptr);
   va_end(argptr);
-  LCD_puts(lcd, lcd->char_x, lcd->char_y, outputString);
+  return LCD_puts(lcd, lcd->char_x, lcd->char_y, outputString);
 }
 
-int LCD_puts(LCD* lcd, int x, int y, char* stringToSend){
+int LCD_puts(LCD* lcd, uint8_t x, uint8_t y, char* stringToSend){
 	LCD_locate(lcd, x,y);
 	int width_of_font = lcd->font[1]-1;
 	int length = strlen(stringToSend);
@@ -61,7 +85,7 @@ int LCD_puts(LCD* lcd, int x, int y, char* stringToSend){
 }
 
 
-int LCD_putc(LCD* lcd, int value)
+int LCD_putc(LCD* lcd, char value)
 {
     if (value == '\n') {    // new line
         lcd->char_x = 0;
@@ -76,7 +100,7 @@ int LCD_putc(LCD* lcd, int value)
     return value;
 }
  
-void LCD_character(LCD* lcd, int x, int y, int c)
+void LCD_character(LCD* lcd, uint8_t x, uint8_t y, char c)
 {
     unsigned int hor,vert,offset,bpl,j,i,b;
     unsigned char* symbol;
@@ -92,7 +116,7 @@ void LCD_character(LCD* lcd, int x, int y, int c)
  
     if (lcd->char_x + hor > LCD_width(lcd)) {
         lcd->char_x = 0;
-        lcd->char_y = += vert;
+        lcd->char_y += vert;
         if (lcd->char_y >= LCD_height(lcd) - lcd->font[2]) {
             lcd->char_y = 0;
         }
@@ -106,9 +130,9 @@ void LCD_character(LCD* lcd, int x, int y, int c)
             z =  symbol[bpl * i + ((j & 0xF8) >> 3)+1];
             b = 1 << (j & 0x07);
             if (( z & b ) == 0x00) {
-                LCD_pixel(x+i,y+j,0);
+                LCD_pixel(lcd, x+i,y+j,0);
             } else {
-                LCD_pixel(x+i,y+j,1);
+                LCD_pixel(lcd, x+i,y+j,1);
             }
  
         }
@@ -121,7 +145,7 @@ void LCD_character(LCD* lcd, int x, int y, int c)
 
 void LCD_setFont(LCD* lcd, unsigned char* f)
 {
-    lcd->font = f;
+    lcd->font = &f[0];
 }
 
 int LCD_width(LCD* lcd)
@@ -148,7 +172,7 @@ int LCD_rows(LCD* lcd)
     return LCD_height(lcd) / lcd->font[2];
 }
 
-void LCD_locate(LCD* lcd, int x, int y)
+void LCD_locate(LCD* lcd, uint8_t x, uint8_t y)
 {
     lcd->char_x = x;
     lcd->char_y = y;
@@ -163,7 +187,7 @@ void LCD_cls(LCD* lcd){
  
 void LCD_pixel(LCD* lcd, uint8_t x, uint8_t y, uint8_t color)
 {
-    if(x > 128 || y > 32 || x < 0 || y < 0) return;
+    if(x > 128 || y > 32) return;
     if(color == 0)
       lcd->buffer[x] &= ~(1 << (y%32));  // erase pixel
     else
@@ -173,29 +197,29 @@ void LCD_pixel(LCD* lcd, uint8_t x, uint8_t y, uint8_t color)
 
 void LCD_setContrast(LCD* lcd, unsigned int o)
 {
-    Write_Command_To_LCD(__LCD_CMD_CONTRAST);      
-    Write_Command_To_LCD(o & 0x3F);
+    __LCD_writeCommand(__LCD_CMD_CONTRAST);      
+    __LCD_writeCommand(o & 0x3F);
 }
 
 void LCD_fillPage(LCD* lcd, unsigned char Page){
 	if(Page == 0){  //Line 1
 		for(int i=0;i<32;i++){
-			lcd->buffer[i] = 0xffff;
+			lcd->buffer[i] = 0xffffffff;
 		}
 	}
 	if(Page == 1){  //Line 2
 		for(int i=32;i<64;i++){
-			lcd->buffer[i] = 0xffff;
+			lcd->buffer[i] = 0xffffffff;
 		}
 	}
 	if(Page == 2){  //Line 3
 		for(int i=64;i<96;i++){
-			lcd->buffer[i] = 0xffff;
+			lcd->buffer[i] = 0xffffffff;
 		}
 	}
 	if(Page == 3){  //Line 4
 		for(int i=96;i<128;i++){
-			lcd->buffer[i] = 0xffff;
+			lcd->buffer[i] = 0xffffffff;
 		}
 	}
 	__LCD_copyDataBuffer(lcd);
@@ -224,56 +248,71 @@ void __LCD_copyDataBuffer(LCD * lcd) {
 }
 
 
+
 void __LCD_writeData(unsigned char data) {
     __LCD_data;
     __LCD_chipSelect(0);
-	  __LCD_SPI_SendByte(data);
+	  __LCD_SPI_sendByte(data);
     __LCD_chipSelect(1);
 }
 
 void __LCD_writeCommand(unsigned char command) {
     __LCD_instruction;
     __LCD_chipSelect(0);
-	  __LCD_SPI_SendByte(command);
+	  __LCD_SPI_sendByte(command);
     __LCD_chipSelect(1);
 }
 
-void __LCD_SPI_SendByte(uint8_t byte){
-		//LL_GPIO_ResetOutputPin(GPIOB, LL_GPIO_PIN_6);
-	  //while(LL_SPI_IsActiveFlag_BSY(SPI1))
+void __LCD_SPI_sendByte(uint8_t byte){
+		/*
+	  while(!LL_SPI_IsActiveFlag_TXE(SPI3)){}
+			
 		LL_SPI_TransmitData8(SPI3, (unsigned char)byte);
-		while(LL_SPI_IsActiveFlag_BSY(SPI3));
-	  //LL_GPIO_SetOutputPin(GPIOB, LL_GPIO_PIN_6);
+			
+		while(LL_SPI_IsActiveFlag_BSY(SPI3)){}
+		*/
+		LL_SPI_TransmitData8(SPI1, (unsigned char)byte);
+		while(LL_SPI_IsActiveFlag_BSY(SPI1));
 }
 
 void __LCD_SPI_init(void){
 
 
-	//NVIC_SetPriority(SPI1_IRQn, 0);
-  //NVIC_EnableIRQ(SPI1_IRQn);
+	//NVIC_SetPriority(SPI3_IRQn, 10);
+  //NVIC_EnableIRQ(SPI3_IRQn);
 	
-	LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_SPI3);
+	LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_SPI1);
 
   /* Configure SPI1 communication */
-  LL_SPI_SetBaudRatePrescaler(SPI3, LL_SPI_BAUDRATEPRESCALER_DIV8);
-  LL_SPI_SetTransferDirection(SPI3,LL_SPI_HALF_DUPLEX_TX);
-  LL_SPI_SetClockPhase(SPI3, LL_SPI_PHASE_2EDGE);
-  LL_SPI_SetClockPolarity(SPI3, LL_SPI_POLARITY_HIGH);
+  LL_SPI_SetBaudRatePrescaler(SPI1, LL_SPI_BAUDRATEPRESCALER_DIV256);
+  LL_SPI_SetTransferDirection(SPI1,LL_SPI_HALF_DUPLEX_TX);
+  LL_SPI_SetClockPhase(SPI1, LL_SPI_PHASE_2EDGE);
+  LL_SPI_SetClockPolarity(SPI1, LL_SPI_POLARITY_HIGH);
   
 	/* Reset value is LL_SPI_MSB_FIRST */
   //LL_SPI_SetTransferBitOrder(SPI1, LL_SPI_MSB_FIRST);
-  LL_SPI_SetDataWidth(SPI3, LL_SPI_DATAWIDTH_8BIT);
-  LL_SPI_SetNSSMode(SPI3, LL_SPI_NSS_SOFT); //Chip select handled by software
-  LL_SPI_SetMode(SPI3, LL_SPI_MODE_MASTER);
+  LL_SPI_SetDataWidth(SPI1, LL_SPI_DATAWIDTH_8BIT);
+  LL_SPI_SetNSSMode(SPI1, LL_SPI_NSS_SOFT); //Chip select handled by software
+  LL_SPI_SetMode(SPI1, LL_SPI_MODE_MASTER);
 	
 	/* Configure SPI1 transfer interrupts */
   /* Enable TXE   Interrupt */
-  //LL_SPI_EnableIT_TXE(SPI1);
+  //LL_SPI_EnableIT_TXE(SPI3);
   /* Enable SPI1 Error Interrupt */
-  //LL_SPI_EnableIT_ERR(SPI1);
+  //LL_SPI_EnableIT_ERR(SPI3);
 }
 
-void __LCD_SPI_Activate(void){
+void __LCD_SPI_activate(void){
 	/* Enable SPI1 */
-  LL_SPI_Enable(SPI3);
+  LL_SPI_Enable(SPI1);
+}
+
+
+void SPI1_IRQHandler(void)
+{
+  /* Check RXNE flag value in ISR register */
+  if(LL_SPI_IsActiveFlag_TXE(SPI1))
+  {
+	//	//LL_GPIO_SetOutputPin(GPIOB, LL_GPIO_PIN_6);
+  }
 }
