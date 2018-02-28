@@ -7,11 +7,20 @@
 #include <stdarg.h>
 
 
+static struct {
+	unsigned char * buffer;
+	uint32_t length;
+	uint32_t ready;
+} SPI_TX_BUFFER;
+
+
 
 LCD * LCD_init(void){
   LCD* lcd = (LCD*)malloc(sizeof(LCD));
 	//lcd->buffer = (uint32_t*)calloc(LCD_BUFFER_SIZE, sizeof(uint32_t));
   memset(lcd->buffer, 0x00, sizeof(lcd->buffer[0])*LCD_BUFFER_SIZE);
+	
+	//SPI_TX_BUFFER.buffer = lcd->buffer; 
 	
   lcd->char_x = 0;
   lcd->char_y = 0;
@@ -178,11 +187,11 @@ void LCD_cls(LCD* lcd){
  
 void LCD_pixel(LCD* lcd, uint8_t x, uint8_t y, uint8_t color)
 {
-    if(x >= 128 || y >= 32) return;
+		if(x >= 128 || y >= 32) return;
     if(color == 0)
-      lcd->buffer[x] &= ~(1 << (y));  // erase pixel
+      lcd->buffer[x + ((y/8) * 128)] &= ~(1 << (y%8));  // erase pixel
     else
-      lcd->buffer[x] |= (1  << (y));   // set pixel
+      lcd->buffer[x + ((y/8) * 128)] |= (1  << (y%8));
 }
 
 
@@ -194,23 +203,23 @@ void LCD_setContrast(LCD* lcd, unsigned int o)
 
 void LCD_fillPage(LCD* lcd, unsigned char Page){
 	if(Page == 0){  //Line 1
-		for(int i=0;i<32;i++){
-			lcd->buffer[i] = 0xffffffff;
+		for(int i=0;i<128;i++){
+			lcd->buffer[i] = 0xff;
 		}
 	}
 	if(Page == 1){  //Line 2
-		for(int i=32;i<64;i++){
-			lcd->buffer[i] = 0xffffffff;
+		for(int i=128;i<256;i++){
+			lcd->buffer[i] = 0xff;
 		}
 	}
 	if(Page == 2){  //Line 3
-		for(int i=64;i<96;i++){
-			lcd->buffer[i] = 0xffffffff;
+		for(int i=256;i<384;i++){
+			lcd->buffer[i] = 0xff;
 		}
 	}
 	if(Page == 3){  //Line 4
-		for(int i=96;i<128;i++){
-			lcd->buffer[i] = 0xffffffff;
+		for(int i=384;i<512;i++){
+			lcd->buffer[i] = 0xff;
 		}
 	}
 	__LCD_copyDataBuffer(lcd);
@@ -227,7 +236,7 @@ void __LCD_copyDataBuffer(LCD * lcd) {
     
     // Copy the local buffer to the 
     for(uint8_t bufferIndex = 0; bufferIndex < 128; bufferIndex++){
-      __LCD_writeData((lcd->buffer[bufferIndex] & (0xFF << (8 * page))) >> 8 * page);
+      __LCD_writeData(lcd->buffer[128*page + bufferIndex]);
     }
   }
   
@@ -272,7 +281,7 @@ void __LCD_SPI_init(void){
 	LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_SPI1);
 
   /* Configure SPI1 communication */
-  LL_SPI_SetBaudRatePrescaler(SPI1, LL_SPI_BAUDRATEPRESCALER_DIV2);
+  LL_SPI_SetBaudRatePrescaler(SPI1, LL_SPI_BAUDRATEPRESCALER_DIV16);
   LL_SPI_SetTransferDirection(SPI1,LL_SPI_HALF_DUPLEX_TX);
   LL_SPI_SetClockPhase(SPI1, LL_SPI_PHASE_2EDGE);
   LL_SPI_SetClockPolarity(SPI1, LL_SPI_POLARITY_HIGH);
