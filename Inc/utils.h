@@ -1,5 +1,8 @@
 #include "main.h"
 
+#ifndef __UTILS_H
+#define __UTILS_H
+
 typedef struct {
 	unsigned char *buffer;
 	uint32_t length;
@@ -7,3 +10,10 @@ typedef struct {
 	uint8_t send;
 } Buffer;
 
+
+void delay_us(uint32_t);
+void delay_ms(uint32_t);
+void delay(double);
+
+
+#endif

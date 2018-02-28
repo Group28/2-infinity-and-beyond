@@ -40,7 +40,6 @@
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f4xx_it.h"
 
-static volatile uint32_t SysTick_ticks;
 
 /** @addtogroup STM32F4xx_LL_Examples
   * @{
@@ -151,15 +150,6 @@ void PendSV_Handler(void)
 }
 
 
-void SysTick_Handler(void)
-{
-	SysTick_ticks++;
-}
-
-
-uint32_t micros(void){
-	return SysTick_ticks;
-}
 
 
 /******************************************************************************/
