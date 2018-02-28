@@ -83,3 +83,8 @@ void delay_ms(uint32_t t){
 void delay(double t){
 	delay_ms((uint32_t) (t*1000.0));
 }
+
+
+uint32_t System_micros(void){
+	return micros();
+}

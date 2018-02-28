@@ -23,8 +23,10 @@ LCD*     LCD_init(void);
 
 void     LCD_fillPage     (LCD* lcd, unsigned char);
 void     LCD_pixel        (LCD* lcd, uint8_t x,uint8_t y, uint8_t colour);
+void     LCD_pixel_buffer (LCD* lcd, uint8_t x,uint8_t y, uint8_t colour);
 void     LCD_setContrast  (LCD* lcd, unsigned int o);
 void     LCD_cls          (LCD* lcd);
+void     LCD_cls_buffer   (LCD* lcd);
 void     LCD_locate       (LCD* lcd, uint8_t x, uint8_t y);
 int      LCD_columns      (LCD* lcd);
 int      LCD_rows         (LCD* lcd);
@@ -33,9 +35,13 @@ int      LCD_height       (LCD* lcd);
 void     LCD_setFont      (LCD* lcd, unsigned char* f);
 void     LCD_character    (LCD* lcd, uint8_t x, uint8_t y, char c);
 int      LCD_putc         (LCD* lcd, char);
+int      LCD_putc_buffer  (LCD* lcd, char);
 int      LCD_puts         (LCD* lcd, uint8_t x, uint8_t y, char* stringToSend);
+int      LCD_puts_buffer  (LCD* lcd, uint8_t x, uint8_t y, char* stringToSend);
 int      LCD_printf       (LCD* lcd, const char *format, ...);
+int      LCD_printf_buffer(LCD* lcd, const char *format, ...);
 
+void		 LCD_flushBuffer	(LCD* lcd);
 
 #define  __LCD_reset(x) if(x)                                   \
                           LL_GPIO_SetOutputPin(IO_LCD_RESET);   \
