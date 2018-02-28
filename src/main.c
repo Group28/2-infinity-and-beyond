@@ -16,7 +16,6 @@
 #include "Encoders.h"
 #include "LCD.h"
 #include "USART.h"
-
 #include "smallfont.h"
 
 
@@ -36,32 +35,50 @@ int main(void)
 	// Initialize peripherals
 	//Motors * motors;
 	//Encoder * encoderLeft, encoderRight;
-	//LCD * lcd;
+	LCD * lcd;
 	//USART * usb, esp;
 	
 	//encoderLeft = Encoder_init(TIM5, 1/MOTOR_SAMPLE_FREQ);
 	//encoderRight = Encoder_init(TIM2, 1/MOTOR_SAMPLE_FREQ);
 	//motors = Motors_init(motorLeft, motorRight, encoderLeftPID, encoderRightPID);
-	//lcd = LCD_init();
+	lcd = LCD_init();
 	//usb = USART_USB_init();
 	//esp = USART_ESP_init();
 	
-	//LCD_setFont(lcd, (unsigned char *)SmallFont);
+	LCD_setFont(lcd, (unsigned char *)SmallFont);
 	
   /* Infinite loop */
+	int counter =0;
+  uint32_t lastus = System_micros();
+	uint32_t cycles = 0;
+	char outputString[18];
   while (1)
   {
-		LL_GPIO_SetOutputPin(GPIOC, LL_GPIO_PIN_7);
-
 		
-
-		//LCD_puts(lcd, 0, 0, "Hello World");
-		//LCD_fillPage(lcd, 1);
-		delay_us(1000000);
-		//LCD_cls(lcd);
-		LL_GPIO_ResetOutputPin(GPIOC, LL_GPIO_PIN_7);
 		
-		delay_us(1000000);
+		//
+		if(lastus+1000000 > lastus){
+			if(lastus+1000000 < System_micros()){
+				sprintf(outputString, "Freq: %04d", cycles);
+				LCD_puts_buffer(lcd, 0,10,  outputString);
+				lastus = System_micros();
+				cycles = 0;
+			}
+		} else {
+			if(System_micros() < lastus && lastus+1000000 < System_micros() ){
+				sprintf(outputString, "Freq: %04d", cycles);
+				LCD_puts_buffer(lcd, 0,10,  outputString);
+				lastus = System_micros();
+				cycles = 0;
+			}
+		}
+		sprintf(outputString, "Count: %04d", counter);
+	  LCD_puts_buffer(lcd,0,0,  outputString);
+		LCD_flushBuffer(lcd);
+		//LL_mDelay(100);	
+		counter++;
+		cycles++;
+		
 		
 		
 	}

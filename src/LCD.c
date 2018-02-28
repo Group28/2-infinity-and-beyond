@@ -26,23 +26,6 @@ LCD * LCD_init(void){
 	__LCD_reset(1);
 	delay_ms(5);
 	
-	 __LCD_writeCommand(0xAE);   //  display off
-  __LCD_writeCommand(0xA2);   //  bias voltage
- 
-  __LCD_writeCommand(0xA0);
-  __LCD_writeCommand(0xC8);   //  column normal
- 
-  __LCD_writeCommand(0x22);   //  voltage resistor ratio
-  __LCD_writeCommand(0x2F);   //  power on
-
-  __LCD_writeCommand(0x40);   //  start line = 0
-  __LCD_writeCommand(0xAF);   //  display ON
- 
-  __LCD_writeCommand(0x81);   //  set contrast
-  __LCD_writeCommand(0x17);   //  set contrast
- 
-  __LCD_writeCommand(0xA6);   // display normal	
-	/*
   __LCD_writeCommand(__LCD_CMD_DISPLAY_OFF);   //  display off
   __LCD_writeCommand(__LCD_CMD_LCD_BIAS_1_9);   //  bias voltage
  
@@ -59,7 +42,7 @@ LCD * LCD_init(void){
   __LCD_writeCommand(0x17);   //  set contrast
  
   __LCD_writeCommand(__LCD_CMD_DISP_NORMAL);   // display normal	
-  */
+  
 	return lcd;
 }
 
@@ -73,6 +56,12 @@ int LCD_printf(LCD* lcd, const char *format, ...){
 }
 
 int LCD_puts(LCD* lcd, uint8_t x, uint8_t y, char* stringToSend){
+	LCD_puts_buffer(lcd, x, y, stringToSend);
+	__LCD_copyDataBuffer(lcd);
+	return 1;
+}
+
+int LCD_puts_buffer(LCD* lcd, uint8_t x, uint8_t y, char* stringToSend){
 	LCD_locate(lcd, x,y);
 	int width_of_font = lcd->font[1]-1;
 	int length = strlen(stringToSend);
@@ -95,7 +84,6 @@ int LCD_putc(LCD* lcd, char value)
         }
     } else {
         LCD_character(lcd, lcd->char_x, lcd->char_y, value);
-        __LCD_copyDataBuffer(lcd);
     }
     return value;
 }
@@ -141,6 +129,9 @@ void LCD_character(LCD* lcd, uint8_t x, uint8_t y, char c)
     lcd->char_x += w;
 }
  
+void LCD_flushBuffer(LCD* lcd){
+	__LCD_copyDataBuffer(lcd);
+}
 
 
 void LCD_setFont(LCD* lcd, unsigned char* f)
@@ -180,18 +171,18 @@ void LCD_locate(LCD* lcd, uint8_t x, uint8_t y)
  
 
 void LCD_cls(LCD* lcd){
-	  memset(lcd->buffer,0x00,LCD_BUFFER_SIZE);  // clear display buffer
+	  memset(lcd->buffer,0x00,sizeof(lcd->buffer[0])*LCD_BUFFER_SIZE);  // clear display buffer
 	  __LCD_copyDataBuffer(lcd);
 }
 
  
 void LCD_pixel(LCD* lcd, uint8_t x, uint8_t y, uint8_t color)
 {
-    if(x > 128 || y > 32) return;
+    if(x >= 128 || y >= 32) return;
     if(color == 0)
-      lcd->buffer[x] &= ~(1 << (y%32));  // erase pixel
+      lcd->buffer[x] &= ~(1 << (y));  // erase pixel
     else
-      lcd->buffer[x] |= (1  << (y%32));   // set pixel
+      lcd->buffer[x] |= (1  << (y));   // set pixel
 }
 
 
@@ -235,16 +226,13 @@ void __LCD_copyDataBuffer(LCD * lcd) {
     __LCD_writeCommand(__LCD_CMD_PAGE_ADDR | page);
     
     // Copy the local buffer to the 
-    for(uint16_t bufferIndex = 0; bufferIndex < 32; bufferIndex++){
-      __LCD_writeData(lcd->buffer[32 * page + bufferIndex] & 0xF000 >> 24);
-      __LCD_writeData(lcd->buffer[32 * page + bufferIndex] & 0x0F00 >> 16);
-      __LCD_writeData(lcd->buffer[32 * page + bufferIndex] & 0x00F0 >> 8);
-      __LCD_writeData(lcd->buffer[32 * page + bufferIndex] & 0x000F >> 0);
+    for(uint8_t bufferIndex = 0; bufferIndex < 128; bufferIndex++){
+      __LCD_writeData((lcd->buffer[bufferIndex] & (0xFF << (8 * page))) >> 8 * page);
     }
   }
   
   // End transmission
-  __LCD_writeCommand(__LCD_CMD_END);
+  //__LCD_writeCommand(__LCD_CMD_END);
 }
 
 
@@ -284,7 +272,7 @@ void __LCD_SPI_init(void){
 	LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_SPI1);
 
   /* Configure SPI1 communication */
-  LL_SPI_SetBaudRatePrescaler(SPI1, LL_SPI_BAUDRATEPRESCALER_DIV256);
+  LL_SPI_SetBaudRatePrescaler(SPI1, LL_SPI_BAUDRATEPRESCALER_DIV2);
   LL_SPI_SetTransferDirection(SPI1,LL_SPI_HALF_DUPLEX_TX);
   LL_SPI_SetClockPhase(SPI1, LL_SPI_PHASE_2EDGE);
   LL_SPI_SetClockPolarity(SPI1, LL_SPI_POLARITY_HIGH);
