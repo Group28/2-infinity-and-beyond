@@ -13,6 +13,105 @@
 #define LCD_SPI_IRQn 				SPI1_IRQn
 
 
+/* Local static helper functions */
+
+static void	LCD_SPI_init(void);
+static void	LCD_SPI_activate(void);
+static void LCD_SPI_sendByte(uint8_t);
+static void LCD_SPI_sendDataBuffer(void);
+
+#define  LCD_reset(x) if(x)                                   \
+                          LL_GPIO_SetOutputPin(IO_LCD_RESET);   \
+                        else                                    \
+                          LL_GPIO_ResetOutputPin(IO_LCD_RESET);
+                        
+
+#define  LCD_chipSelect(x) if(x)                             \
+                          LL_GPIO_SetOutputPin(IO_LCD_nCS);    \
+                         else                                  \
+                          LL_GPIO_ResetOutputPin(IO_LCD_nCS);
+                        
+                  
+
+#define LCD_instruction LL_GPIO_ResetOutputPin(IO_LCD_A0)
+#define LCD_data LL_GPIO_SetOutputPin(IO_LCD_A0)
+
+static void LCD_writeData(unsigned char data);
+static void LCD_writeCommand(unsigned char command);
+
+static void LCD_copyDataBuffer(LCD* lcd);
+static void LCD_copyDataBufferFast(LCD* lcd);										
+
+/* LCD Commands */
+											
+// Displa ON/OFF
+#define LCD_CMD_DISPLAY_OFF         0xAE
+#define LCD_CMD_DISPLAY_ON          0xAF
+
+// Display start line set
+#define LCD_CMD_DISPLAY_SL          0x40 // and in 6-bit address
+
+// Page address set
+#define LCD_CMD_PAGE_ADDR           0xB0
+
+// Column address set lower and upper bit
+#define LCD_CMD_LOWER_BIT           0x00
+#define LCD_CMD_UPPER_BIT           0x10
+
+
+// ADC select/
+#define LCD_CMD_ADC_NORMAL          0xA0
+#define LCD_CMD_ADC_REVERSE         0xA1
+
+// LCD bias set
+#define LCD_CMD_LCD_BIAS_1_9        0xA2
+#define LCD_CMD_LCD_BIAS_1_7        0xA3
+
+// Display all points ON/OFF
+#define LCD_CMD_DISP_POINTS_NORMAL  0xA4
+#define LCD_CMD_DISP_POINTS_ALL     0xA5
+
+// Display normal reverse
+#define LCD_CMD_DISP_NORMAL         0xA6
+#define LCD_CMD_DISP_REVERSE        0xA7
+
+// Read-modify-write
+#define LCD_CMD_CAI_READ            0xE0
+#define LCD_CMD_CAI_WRITE           0xE1
+
+//End
+#define LCD_CMD_END                 0xEE
+
+// Reset
+#define LCD_CMD_RESET               0xE2
+
+// Common output mode select
+#define LCD_CMD_COMMON_OUT_NORMAL   0xC0
+#define LCD_CMD_COMMON_OUT_REVERSE  0xC8
+
+// Power control set
+#define LCD_CMD_PWR_MODE            0x28
+
+// Vo voltage regulator internal resistor ratio set
+#define LCD_CMD_RESISTOR_RATIO      0x20
+
+// Electronic volume mode/register set
+#define LCD_CMD_CONTRAST            0x81
+
+// Sleep mode set
+#define LCD_CMD_SLEEP_ON            0xAC
+#define LCD_CMD_SLEEP_OFF           0xAD
+
+// Booster ratio set
+#define LCD_CMD_BOOSER_RATIO1       0xF8
+#define LCD_CMD_BOOSER_RATIO2_2X    0x00
+#define LCD_CMD_BOOSER_RATIO2_5X    0x01
+#define LCD_CMD_BOOSER_RATIO2_6X    0x03
+// NOP
+
+#define LCD_CMD_NOP                 0xE3
+
+/* Local static variables */
 static Buffer SPI_TX_BUFFER;
 
 
@@ -29,31 +128,31 @@ LCD * LCD_init(void){
   lcd->char_y = 0;
   lcd->orientation=0;
   
-  __LCD_SPI_init();
-  __LCD_SPI_activate();
+  LCD_SPI_init();
+  LCD_SPI_activate();
   
-	__LCD_instruction;
-	__LCD_reset(0);
+	LCD_instruction;
+	LCD_reset(0);
 	delay_ms(1);
-	__LCD_reset(1);
+	LCD_reset(1);
 	delay_ms(5);
 	
-  __LCD_writeCommand(__LCD_CMD_DISPLAY_OFF);   //  display off
-  __LCD_writeCommand(__LCD_CMD_LCD_BIAS_1_9);   //  bias voltage
+  LCD_writeCommand(LCD_CMD_DISPLAY_OFF);   //  display off
+  LCD_writeCommand(LCD_CMD_LCD_BIAS_1_9);   //  bias voltage
  
-  __LCD_writeCommand(__LCD_CMD_ADC_NORMAL);
-  __LCD_writeCommand(__LCD_CMD_COMMON_OUT_REVERSE);   //  column normal
+  LCD_writeCommand(LCD_CMD_ADC_NORMAL);
+  LCD_writeCommand(LCD_CMD_COMMON_OUT_REVERSE);   //  column normal
  
-  __LCD_writeCommand(__LCD_CMD_RESISTOR_RATIO | 0x02);   //  voltage resistor ratio
-  __LCD_writeCommand(__LCD_CMD_PWR_MODE | 0x07);   //  power on
+  LCD_writeCommand(LCD_CMD_RESISTOR_RATIO | 0x02);   //  voltage resistor ratio
+  LCD_writeCommand(LCD_CMD_PWR_MODE | 0x07);   //  power on
 
-  __LCD_writeCommand(__LCD_CMD_DISPLAY_SL);   //  start line = 0
-  __LCD_writeCommand(__LCD_CMD_DISPLAY_ON);   //  display ON
+  LCD_writeCommand(LCD_CMD_DISPLAY_SL);   //  start line = 0
+  LCD_writeCommand(LCD_CMD_DISPLAY_ON);   //  display ON
  
-  __LCD_writeCommand(__LCD_CMD_CONTRAST);   //  set contrast
-  __LCD_writeCommand(0x17);   //  set contrast
+  LCD_writeCommand(LCD_CMD_CONTRAST);   //  set contrast
+  LCD_writeCommand(0x17);   //  set contrast
  
-  __LCD_writeCommand(__LCD_CMD_DISP_NORMAL);   // display normal	
+  LCD_writeCommand(LCD_CMD_DISP_NORMAL);   // display normal	
   
 	return lcd;
 }
@@ -69,7 +168,7 @@ int LCD_printf(LCD* lcd, const char *format, ...){
 
 int LCD_puts(LCD* lcd, uint8_t x, uint8_t y, char* stringToSend){
 	LCD_puts_buffer(lcd, x, y, stringToSend);
-	__LCD_copyDataBuffer(lcd);
+	LCD_copyDataBuffer(lcd);
 	return 1;
 }
 
@@ -142,7 +241,7 @@ void LCD_character(LCD* lcd, uint8_t x, uint8_t y, char c)
 }
  
 void LCD_flushBuffer(LCD* lcd){
-	__LCD_copyDataBufferFast(lcd);
+	LCD_copyDataBufferFast(lcd);
 }
 
 
@@ -184,7 +283,7 @@ void LCD_locate(LCD* lcd, uint8_t x, uint8_t y)
 
 void LCD_cls(LCD* lcd){
 	  memset(lcd->buffer,0x00,sizeof(lcd->buffer[0])*LCD_BUFFER_SIZE);  // clear display buffer
-	  __LCD_copyDataBuffer(lcd);
+	  LCD_copyDataBuffer(lcd);
 }
 
  
@@ -200,8 +299,8 @@ void LCD_pixel(LCD* lcd, uint8_t x, uint8_t y, uint8_t color)
 
 void LCD_setContrast(LCD* lcd, unsigned int o)
 {
-    __LCD_writeCommand(__LCD_CMD_CONTRAST);      
-    __LCD_writeCommand(o & 0x3F);
+    LCD_writeCommand(LCD_CMD_CONTRAST);      
+    LCD_writeCommand(o & 0x3F);
 }
 
 void LCD_fillPage(LCD* lcd, unsigned char Page){
@@ -225,80 +324,80 @@ void LCD_fillPage(LCD* lcd, unsigned char Page){
 			lcd->buffer[i] = 0xff;
 		}
 	}
-	__LCD_copyDataBuffer(lcd);
+	LCD_copyDataBuffer(lcd);
 }
 
 
-void __LCD_copyDataBuffer(LCD * lcd) {   
+void LCD_copyDataBuffer(LCD * lcd) {   
   
   // Loop through all pages
   for(uint8_t page = 0; page < 4; page++){
-    __LCD_writeCommand(__LCD_CMD_LOWER_BIT | 0x00);
-    __LCD_writeCommand(__LCD_CMD_UPPER_BIT | 0x00);
-    __LCD_writeCommand(__LCD_CMD_PAGE_ADDR | page);
+    LCD_writeCommand(LCD_CMD_LOWER_BIT | 0x00);
+    LCD_writeCommand(LCD_CMD_UPPER_BIT | 0x00);
+    LCD_writeCommand(LCD_CMD_PAGE_ADDR | page);
     
     // Copy the local buffer to the 
     for(uint8_t bufferIndex = 0; bufferIndex < 128; bufferIndex++){
-      __LCD_writeData(lcd->buffer[128*page + bufferIndex]);
+      LCD_writeData(lcd->buffer[128*page + bufferIndex]);
     }
   }
   
   // End transmission
-  //__LCD_writeCommand(__LCD_CMD_END);
+  //LCD_writeCommand(LCD_CMD_END);
 }
 
-void __LCD_copyDataBufferFast(LCD *lcd) {
+void LCD_copyDataBufferFast(LCD *lcd) {
 	SPI_TX_BUFFER.buffer = lcd->buffer;
 	SPI_TX_BUFFER.send = 1;
 	//SPI_TX_BUFFER.length = LCD_BUFFER_SIZE;
 	
 	for(uint8_t page = 0; page < 4; page++){
-		__LCD_writeCommand(__LCD_CMD_LOWER_BIT | 0x00);
-    __LCD_writeCommand(__LCD_CMD_UPPER_BIT | 0x00);
-    __LCD_writeCommand(__LCD_CMD_PAGE_ADDR | page);
+		LCD_writeCommand(LCD_CMD_LOWER_BIT | 0x00);
+    LCD_writeCommand(LCD_CMD_UPPER_BIT | 0x00);
+    LCD_writeCommand(LCD_CMD_PAGE_ADDR | page);
     
     // Copy the local buffer to the 
 		
 		SPI_TX_BUFFER.index = page * 128;
 		SPI_TX_BUFFER.length = SPI_TX_BUFFER.index + 128;
 		SPI_TX_BUFFER.send = 1;
-		__LCD_SPI_sendDataBuffer();
+		LCD_SPI_sendDataBuffer();
 		while(LL_SPI_IsActiveFlag_BSY(LCD_SPI));
 	}
 }
 
 
 
-void __LCD_writeData(unsigned char data) {
-    __LCD_data;
-    __LCD_chipSelect(0);
-	  __LCD_SPI_sendByte(data);
-    __LCD_chipSelect(1);
+void LCD_writeData(unsigned char data) {
+    LCD_data;
+    LCD_chipSelect(0);
+	  LCD_SPI_sendByte(data);
+    LCD_chipSelect(1);
 }
 
-void __LCD_writeCommand(unsigned char command) {
-    __LCD_instruction;
-    __LCD_chipSelect(0);
-	  __LCD_SPI_sendByte(command);
-    __LCD_chipSelect(1);
+void LCD_writeCommand(unsigned char command) {
+    LCD_instruction;
+    LCD_chipSelect(0);
+	  LCD_SPI_sendByte(command);
+    LCD_chipSelect(1);
 }
 
-void __LCD_SPI_sendDataBuffer(void){
+void LCD_SPI_sendDataBuffer(void){
 	
-	__LCD_data;
-	__LCD_chipSelect(0);
+	LCD_data;
+	LCD_chipSelect(0);
 	LL_SPI_EnableIT_TXE(LCD_SPI);
 	LL_SPI_TransmitData8(LCD_SPI, (unsigned char)SPI_TX_BUFFER.buffer[SPI_TX_BUFFER.index]);
 }
 
 
-void __LCD_SPI_sendByte(uint8_t byte){
+void LCD_SPI_sendByte(uint8_t byte){
 
 		LL_SPI_TransmitData8(LCD_SPI, (unsigned char)byte);
 		while(LL_SPI_IsActiveFlag_BSY(LCD_SPI));
 }
 
-void __LCD_SPI_init(void){
+void LCD_SPI_init(void){
 
 
 	
@@ -331,7 +430,7 @@ void __LCD_SPI_init(void){
   LL_SPI_EnableIT_ERR(LCD_SPI);
 }
 
-void __LCD_SPI_activate(void){
+void LCD_SPI_activate(void){
 	/* Enable SPI1 */
   LL_SPI_Enable(LCD_SPI);
 }
@@ -347,7 +446,7 @@ void LCD_SPI_IRQHandler(void)
 				LL_SPI_TransmitData8(LCD_SPI, (unsigned char)SPI_TX_BUFFER.buffer[SPI_TX_BUFFER.index]);
 			} else {
 				SPI_TX_BUFFER.send = 0;
-				__LCD_chipSelect(1);
+				LCD_chipSelect(1);
 				LL_SPI_DisableIT_TXE(LCD_SPI);
 			}
 		}
