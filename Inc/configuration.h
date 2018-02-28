@@ -2,22 +2,40 @@
 #ifndef __CONFIGURATION_H
 #define __CONFIGURATION_H
 
-// Constants
+/* Constants ------------------------------------------------------------------------------------------ //
+// 
+// Default constant values for buggy functions
+*/
 
-#define WHEEL_RADIUS 0.0417 // Wheel radius [m]
-#define ENCODER_TICKS_PER_REV 1024 // Counter ticks per revolution 
+#define WHEEL_RADIUS 						0.0417 	// Wheel radius [m]
+#define ENCODER_TICKS_PER_REV 	1024 		// Counter ticks per revolution 
 
-#define MOTOR_SAMPLE_FREQ 500.0 // Motor speed sample frequency [Hz]
-#define SENSOR_SAMPLE_FREQ 1000.0 // Sensor sample frequency [Hz]
+#define MOTOR_SAMPLE_FREQ 			500.0 	// Motor speed sample frequency [Hz]
+#define SENSOR_SAMPLE_FREQ 			1000.0 	// Sensor sample frequency [Hz]
 
-#define DEFAULT_PWM_FREQ 20000.0 // Default PWM switching frequency [Hz]
-#define DEFAULT_MOTOR_MODE 0 // 0 = unipolar, 1 = bipolar
+#define DEFAULT_PWM_FREQ 				20000.0 // Default PWM switching frequency [Hz]
+#define DEFAULT_MOTOR_MODE 			0 			// 0 = unipolar, 1 = bipolar
 
-#define HALL_SENSOR_POLARITY 1 // Hall sensor polarity -1 = South, 1 = North, 0 = Both
+#define HALL_SENSOR_POLARITY 		1 			// Hall sensor polarity -1 = South, 1 = North, 0 = Both
 
-#define MOTOR_KT 0.0076 // Motor Kt [Nm/A] 
+#define MOTOR_KT 								0.0076 	// Motor Kt [Nm/A] 
 
-// IO
+
+#define USART_BAUDRATE 					115200 	// Default baud rade used for USART communication
+
+/* Communication --------------------------------------------------------------------------------------- //
+//
+// Toggles communication channels
+*/
+
+#define USB_USART 							1 			// Set to 1 to enable, 0 to disable USB serail communication
+#define ESP_USART 							1 			// Set to 1 to enable, 0 to disable Wifi serial communication
+
+
+/* IO -------------------------------------------------------------------------------------------------- //
+//
+// IO map of ports and pins to functions
+*/
 
 // Light sensors
 #define IO_SENSOR_0     GPIOC, LL_GPIO_PIN_10
@@ -70,27 +88,32 @@
 #define IO_ESP_TX       GPIOA, LL_GPIO_PIN_11
 #define IO_ESP_RX       GPIOA, LL_GPIO_PIN_12
 
+// USB Serial
 #define IO_USART2_TX    GPIOA, LL_GPIO_PIN_2
 #define IO_USART2_RX    GPIOA, LL_GPIO_PIN_3
 
+// I2C channel
 #define IO_I2C_SCL      GPIOB, LL_GPIO_PIN_8
 #define IO_I2C_SDA      GPIOB, LL_GPIO_PIN_9
 
 // LCD screen
-//#define IO_LCD_SCK      GPIOC, LL_GPIO_PIN_10
-//#define IO_LCD_MISO     GPIOC, LL_GPIO_PIN_11
-//#define IO_LCD_MOSI     GPIOC, LL_GPIO_PIN_12
-//#define IO_LCD_nCS      GPIOD, LL_GPIO_PIN_2
-//#define IO_LCD_A0       GPIOB, LL_GPIO_PIN_7
-//#define IO_LCD_RESET    GPIOB, LL_GPIO_PIN_12
-//
+
+/* SPI3 -> temporarily disabled for testing 
+#define IO_LCD_SCK      GPIOC, LL_GPIO_PIN_10
+#define IO_LCD_MISO     GPIOC, LL_GPIO_PIN_11
+#define IO_LCD_MOSI     GPIOC, LL_GPIO_PIN_12
+#define IO_LCD_nCS      GPIOD, LL_GPIO_PIN_2
+#define IO_LCD_A0       GPIOB, LL_GPIO_PIN_7
+#define IO_LCD_RESET    GPIOB, LL_GPIO_PIN_12
+*/
+
+
 #define IO_LCD_SCK      GPIOA, LL_GPIO_PIN_5
 #define IO_LCD_MISO     GPIOC, LL_GPIO_PIN_11
 #define IO_LCD_MOSI     GPIOA, LL_GPIO_PIN_7
 #define IO_LCD_nCS      GPIOB, LL_GPIO_PIN_6
 #define IO_LCD_A0       GPIOA, LL_GPIO_PIN_8
 #define IO_LCD_RESET    GPIOA, LL_GPIO_PIN_6
-
 
 // Other IO
 #define IO_SPEAKER      GPIOB, LL_GPIO_PIN_6
