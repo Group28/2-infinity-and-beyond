@@ -1,6 +1,9 @@
 #include  "System_Functions.h"
 #include "stm32f4xx_it.h"
 
+static volatile uint32_t SysTick_ticks;
+
+
 /**
   *         The system Clock is configured as follow :
   *            System Clock source            = PLL (HSE)
@@ -62,29 +65,13 @@ void SystemClock_Config(void)
   */
 
 
-
-void delay_us(uint32_t t){
-	uint32_t start, end;
-	start = micros();
-	end = start + t;
-	if(start < end){
-		while((micros() >= start) && (micros() < end));
-	} else {
-		while((micros() >= start) || (micros() < end));
-	}
+void SysTick_Handler(void)
+{
+	SysTick_ticks++;
 }
 
-void delay_ms(uint32_t t){
-	for(uint32_t i = 0; i < t; i++){
-		delay_us(1000);
-	}
-}
-
-void delay(double t){
-	delay_ms((uint32_t) (t*1000.0));
-}
 
 
 uint32_t System_micros(void){
-	return micros();
+	return SysTick_ticks;
 }
