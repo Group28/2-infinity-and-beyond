@@ -1,26 +1,29 @@
 #include "LCD.h"
 #include "configuration.h"
 #include "System_Functions.h"
+#include "utils.h"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include <stdarg.h>
 
+#define LCD_TEST_SPI				1
+#define LCD_SPI 						SPI1
+#define LCD_SPI_IRQHandler 	SPI1_IRQHandler
+#define LCD_SPI_IRQn 				SPI1_IRQn
 
-static struct {
-	unsigned char * buffer;
-	uint32_t length;
-	uint32_t ready;
-} SPI_TX_BUFFER;
 
+static Buffer SPI_TX_BUFFER;
 
 
 LCD * LCD_init(void){
   LCD* lcd = (LCD*)malloc(sizeof(LCD));
-	//lcd->buffer = (uint32_t*)calloc(LCD_BUFFER_SIZE, sizeof(uint32_t));
   memset(lcd->buffer, 0x00, sizeof(lcd->buffer[0])*LCD_BUFFER_SIZE);
 	
-	//SPI_TX_BUFFER.buffer = lcd->buffer; 
+	SPI_TX_BUFFER.buffer = NULL;
+	SPI_TX_BUFFER.length = 0;
+	SPI_TX_BUFFER.index = 0;
+	SPI_TX_BUFFER.send = 0;
 	
   lcd->char_x = 0;
   lcd->char_y = 0;
@@ -139,7 +142,7 @@ void LCD_character(LCD* lcd, uint8_t x, uint8_t y, char c)
 }
  
 void LCD_flushBuffer(LCD* lcd){
-	__LCD_copyDataBuffer(lcd);
+	__LCD_copyDataBufferFast(lcd);
 }
 
 
@@ -244,6 +247,26 @@ void __LCD_copyDataBuffer(LCD * lcd) {
   //__LCD_writeCommand(__LCD_CMD_END);
 }
 
+void __LCD_copyDataBufferFast(LCD *lcd) {
+	SPI_TX_BUFFER.buffer = lcd->buffer;
+	SPI_TX_BUFFER.send = 1;
+	//SPI_TX_BUFFER.length = LCD_BUFFER_SIZE;
+	
+	for(uint8_t page = 0; page < 4; page++){
+		__LCD_writeCommand(__LCD_CMD_LOWER_BIT | 0x00);
+    __LCD_writeCommand(__LCD_CMD_UPPER_BIT | 0x00);
+    __LCD_writeCommand(__LCD_CMD_PAGE_ADDR | page);
+    
+    // Copy the local buffer to the 
+		
+		SPI_TX_BUFFER.index = page * 128;
+		SPI_TX_BUFFER.length = SPI_TX_BUFFER.index + 128;
+		SPI_TX_BUFFER.send = 1;
+		__LCD_SPI_sendDataBuffer();
+		while(LL_SPI_IsActiveFlag_BSY(LCD_SPI));
+	}
+}
+
 
 
 void __LCD_writeData(unsigned char data) {
@@ -260,56 +283,73 @@ void __LCD_writeCommand(unsigned char command) {
     __LCD_chipSelect(1);
 }
 
+void __LCD_SPI_sendDataBuffer(void){
+	
+	__LCD_data;
+	__LCD_chipSelect(0);
+	LL_SPI_EnableIT_TXE(LCD_SPI);
+	LL_SPI_TransmitData8(LCD_SPI, (unsigned char)SPI_TX_BUFFER.buffer[SPI_TX_BUFFER.index]);
+}
+
+
 void __LCD_SPI_sendByte(uint8_t byte){
-		/*
-	  while(!LL_SPI_IsActiveFlag_TXE(SPI3)){}
-			
-		LL_SPI_TransmitData8(SPI3, (unsigned char)byte);
-			
-		while(LL_SPI_IsActiveFlag_BSY(SPI3)){}
-		*/
-		LL_SPI_TransmitData8(SPI1, (unsigned char)byte);
-		while(LL_SPI_IsActiveFlag_BSY(SPI1));
+
+		LL_SPI_TransmitData8(LCD_SPI, (unsigned char)byte);
+		while(LL_SPI_IsActiveFlag_BSY(LCD_SPI));
 }
 
 void __LCD_SPI_init(void){
 
 
-	//NVIC_SetPriority(SPI3_IRQn, 10);
-  //NVIC_EnableIRQ(SPI3_IRQn);
 	
+	#if LCD_TEST_SPI
 	LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_SPI1);
+	#else
+	LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_SPI3);
+	#endif
 
   /* Configure SPI1 communication */
-  LL_SPI_SetBaudRatePrescaler(SPI1, LL_SPI_BAUDRATEPRESCALER_DIV16);
-  LL_SPI_SetTransferDirection(SPI1,LL_SPI_HALF_DUPLEX_TX);
-  LL_SPI_SetClockPhase(SPI1, LL_SPI_PHASE_2EDGE);
-  LL_SPI_SetClockPolarity(SPI1, LL_SPI_POLARITY_HIGH);
+  LL_SPI_SetBaudRatePrescaler(LCD_SPI, LL_SPI_BAUDRATEPRESCALER_DIV256);
+  LL_SPI_SetTransferDirection(LCD_SPI,LL_SPI_HALF_DUPLEX_TX);
+  LL_SPI_SetClockPhase(LCD_SPI, LL_SPI_PHASE_2EDGE);
+  LL_SPI_SetClockPolarity(LCD_SPI, LL_SPI_POLARITY_HIGH);
   
 	/* Reset value is LL_SPI_MSB_FIRST */
   //LL_SPI_SetTransferBitOrder(SPI1, LL_SPI_MSB_FIRST);
-  LL_SPI_SetDataWidth(SPI1, LL_SPI_DATAWIDTH_8BIT);
-  LL_SPI_SetNSSMode(SPI1, LL_SPI_NSS_SOFT); //Chip select handled by software
-  LL_SPI_SetMode(SPI1, LL_SPI_MODE_MASTER);
+  LL_SPI_SetDataWidth(LCD_SPI, LL_SPI_DATAWIDTH_8BIT);
+  LL_SPI_SetNSSMode(LCD_SPI, LL_SPI_NSS_SOFT); //Chip select handled by software
+  LL_SPI_SetMode(LCD_SPI, LL_SPI_MODE_MASTER);
+	
+	
+	NVIC_SetPriority(LCD_SPI_IRQn, 5);
+  NVIC_EnableIRQ(LCD_SPI_IRQn);
 	
 	/* Configure SPI1 transfer interrupts */
   /* Enable TXE   Interrupt */
-  //LL_SPI_EnableIT_TXE(SPI3);
+  LL_SPI_DisableIT_TXE(LCD_SPI); // Diable by default
   /* Enable SPI1 Error Interrupt */
-  //LL_SPI_EnableIT_ERR(SPI3);
+  LL_SPI_EnableIT_ERR(LCD_SPI);
 }
 
 void __LCD_SPI_activate(void){
 	/* Enable SPI1 */
-  LL_SPI_Enable(SPI1);
+  LL_SPI_Enable(LCD_SPI);
 }
 
 
-void SPI1_IRQHandler(void)
+void LCD_SPI_IRQHandler(void)
 {
-  /* Check RXNE flag value in ISR register */
-  if(LL_SPI_IsActiveFlag_TXE(SPI1))
+  /* Check TXE flag value in ISR register */
+  if(LL_SPI_IsActiveFlag_TXE(LCD_SPI))
   {
-	//	//LL_GPIO_SetOutputPin(GPIOB, LL_GPIO_PIN_6);
+		if(SPI_TX_BUFFER.send){
+			if(++SPI_TX_BUFFER.index < SPI_TX_BUFFER.length){
+				LL_SPI_TransmitData8(LCD_SPI, (unsigned char)SPI_TX_BUFFER.buffer[SPI_TX_BUFFER.index]);
+			} else {
+				SPI_TX_BUFFER.send = 0;
+				__LCD_chipSelect(1);
+				LL_SPI_DisableIT_TXE(LCD_SPI);
+			}
+		}
   }
 }

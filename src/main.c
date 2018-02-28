@@ -56,7 +56,7 @@ int main(void)
   {
 		
 		
-		//
+		
 		if(lastus+1000000 > lastus){
 			if(lastus+1000000 < System_micros()){
 				sprintf(outputString, "Freq: %04d", cycles);
@@ -72,8 +72,13 @@ int main(void)
 				cycles = 0;
 			}
 		}
+		
 		sprintf(outputString, "Count: %04d", counter);
+		LL_GPIO_SetOutputPin(GPIOC,LL_GPIO_PIN_7);
 	  LCD_puts_buffer(lcd,0,0,  outputString);
+		LL_GPIO_ResetOutputPin(GPIOC,LL_GPIO_PIN_7);
+	
+		
 		LCD_flushBuffer(lcd);
 		//LL_mDelay(100);	
 		counter++;
