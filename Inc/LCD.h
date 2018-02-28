@@ -63,7 +63,10 @@ void     __LCD_writeData(unsigned char data);
 void     __LCD_writeCommand(unsigned char command);
 
 void     __LCD_copyDataBuffer(LCD* lcd);
+void     __LCD_copyDataBufferFast(LCD* lcd);										
 
+void     __LCD_SPI_sendDataBuffer(void);	 
+											
 // Displa ON/OFF
 #define __LCD_CMD_DISPLAY_OFF         0xAE
 #define __LCD_CMD_DISPLAY_ON          0xAF
