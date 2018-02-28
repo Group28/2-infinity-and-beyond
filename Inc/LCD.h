@@ -4,10 +4,10 @@
 #ifndef __LCD_H
 #define __LCD_H
 
-#define LCD_BUFFER_SIZE 128
+#define LCD_BUFFER_SIZE 512
 
 typedef struct {
-  uint32_t buffer[LCD_BUFFER_SIZE];
+  unsigned char buffer[LCD_BUFFER_SIZE];
   unsigned char * font;
   uint8_t char_x;
   uint8_t char_y;
