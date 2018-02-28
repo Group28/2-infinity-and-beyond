@@ -92,7 +92,7 @@ void IO_initMotors(void){
 	
 	
 	// Enable clock for Timer 3
-	LL_APB2_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_TIM3);
+	LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_TIM3);
 	
 	// Set prescaler
 	LL_TIM_SetPrescaler(TIM3, __LL_TIM_CALC_PSC(SystemCoreClock, 42000000));
@@ -218,26 +218,11 @@ void IO_initAnalogueSensors(void){
 }
 
 void IO_initLCD(void){
-	/* Configure Instruction_Or_Data Pin */
-
-  LL_GPIO_SetPinMode(  IO_LCD_A0, LL_GPIO_MODE_OUTPUT);
-  LL_GPIO_SetPinSpeed( IO_LCD_A0, LL_GPIO_SPEED_FREQ_VERY_HIGH);
-  LL_GPIO_SetPinPull(  IO_LCD_A0, LL_GPIO_PULL_UP);
-	LL_GPIO_SetOutputPin(GPIOA, LL_GPIO_PIN_8);
 	
-	/* Configure LCD Reset Pin */
-
-  LL_GPIO_SetPinMode(  IO_LCD_RESET, LL_GPIO_MODE_OUTPUT);
-  LL_GPIO_SetPinSpeed( IO_LCD_RESET, LL_GPIO_SPEED_FREQ_VERY_HIGH);
-  LL_GPIO_SetPinPull(  IO_LCD_RESET, LL_GPIO_PULL_UP);
-	LL_GPIO_SetOutputPin(IO_LCD_RESET);
+	IO_Output_init(IO_LCD_A0);
+	IO_Output_init(IO_LCD_RESET);
+	IO_Output_init(IO_LCD_nCS);
 	
-	/* Configure LCD Chip Select Pin */
-
-  LL_GPIO_SetPinMode(  IO_LCD_nCS, LL_GPIO_MODE_OUTPUT);
-  LL_GPIO_SetPinSpeed( IO_LCD_nCS, LL_GPIO_SPEED_FREQ_VERY_HIGH);
-  LL_GPIO_SetPinPull(  IO_LCD_nCS, LL_GPIO_PULL_UP);
-	LL_GPIO_SetOutputPin(IO_LCD_nCS);
 	
 	/* Configure SCK Pin */
 
@@ -254,10 +239,10 @@ void IO_initLCD(void){
   LL_GPIO_SetPinPull(  IO_LCD_MOSI, LL_GPIO_PULL_DOWN);
 	
 	/* Configure MISO Pin */
-	LL_GPIO_SetPinMode(  IO_LCD_MISO, LL_GPIO_MODE_ALTERNATE);
-  LL_GPIO_SetAFPin_0_7(IO_LCD_MISO, LL_GPIO_AF_5);
-  LL_GPIO_SetPinSpeed( IO_LCD_MISO, LL_GPIO_SPEED_FREQ_VERY_HIGH);
-  LL_GPIO_SetPinPull(  IO_LCD_MISO, LL_GPIO_PULL_DOWN);
+	//LL_GPIO_SetPinMode(  IO_LCD_MISO, LL_GPIO_MODE_ALTERNATE);
+  //LL_GPIO_SetAFPin_0_7(IO_LCD_MISO, LL_GPIO_AF_6);
+  //LL_GPIO_SetPinSpeed( IO_LCD_MISO, LL_GPIO_SPEED_FREQ_VERY_HIGH);
+  //LL_GPIO_SetPinPull(  IO_LCD_MISO, LL_GPIO_PULL_DOWN);
 	
 }
 
@@ -306,4 +291,24 @@ void IO_initJoyButton(void){
 	LL_EXTI_EnableFallingTrig_0_31(LL_EXTI_LINE_13);
 	LL_EXTI_EnableIT_0_31(LL_EXTI_LINE_13);
 	NVIC_EnableIRQ(EXTI15_10_IRQn); // Enable IRQ for EXTI line 13 in NVIC
+}
+
+void TIM5_IRQHandler(void)
+{
+  /* Check whether CC1 interrupt is pending */
+  if(LL_TIM_IsActiveFlag_CC1(TIM5) == 1)
+  {
+    /* Clear the update interrupt flag*/
+    LL_TIM_ClearFlag_CC1(TIM5);
+  }
+}
+
+void TIM2_IRQHandler(void)
+{
+  /* Check whether CC1 interrupt is pending */
+  if(LL_TIM_IsActiveFlag_CC1(TIM2) == 1)
+  {
+    /* Clear the update interrupt flag*/
+    LL_TIM_ClearFlag_CC1(TIM2);
+  }
 }
