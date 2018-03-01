@@ -1,5 +1,4 @@
 #include "LCD.h"
-#include "configuration.h"
 #include "utils.h"
 #include <stdio.h>
 #include <string.h>

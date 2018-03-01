@@ -1,10 +1,10 @@
 #include "main.h"
-
+#include "configuration.h"
 
 #ifndef __LCD_H
 #define __LCD_H
 
-#define LCD_BUFFER_SIZE 512
+
 
 typedef struct {
   char buffer[LCD_BUFFER_SIZE];
