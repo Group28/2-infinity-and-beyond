@@ -415,6 +415,11 @@
               <FilePath>.\src\Motors.c</FilePath>
             </File>
             <File>
+              <FileName>Encoders.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\src\Encoders.c</FilePath>
+            </File>
+            <File>
               <FileName>PID.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\src\PID.c</FilePath>
