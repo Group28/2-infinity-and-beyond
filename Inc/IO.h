@@ -22,6 +22,8 @@ void IO_init(void);
 
 // Initialize an output
 void IO_Output_init(GPIO_TypeDef * port, uint32_t pin);
+void IO_set(GPIO_TypeDef * port, uint32_t pin, uint8_t state);
+
 //void IO_Analog_init();
 
 void IO_initMotors(void);

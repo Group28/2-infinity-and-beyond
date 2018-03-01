@@ -118,6 +118,6 @@
 // Other IO
 #define IO_SPEAKER      GPIOB, LL_GPIO_PIN_6
 #define IO_CENTER_JOY   GPIOC, LL_GPIO_PIN_13
-
+#define IO_LED_BLUE			GPIOA, LL_GPIO_PIN_9
 
 #endif
