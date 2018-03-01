@@ -2,6 +2,25 @@
 #include "configuration.h"
 #include "main.h"
 
+/* Local static functions */
+
+// Initialize an output
+static void IO_Output_init(GPIO_TypeDef * port, uint32_t pin);
+//void IO_Analog_init();
+
+static void IO_initMotors(void);
+static void IO_initEncoders(void);
+static void IO_initAnalogueSensors(void);
+
+static void IO_initLCD(void);
+static void IO_initUSART_USB(void);
+static void IO_initUSART_ESP(void);
+
+static void IO_initJoyButton(void);
+
+
+
+
 void IO_init(void){
 	LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOA); // Enable CLK to GPIOA
 	LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOB); // Enable CLK to GPIOB
