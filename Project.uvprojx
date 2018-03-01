@@ -380,19 +380,14 @@
           <GroupName>Source Files</GroupName>
           <Files>
             <File>
-              <FileName>startup_stm32f401xe.s</FileName>
-              <FileType>2</FileType>
-              <FilePath>.\System_Files\startup_stm32f401xe.s</FilePath>
+              <FileName>configuration.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\Inc\configuration.h</FilePath>
             </File>
             <File>
-              <FileName>stm32f4xx_ll_utils.c</FileName>
+              <FileName>main.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\Low_Layer_Library\stm32f4xx_ll_utils.c</FilePath>
-            </File>
-            <File>
-              <FileName>system_stm32f4xx.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\System_Files\system_stm32f4xx.c</FilePath>
+              <FilePath>.\src\main.c</FilePath>
             </File>
             <File>
               <FileName>IO.c</FileName>
@@ -400,14 +395,19 @@
               <FilePath>.\src\IO.c</FilePath>
             </File>
             <File>
+              <FileName>USART.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\src\USART.c</FilePath>
+            </File>
+            <File>
               <FileName>LCD.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\src\LCD.c</FilePath>
             </File>
             <File>
-              <FileName>main.c</FileName>
+              <FileName>DMA.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\src\main.c</FilePath>
+              <FilePath>.\src\DMA.c</FilePath>
             </File>
             <File>
               <FileName>Motors.c</FileName>
@@ -420,9 +420,9 @@
               <FilePath>.\src\PID.c</FilePath>
             </File>
             <File>
-              <FileName>stm32f4xx_it.c</FileName>
+              <FileName>utils.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\src\stm32f4xx_it.c</FilePath>
+              <FilePath>.\src\utils.c</FilePath>
             </File>
             <File>
               <FileName>System_Functions.c</FileName>
@@ -430,15 +430,25 @@
               <FilePath>.\src\System_Functions.c</FilePath>
             </File>
             <File>
-              <FileName>USART.c</FileName>
+              <FileName>stm32f4xx_it.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\src\USART.c</FilePath>
+              <FilePath>.\src\stm32f4xx_it.c</FilePath>
             </File>
           </Files>
         </Group>
         <Group>
-          <GroupName>New Group</GroupName>
+          <GroupName>LL</GroupName>
           <Files>
+            <File>
+              <FileName>startup_stm32f401xe.s</FileName>
+              <FileType>2</FileType>
+              <FilePath>.\System_Files\startup_stm32f401xe.s</FilePath>
+            </File>
+            <File>
+              <FileName>system_stm32f4xx.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\System_Files\system_stm32f4xx.c</FilePath>
+            </File>
             <File>
               <FileName>stm32f4xx_ll_adc.h</FileName>
               <FileType>5</FileType>
