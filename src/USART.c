@@ -1,20 +1,22 @@
 #include "USART.h"
-#include "configuration.h"
-
+#include "DMA.h"
+#include <string.h>
 #include <stdlib.h>
+#include <stdarg.h>
+#include <stdio.h>
 
 USART * __USART_init(void){
 	USART * usart = malloc(sizeof(USART));
   usart->usart = NULL;
-	usart->bufferIn.buffer = malloc(sizeof(unsigned char) * DEFAULT_BUFFER_SIZE);
-	usart->bufferIn.index = 0;
-	usart->bufferIn.length = DEFAULT_BUFFER_SIZE;
-	usart->bufferIn.send = 0;
+	usart->buffRX.buffer = malloc(sizeof(char) * USART_BUFFER_SIZE);
+	usart->buffRX.index = 0;
+	usart->buffRX.length = USART_BUFFER_SIZE;
+	usart->buffRX.send = 0;
 	
-	usart->buggerOut.buffer = malloc(sizeof(unsigned char) * DEFAULT_BUFFER_SIZE);
-	usart->buggerOut.index = 0;
-	usart->buggerOut.length = DEFAULT_BUFFER_SIZE;
-	usart->buggerOut.send = 0;
+	usart->buffTX.buffer = malloc(sizeof(char) * USART_BUFFER_SIZE);
+	usart->buffTX.index = 0;
+	usart->buffTX.length = USART_BUFFER_SIZE;
+	usart->buffTX.send = 0;
 	return usart;
 
 }
@@ -66,3 +68,69 @@ USART *  USART_ESP_init(void){
 
   return usart;
 }
+
+int USART_putc(USART * usart, char c){
+		USART_putc_buffer(usart, c);
+		USART_flushBuffer(usart);
+		return 1;
+}
+
+int USART_putc_buffer(USART * usart, char c){
+	uint8_t complete = 0;
+	while(!complete) {
+		while(usart->buffTX.send){} // If transmitting, wait until we are done
+		if(usart->buffTX.index < usart->buffTX.length){
+			usart->buffTX.buffer[usart->buffTX.index++] = c;
+			complete = 1;
+		} else {
+			USART_flushBuffer(usart);
+		}
+	}
+	return 0;
+}
+
+int USART_puts(USART *usart, char *string){
+	USART_puts_buffer(usart, string);
+	USART_flushBuffer(usart);
+	return 1;
+}
+
+int USART_puts_buffer(USART *usart, char *string){
+	uint8_t done = 0;
+	uint32_t start_string = 0;
+
+	while(!done){
+		while(usart->buffTX.send){}
+		uint32_t available = usart->buffTX.length - usart->buffTX.index;
+		uint32_t str_length = strlen(string + start_string);
+		if(str_length < available){
+			strcpy(usart->buffTX.buffer, string + start_string);
+			usart->buffTX.index += str_length;
+			done = 1;
+		} else {
+			strncpy(usart->buffTX.buffer, string+start_string, available);
+			usart->buffTX.index += available;
+			start_string += available;
+			USART_flushBuffer(usart);
+		}
+	}
+	return 0;
+}
+
+
+int USART_printf(USART *usart, const char *format, ...){
+  char outputString[256];
+  va_list argptr;
+  va_start(argptr, format);
+  vsprintf(outputString, format, argptr);
+  va_end(argptr);
+  return USART_puts(usart, outputString);
+}
+
+int USART_flushBuffer(USART *usart) {
+	usart->buffTX.send = 1;
+	return DMA_StartSerialTransfer(usart);
+}
+
+
+
