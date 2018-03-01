@@ -40,6 +40,9 @@ void IO_init(void){
 	// Other IO
 	IO_initJoyButton();
 	
+	IO_Output_init(IO_LED_BLUE);
+	IO_set(IO_LED_BLUE, 1);
+	
 
 }
 
@@ -50,6 +53,14 @@ void IO_Output_init(GPIO_TypeDef * port, uint32_t pin){
 	LL_GPIO_SetPinOutputType(port, pin, LL_GPIO_OUTPUT_PUSHPULL);
 	LL_GPIO_SetPinPull(port,pin, LL_GPIO_PULL_NO);
 	
+}
+
+void IO_set(GPIO_TypeDef * port, uint32_t pin, uint8_t state){
+	if(state){
+		LL_GPIO_SetOutputPin(port, pin);
+	} else {
+		LL_GPIO_ResetOutputPin(port, pin);
+	}
 }
 
 void IO_initMotors(void){
