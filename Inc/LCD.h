@@ -7,8 +7,8 @@
 #define LCD_BUFFER_SIZE 512
 
 typedef struct {
-  unsigned char buffer[LCD_BUFFER_SIZE];
-  unsigned char * font;
+  char buffer[LCD_BUFFER_SIZE];
+  char * font;
   uint8_t char_x;
   uint8_t char_y;
   uint8_t orientation;
@@ -21,7 +21,7 @@ void     __LCD_SPI_sendByte(uint8_t);
 
 LCD*     LCD_init(void);
 
-void     LCD_fillPage     (LCD* lcd, unsigned char);
+void     LCD_fillPage     (LCD* lcd, char);
 void     LCD_pixel        (LCD* lcd, uint8_t x,uint8_t y, uint8_t colour);
 void     LCD_pixel_buffer (LCD* lcd, uint8_t x,uint8_t y, uint8_t colour);
 void     LCD_setContrast  (LCD* lcd, unsigned int o);
@@ -32,7 +32,7 @@ int      LCD_columns      (LCD* lcd);
 int      LCD_rows         (LCD* lcd);
 int      LCD_width        (LCD* lcd);
 int      LCD_height       (LCD* lcd);
-void     LCD_setFont      (LCD* lcd, unsigned char* f);
+void     LCD_setFont      (LCD* lcd, char* f);
 void     LCD_character    (LCD* lcd, uint8_t x, uint8_t y, char c);
 int      LCD_putc         (LCD* lcd, char);
 int      LCD_putc_buffer  (LCD* lcd, char);

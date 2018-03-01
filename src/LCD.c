@@ -58,7 +58,7 @@ LCD * LCD_init(void){
 }
 
 int LCD_printf(LCD* lcd, const char *format, ...){
-  char outputString[32];
+  char outputString[128];
   va_list argptr;
   va_start(argptr, format);
   vsprintf(outputString, format, argptr);
@@ -101,9 +101,9 @@ int LCD_putc(LCD* lcd, char value)
  
 void LCD_character(LCD* lcd, uint8_t x, uint8_t y, char c)
 {
-    unsigned int hor,vert,offset,bpl,j,i,b;
-    unsigned char* symbol;
-    unsigned char z,w;
+    uint16_t hor,vert,offset,bpl,j,i,b;
+    char* symbol;
+    char z,w;
  
     if ((c < 31) || (c > 127)) return;   // test char range
  
@@ -145,7 +145,7 @@ void LCD_flushBuffer(LCD* lcd){
 }
 
 
-void LCD_setFont(LCD* lcd, unsigned char* f)
+void LCD_setFont(LCD* lcd, char* f)
 {
     lcd->font = &f[0];
 }
@@ -203,23 +203,23 @@ void LCD_setContrast(LCD* lcd, unsigned int o)
     __LCD_writeCommand(o & 0x3F);
 }
 
-void LCD_fillPage(LCD* lcd, unsigned char Page){
-	if(Page == 0){  //Line 1
+void LCD_fillPage(LCD* lcd, char page){
+	if(page == 0){  //Line 1
 		for(int i=0;i<128;i++){
 			lcd->buffer[i] = 0xff;
 		}
 	}
-	if(Page == 1){  //Line 2
+	if(page == 1){  //Line 2
 		for(int i=128;i<256;i++){
 			lcd->buffer[i] = 0xff;
 		}
 	}
-	if(Page == 2){  //Line 3
+	if(page == 2){  //Line 3
 		for(int i=256;i<384;i++){
 			lcd->buffer[i] = 0xff;
 		}
 	}
-	if(Page == 3){  //Line 4
+	if(page == 3){  //Line 4
 		for(int i=384;i<512;i++){
 			lcd->buffer[i] = 0xff;
 		}

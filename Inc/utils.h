@@ -4,7 +4,7 @@
 #define __UTILS_H
 
 typedef struct {
-	unsigned char *buffer;
+	char *buffer;
 	uint32_t length;
 	uint32_t index;
 	uint8_t send;
