@@ -3,29 +3,7 @@
 #include "stdlib.h"
 #include "configuration.h"
 
-Encoder * Encoder_init(TIM_TypeDef * timer, double samplePeriod){
-	Encoder * encoder = (Encoder*)malloc(sizeof(Encoder));
-	encoder->speed = 0;
-	encoder->samplePeriod = samplePeriod;
-	encoder->lastCount = 0;
-	encoder->revolutions = 0;
-	encoder->timer = timer;
-	
-	LL_TIM_SetCounter(encoder->timer, 0);
-	return encoder;
-}
-
-double Encoder_getSpeed(Encoder * encoder){
-	return encoder->speed;
-}
-
-double Encoder_getRevolutions(Encoder * encoder){
-	return encoder->revolutions;
-}
-
-void Encoder_Reset(Encoder * encoder){
-	encoder->speed = 0;
-	encoder->revolutions=0;
+static void Encoder_resetCounter(Encoder * encoder){
 	if(encoder->timer == TIM2){
 		NVIC_DisableIRQ(TIM2_IRQn);	
 		LL_TIM_SetCounter(encoder->timer, 0);
@@ -37,12 +15,41 @@ void Encoder_Reset(Encoder * encoder){
 	}
 }
 
-
-void Encoder_Update(Encoder *encoder){
-	int32_t count = (int32_t) LL_TIM_GetCounter(encoder->timer);
-	
-	encoder->speed = (difference)/(samplePeriod*ENCODER_TICKS_PER_REV);
+Encoder * Encoder_init(TIM_TypeDef * timer, double samplePeriod, uint16_t ticks_per_revolution){
+	Encoder * encoder = (Encoder*)malloc(sizeof(Encoder));
+	encoder->speed = 0;
+	encoder->samplePeriod = samplePeriod;
+	encoder->lastCount = 0;
 	encoder->revolutions = 0;
+	encoder->ticks_per_revolution = ticks_per_revolution;
+	encoder->timer = timer;
+	
+	Encoder_reset(encoder);
+	return encoder;
+}
+
+double Encoder_getSpeed(Encoder * encoder){
+	return encoder->speed;
+}
+
+double Encoder_getRevolutions(Encoder * encoder){
+	return encoder->revolutions;
+}
+
+void Encoder_reset(Encoder * encoder){
+	encoder->speed = 0;
+	encoder->revolutions=0;
+	Encoder_resetCounter(encoder);
+	
+}
+
+
+void Encoder_update(Encoder *encoder){
+	int32_t count = (int32_t) LL_TIM_GetCounter(encoder->timer);
+	int difference = count - encoder->lastCount;
+	encoder->speed = (difference)/(encoder->samplePeriod*encoder->ticks_per_revolution);
+	encoder->revolutions += difference/(double)encoder->ticks_per_revolution;
+	encoder->lastCount = count;
 }
 
 
