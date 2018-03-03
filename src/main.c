@@ -5,6 +5,7 @@
 #include "Analog.h"
 #include "DMA.h"
 #include "IO.h"
+#include "SR.h"
 #include "PID.h"
 #include "Motors.h"
 #include "Encoders.h"
@@ -21,6 +22,7 @@ int main(void)
 	LCD lcd;
 	USART usb, esp;
 	Analog adc;
+	SR sr;
 	
 	/* Configure the system clock to 84 MHz */
 	SystemClock_Config();
@@ -40,15 +42,16 @@ int main(void)
 	//motors = Motors_init(motorLeft, motorRight, encoderLeftPID, encoderRightPID);
 	
 	
-	// Initialize communication peripherials
-	lcd = LCD_init();
+	// Initialize communication peripherial	lcd = LCD_init();
 	LCD_setFont(lcd, (char *)SmallFont);
+	LCD_cls(lcd);
 
 	usb = USART_USB_init();
 	esp = USART_ESP_init();
 	
 	adc = Analog_init();
 	Analog_enable(adc);
+	sr = SR_init(6);
 	
 	// Initialize DMA controller
 	DMA_init(DMA_getBuffers(esp, usb, lcd, adc));
