@@ -37,8 +37,8 @@ static void LCD_SPI_sendDataBuffer(void);
 static void LCD_writeData(unsigned char data);
 static void LCD_writeCommand(unsigned char command);
 
-static void LCD_copyDataBuffer(LCD* lcd);
-static void LCD_copyDataBufferFast(LCD* lcd);										
+static void LCD_copyDataBuffer(LCD lcd);
+static void LCD_copyDataBufferFast(LCD lcd);										
 
 /* LCD Commands */
 											
@@ -113,8 +113,8 @@ static void LCD_copyDataBufferFast(LCD* lcd);
 static Buffer SPI_TX_BUFFER;
 
 
-LCD * LCD_init(void){
-  LCD* lcd = (LCD*)malloc(sizeof(LCD));
+LCD LCD_init(void){
+  LCD lcd = malloc(sizeof(__LCD));
   memset(lcd->buffer, 0x00, sizeof(lcd->buffer[0])*LCD_BUFFER_SIZE);
 	
 	SPI_TX_BUFFER.buffer = NULL;
@@ -155,7 +155,7 @@ LCD * LCD_init(void){
 	return lcd;
 }
 
-int LCD_printf(LCD* lcd, const char *format, ...){
+int LCD_printf(LCD lcd, const char *format, ...){
   char outputString[128];
   va_list argptr;
   va_start(argptr, format);
@@ -164,13 +164,13 @@ int LCD_printf(LCD* lcd, const char *format, ...){
   return LCD_puts(lcd, lcd->char_x, lcd->char_y, outputString);
 }
 
-int LCD_puts(LCD* lcd, uint8_t x, uint8_t y, char* stringToSend){
+int LCD_puts(LCD lcd, uint8_t x, uint8_t y, char* stringToSend){
 	LCD_puts_buffer(lcd, x, y, stringToSend);
 	LCD_copyDataBuffer(lcd);
 	return 1;
 }
 
-int LCD_puts_buffer(LCD* lcd, uint8_t x, uint8_t y, char* stringToSend){
+int LCD_puts_buffer(LCD lcd, uint8_t x, uint8_t y, char* stringToSend){
 	LCD_locate(lcd, x,y);
 	int width_of_font = lcd->font[1]-1;
 	int length = strlen(stringToSend);
@@ -183,7 +183,7 @@ int LCD_puts_buffer(LCD* lcd, uint8_t x, uint8_t y, char* stringToSend){
 }
 
 
-int LCD_putc(LCD* lcd, char value)
+int LCD_putc(LCD lcd, char value)
 {
     if (value == '\n') {    // new line
         lcd->char_x = 0;
@@ -197,7 +197,7 @@ int LCD_putc(LCD* lcd, char value)
     return value;
 }
  
-void LCD_character(LCD* lcd, uint8_t x, uint8_t y, char c)
+void LCD_character(LCD lcd, uint8_t x, uint8_t y, char c)
 {
     uint16_t hor,vert,offset,bpl,j,i,b;
     char* symbol;
@@ -238,54 +238,54 @@ void LCD_character(LCD* lcd, uint8_t x, uint8_t y, char c)
     lcd->char_x += w;
 }
  
-void LCD_flushBuffer(LCD* lcd){
+void LCD_flushBuffer(LCD lcd){
 	LCD_copyDataBufferFast(lcd);
 }
 
 
-void LCD_setFont(LCD* lcd, char* f)
+void LCD_setFont(LCD lcd, char* f)
 {
     lcd->font = &f[0];
 }
 
-int LCD_width(LCD* lcd)
+int LCD_width(LCD lcd)
 {
     if (lcd->orientation == 0 || lcd->orientation == 2) return 32;
     else return 128;
 }
  
-int LCD_height(LCD* lcd)
+int LCD_height(LCD lcd)
 {
     if (lcd->orientation == 0 || lcd->orientation == 2) return 128;
     else return 32;
 }
 
-int LCD_columns(LCD* lcd)
+int LCD_columns(LCD lcd)
 {
     return LCD_width(lcd) / lcd->font[1];
 }
  
  
  
-int LCD_rows(LCD* lcd)
+int LCD_rows(LCD lcd)
 {
     return LCD_height(lcd) / lcd->font[2];
 }
 
-void LCD_locate(LCD* lcd, uint8_t x, uint8_t y)
+void LCD_locate(LCD lcd, uint8_t x, uint8_t y)
 {
     lcd->char_x = x;
     lcd->char_y = y;
 }
  
 
-void LCD_cls(LCD* lcd){
+void LCD_cls(LCD lcd){
 	  memset(lcd->buffer,0x00,sizeof(lcd->buffer[0])*LCD_BUFFER_SIZE);  // clear display buffer
 	  LCD_copyDataBuffer(lcd);
 }
 
  
-void LCD_pixel(LCD* lcd, uint8_t x, uint8_t y, uint8_t color)
+void LCD_pixel(LCD lcd, uint8_t x, uint8_t y, uint8_t color)
 {
 		if(x >= 128 || y >= 32) return;
     if(color == 0)
@@ -295,13 +295,13 @@ void LCD_pixel(LCD* lcd, uint8_t x, uint8_t y, uint8_t color)
 }
 
 
-void LCD_setContrast(LCD* lcd, unsigned int o)
+void LCD_setContrast(LCD lcd, unsigned int o)
 {
     LCD_writeCommand(LCD_CMD_CONTRAST);      
     LCD_writeCommand(o & 0x3F);
 }
 
-void LCD_fillPage(LCD* lcd, char page){
+void LCD_fillPage(LCD lcd, char page){
 	if(page == 0){  //Line 1
 		for(int i=0;i<128;i++){
 			lcd->buffer[i] = 0xff;
@@ -326,7 +326,7 @@ void LCD_fillPage(LCD* lcd, char page){
 }
 
 
-void LCD_copyDataBuffer(LCD * lcd) {   
+void LCD_copyDataBuffer(LCD lcd) {   
   
   // Loop through all pages
   for(uint8_t page = 0; page < 4; page++){
@@ -344,7 +344,7 @@ void LCD_copyDataBuffer(LCD * lcd) {
   //LCD_writeCommand(LCD_CMD_END);
 }
 
-void LCD_copyDataBufferFast(LCD *lcd) {
+void LCD_copyDataBufferFast(LCD lcd) {
 	SPI_TX_BUFFER.buffer = lcd->buffer;
 	SPI_TX_BUFFER.send = 1;
 	//SPI_TX_BUFFER.length = LCD_BUFFER_SIZE;

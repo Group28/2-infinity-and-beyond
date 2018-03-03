@@ -12,18 +12,18 @@ typedef struct {
 	int lastCount; 				// Last value of counter
 	double revolutions; 	// Number of total revolutions
 	TIM_TypeDef * timer; 	// Timer attached to encoders 
-} Encoder;
+} __Encoder, *Encoder;;
 
 
-Encoder * Encoder_init(TIM_TypeDef * timer, double samplePeriod, int ticks);
+Encoder Encoder_init(TIM_TypeDef * timer, double samplePeriod, int ticks);
 
-double Encoder_getSpeed(Encoder * encoder);
+double Encoder_getSpeed(Encoder encoder);
 
-double Encoder_getRevolutions(Encoder *encoder);
+double Encoder_getRevolutions(Encoder encoder);
 
-void Encoder_Reset(Encoder *encoder);
+void Encoder_Reset(Encoder encoder);
 
-void Encoder_Update(Encoder *encoder);
+void Encoder_Update(Encoder encoder);
 
 
 #endif

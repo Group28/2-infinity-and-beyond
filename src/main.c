@@ -36,8 +36,8 @@ int main(void)
 	
 	
 	// Initialize communication peripherials
-	LCD * lcd;
-	USART *usb, *esp;
+	LCD lcd;
+	USART usb, esp;
 	
 	lcd = LCD_init();
 	LCD_setFont(lcd, (char *)SmallFont);
@@ -63,6 +63,3 @@ int main(void)
 		
 	}
 }
-
-
-

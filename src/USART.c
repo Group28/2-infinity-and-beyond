@@ -5,8 +5,10 @@
 #include <stdarg.h>
 #include <stdio.h>
 
-USART * __USART_init(void){
-	USART * usart = malloc(sizeof(USART));
+static USART __USART_init(void);
+
+USART __USART_init(void){
+	USART usart = malloc(sizeof(__USART));
   usart->usart = NULL;
 	usart->buffRX.buffer = malloc(sizeof(char) * USART_BUFFER_SIZE);
 	usart->buffRX.index = 0;
@@ -22,8 +24,8 @@ USART * __USART_init(void){
 }
 
 
-USART * USART_USB_init(void){
-  USART * usart = __USART_init();
+USART USART_USB_init(void){
+  USART usart = __USART_init();
 	usart->usart = USART2;
    /* Enable USART peripheral clock and clock source ***********************/
   LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_USART2);
@@ -45,8 +47,8 @@ USART * USART_USB_init(void){
   return usart;
 }
 
-USART *  USART_ESP_init(void){
-  USART * usart = __USART_init();
+USART  USART_ESP_init(void){
+  USART usart = __USART_init();
 	usart->usart = USART6;
 	
     /* Enable USART peripheral clock and clock source ***********************/
@@ -69,13 +71,13 @@ USART *  USART_ESP_init(void){
   return usart;
 }
 
-int USART_putc(USART * usart, char c){
+int USART_putc(USART usart, char c){
 		USART_putc_buffer(usart, c);
 		USART_flushBuffer(usart);
 		return 1;
 }
 
-int USART_putc_buffer(USART * usart, char c){
+int USART_putc_buffer(USART usart, char c){
 	uint8_t complete = 0;
 	while(!complete) {
 		while(usart->buffTX.send){} // If transmitting, wait until we are done
@@ -89,13 +91,13 @@ int USART_putc_buffer(USART * usart, char c){
 	return 0;
 }
 
-int USART_puts(USART *usart, char *string){
+int USART_puts(USART usart, char *string){
 	USART_puts_buffer(usart, string);
 	USART_flushBuffer(usart);
 	return 1;
 }
 
-int USART_puts_buffer(USART *usart, char *string){
+int USART_puts_buffer(USART usart, char *string){
 	uint8_t done = 0;
 	uint32_t start_string = 0;
 
@@ -118,7 +120,7 @@ int USART_puts_buffer(USART *usart, char *string){
 }
 
 
-int USART_printf(USART *usart, const char *format, ...){
+int USART_printf(USART usart, const char *format, ...){
   char outputString[256];
   va_list argptr;
   va_start(argptr, format);
@@ -127,10 +129,7 @@ int USART_printf(USART *usart, const char *format, ...){
   return USART_puts(usart, outputString);
 }
 
-int USART_flushBuffer(USART *usart) {
+int USART_flushBuffer(USART usart) {
 	usart->buffTX.send = 1;
 	return DMA_StartSerialTransfer(usart);
 }
-
-
-

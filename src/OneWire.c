@@ -3,8 +3,8 @@
 
 
 
-OW * OW_init(GPIO_TypeDef * port, uint32_t pin){
-  OW * ow = malloc(sizeof(OW));
+OW OW_init(GPIO_TypeDef * port, uint32_t pin){
+  OW ow = malloc(sizeof(__OW));
   ow->port = port;
   ow->pin = pin;
   
@@ -18,7 +18,7 @@ OW * OW_init(GPIO_TypeDef * port, uint32_t pin){
   return ow;
 }
 
-bool OW_reset(OW *ow){
+bool OW_reset(OW ow){
   bool result = false;
   
   LL_GPIO_ResetOutputPin(ow->port, ow->pin);
@@ -36,7 +36,7 @@ bool OW_reset(OW *ow){
   return result;
 }
 
-void OW_writeBit(OW *ow, BYTE b){
+void OW_writeBit(OW ow, BYTE b){
   LL_GPIO_ResetOutputPin(ow->port, ow->pin);
   __OW_OUTPUT();
   if(b){
@@ -52,7 +52,7 @@ void OW_writeBit(OW *ow, BYTE b){
   
 }
 
-BYTE OW_readBit(OW *ow){
+BYTE OW_readBit(OW ow){
   BYTE result;
   
   LL_GPIO_ResetOutputPin(ow->port, ow->pin);
@@ -69,14 +69,14 @@ BYTE OW_readBit(OW *ow){
   return result & 0x01;
 }
 
-void OW_writeByte(OW *ow, BYTE byte){
+void OW_writeByte(OW ow, BYTE byte){
   for(uint8_t i= 0; i<8; i++){
     OW_writeBit(ow, byte & 0x01);
     byte >>= 1;
   }
 }
 
-BYTE OW_readByte(OW *ow){
+BYTE OW_readByte(OW ow){
   BYTE result = 0;
   for(uint8_t i = 0; i < 8; i++){
     result >>=1;

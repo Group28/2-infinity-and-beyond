@@ -13,14 +13,14 @@ typedef struct {
 	Buffer *usbRX;
 	Buffer *usbTX;
 	Buffer *lcdTX;
-} DMA_Buffers;
+} __DMA_Buffers,  *DMA_Buffers;
 
 
-DMA_Buffers * DMA_getBuffers(USART *esp, USART *usb, LCD *lcd);
+DMA_Buffers DMA_getBuffers(USART esp, USART usb, LCD lcd);
 
-void DMA_init(DMA_Buffers *buffers);
+void DMA_init(DMA_Buffers buffers);
 
-int DMA_StartSerialTransfer(USART *usart);
+int DMA_StartSerialTransfer(USART usart);
 
 
 #endif
