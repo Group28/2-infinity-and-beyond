@@ -19,18 +19,18 @@ Motor Motor_init(PID_Values values, Encoder encoder){
 }
 
 Motors Motors_init(PID_Values valuesL, PID_Values valuesR, Encoder encL, Encoder encR){
-	Motors motors = (malloc(sizeof(__Motors));
+	Motors motors = malloc(sizeof(__Motors));
 	motors->motorLeft = Motor_init(valuesL, encL);
 	motors->motorRight = Motor_init(valuesR, encR);
 	
 	return motors;
 }
 
-void Motor_Left_PID_action(Motor * motor){
+void Motor_Left_PID_action(Motor motor){
 	//double realSpeed =  Encoder_getSpeed(motor->encoder);
 }
 
-void Motor_Right_PID_action(Motor * motor){
+void Motor_Right_PID_action(Motor motor){
 
 }
 
