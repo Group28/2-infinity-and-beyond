@@ -310,7 +310,7 @@
           </ArmAdsMisc>
           <Cads>
             <interw>1</interw>
-            <Optim>1</Optim>
+            <Optim>2</Optim>
             <oTime>0</oTime>
             <SplitLS>0</SplitLS>
             <OneElfS>1</OneElfS>
@@ -393,6 +393,11 @@
               <FileName>IO.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\src\IO.c</FilePath>
+            </File>
+            <File>
+              <FileName>SR.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\src\SR.c</FilePath>
             </File>
             <File>
               <FileName>USART.c</FileName>

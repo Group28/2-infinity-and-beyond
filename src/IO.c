@@ -6,7 +6,7 @@
 
 // Initialize an output
 static void IO_Output_init(GPIO_TypeDef * port, uint32_t pin);
-//void IO_Analog_init();
+static void IO_Analog_init(GPIO_TypeDef * port, uint32_t pin);
 
 static void IO_initMotors(void);
 static void IO_initEncoders(void);
@@ -71,6 +71,14 @@ void IO_Output_init(GPIO_TypeDef * port, uint32_t pin){
 	LL_GPIO_SetPinSpeed(port, pin, LL_GPIO_SPEED_FREQ_VERY_HIGH);
 	LL_GPIO_SetPinOutputType(port, pin, LL_GPIO_OUTPUT_PUSHPULL);
 	LL_GPIO_SetPinPull(port,pin, LL_GPIO_PULL_NO);
+	
+}
+
+void IO_Analog_init(GPIO_TypeDef * port, uint32_t pin){
+	LL_GPIO_SetPinMode(port, pin, LL_GPIO_MODE_ANALOG);
+	// LL_GPIO_SetPinSpeed(port, pin, LL_GPIO_SPEED_FREQ_VERY_HIGH);
+	// LL_GPIO_SetPinOutputType(port, pin, LL_GPIO_OUTPUT_PUSHPULL);
+	// LL_GPIO_SetPinPull(port,pin, LL_GPIO_PULL_NO);
 	
 }
 
@@ -238,13 +246,19 @@ void IO_initEncoders(void){
 }
 
 void IO_initAnalogueSensors(void){
-	//LL_ADC_InitTypeDef ADC_InitStruct;
-	//LL_GPIO_InitTypeDef ADC_GPIO_InitStruct;
-	//ADC_GPIO_InitStruct.Pin = IO_ALL_SENSORS;
-	//ADC_GPIO_InitStruct.Mode = LL_GPIO_MODE_ANALOG;
-	//ADC_GPIO_InitStruct.Pull = LL_GPIO_PULL_NO;
-	//LL_GPIO_Init(GPIOC, &ADC_GPIO_InitStruct);
+	IO_Analog_init(IO_SENSOR_0);
+	IO_Analog_init(IO_SENSOR_1);
+	IO_Analog_init(IO_SENSOR_2);
+	IO_Analog_init(IO_SENSOR_3);
+	IO_Analog_init(IO_SENSOR_4);
+	IO_Analog_init(IO_SENSOR_5);
 	
+	IO_Analog_init(IO_MAGNETIC);
+	
+	IO_Analog_init(IO_SENS_A_PLUS);
+	IO_Analog_init(IO_SENS_A_MINUS);
+	IO_Analog_init(IO_SENS_B_PLUS);
+	IO_Analog_init(IO_SENS_B_MINUS);	
 }
 
 void IO_initLCD(void){

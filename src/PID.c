@@ -4,8 +4,8 @@
  
 
 
-PID *PID_init(PID_Values values, double interval, double minEffort, double maxEffort){
-	PID * pid = (PID*)malloc(sizeof(PID));
+PID PID_init(PID_Values values, double interval, double minEffort, double maxEffort){
+	PID pid = malloc(sizeof(__PID));
 	pid->values = values;
 	pid->lastError = 0;
 	pid->error = 0;
@@ -21,7 +21,7 @@ PID *PID_init(PID_Values values, double interval, double minEffort, double maxEf
 	return pid;
 }
 
-double PID_compute(PID *pid){
+double PID_compute(PID pid){
   pid->lastError = pid->error; // Set last error
   
   pid->error = pid->target - pid->measured; // Calculate current error from target and measured values
@@ -40,43 +40,43 @@ double PID_compute(PID *pid){
 	return effort;
 }
 
-void PID_reset(PID *pid){
+void PID_reset(PID pid){
   pid->lastError = 0;
   pid->error = 0;
   pid->accError = 0;
 }
 
 
-void PID_setMeasuredValue(PID *pid, double value){
+void PID_setMeasuredValue(PID pid, double value){
   pid->measured = value;
 }
-void PID_setTargetValue(PID *pid, double value){
+void PID_setTargetValue(PID pid, double value){
   pid->target = value;
 }
 
-void PID_setP(PID *pid, double P){
+void PID_setP(PID pid, double P){
 	pid->values.P = P;
 }
-void PID_setI(PID *pid, double I){
+void PID_setI(PID pid, double I){
 	pid->values.I = I;
 }
-void PID_setD(PID *pid, double D){
+void PID_setD(PID pid, double D){
 	pid->values.D = D;
 }
 
-void PID_setMinEffor(PID *pid, double minEffort){
+void PID_setMinEffor(PID pid, double minEffort){
   pid->minEffort = minEffort;
 }
-void PID_setMaxEffor(PID *pid, double maxEffort){
+void PID_setMaxEffor(PID pid, double maxEffort){
   pid->maxEffort = maxEffort;
 }
 
-double PID_getP(PID *pid){
+double PID_getP(PID pid){
   return pid->values.P;
 }
-double PID_getI(PID *pid){
+double PID_getI(PID pid){
   return pid->values.I;
 }
-double PID_getD(PID *pid){
+double PID_getD(PID pid){
   return pid->values.D;
 }

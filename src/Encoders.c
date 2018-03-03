@@ -3,7 +3,7 @@
 #include "stdlib.h"
 #include "configuration.h"
 
-static void Encoder_resetCounter(Encoder * encoder){
+static void Encoder_resetCounter(Encoder encoder){
 	if(encoder->timer == TIM2){
 		NVIC_DisableIRQ(TIM2_IRQn);	
 		LL_TIM_SetCounter(encoder->timer, 0);
@@ -15,8 +15,8 @@ static void Encoder_resetCounter(Encoder * encoder){
 	}
 }
 
-Encoder * Encoder_init(TIM_TypeDef * timer, double samplePeriod, uint16_t ticks_per_revolution){
-	Encoder * encoder = (Encoder*)malloc(sizeof(Encoder));
+Encoder Encoder_init(TIM_TypeDef * timer, double samplePeriod, uint16_t ticks_per_revolution){
+	Encoder encoder = malloc(sizeof(__Encoder));
 	encoder->speed = 0;
 	encoder->samplePeriod = samplePeriod;
 	encoder->lastCount = 0;
@@ -28,15 +28,15 @@ Encoder * Encoder_init(TIM_TypeDef * timer, double samplePeriod, uint16_t ticks_
 	return encoder;
 }
 
-double Encoder_getSpeed(Encoder * encoder){
+double Encoder_getSpeed(Encoder encoder){
 	return encoder->speed;
 }
 
-double Encoder_getRevolutions(Encoder * encoder){
+double Encoder_getRevolutions(Encoder encoder){
 	return encoder->revolutions;
 }
 
-void Encoder_reset(Encoder * encoder){
+void Encoder_Reset(Encoder encoder){
 	encoder->speed = 0;
 	encoder->revolutions=0;
 	Encoder_resetCounter(encoder);
@@ -44,7 +44,7 @@ void Encoder_reset(Encoder * encoder){
 }
 
 
-void Encoder_update(Encoder *encoder){
+void Encoder_Update(Encoder encoder){
 	int32_t count = (int32_t) LL_TIM_GetCounter(encoder->timer);
 	int difference = count - encoder->lastCount;
 	encoder->speed = (difference)/(encoder->samplePeriod*encoder->ticks_per_revolution);
