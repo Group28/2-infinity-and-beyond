@@ -8,8 +8,8 @@
 
 
 typedef struct {
-	PID * pid;
-	Encoder * encoder;
+	PID pid;
+	Encoder encoder;
 	double speed;
 } __Motor, *Motor;;
 
@@ -17,7 +17,7 @@ typedef struct {
 	Motor motorLeft;
 	Motor motorRight;
 	
-} __Motors, *Motor;;
+} __Motors, *Motors;;
 
 Motor Motor_init(PID_Values values, Encoder encoder);
 
