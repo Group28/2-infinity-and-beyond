@@ -11,7 +11,7 @@ typedef struct {
 } Buffer;
 
 typedef struct {
-	uint16__t buffer[ADC_CHANNEL_COUNT];
+	uint16_t buffer[ADC_CHANNEL_COUNT];
 	uint8_t newData:1;
 	
 } ADCBuffer;
