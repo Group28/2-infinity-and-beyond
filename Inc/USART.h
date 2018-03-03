@@ -10,24 +10,23 @@ typedef struct {
   USART_TypeDef *usart;
 	Buffer buffRX;
   Buffer buffTX;
-} USART;
+} __USART, * USART;;
+
+int USART_putc(USART usart, char c);
+int USART_putc_buffer(USART usart, char c);
+
+int USART_puts(USART usart, char *string);
+int USART_puts_buffer(USART usart, char *string);
+
+int USART_printf(USART usart, const char *format, ...);
+int USART_printf_buffer(USART usart, const char *format, ...);
+
+int USART_flushBuffer(USART usart);
 
 
-int USART_putc(USART *usart, char c);
-int USART_putc_buffer(USART *usart, char c);
 
-int USART_puts(USART *usart, char *string);
-int USART_puts_buffer(USART *usart, char *string);
-
-int USART_printf(USART *usart, const char *format, ...);
-int USART_printf_buffer(USART *usart, const char *format, ...);
-
-int USART_flushBuffer(USART *usart);
-
-
-static USART * __USART_init(void);
-USART *USART_USB_init(void);
-USART *USART_ESP_init(void);
+USART USART_USB_init(void);
+USART USART_ESP_init(void);
 
 
 

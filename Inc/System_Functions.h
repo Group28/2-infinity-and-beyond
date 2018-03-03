@@ -7,7 +7,7 @@
 void SystemClock_Config(void);
 void SysTick_Handler(void);
 
-uint32_t System_micros(void);
+inline uint32_t System_micros(void);
 
 #endif
 

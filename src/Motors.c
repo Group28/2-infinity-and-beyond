@@ -7,8 +7,8 @@
 #include "math.h"
 
 
-Motor * Motor_init(PID_Values values, Encoder * encoder){
-	Motor * motor = (Motor*) malloc(sizeof(Motor));
+Motor Motor_init(PID_Values values, Encoder encoder){
+	Motor motor = malloc(sizeof(__Motor));
 	motor->pid = PID_init(values, MOTOR_SAMPLE_FREQ, -1,1);
 	motor->speed = 0;
 	
@@ -18,37 +18,37 @@ Motor * Motor_init(PID_Values values, Encoder * encoder){
 	return motor;
 }
 
-Motors * Motors_init(PID_Values valuesL, PID_Values valuesR, Encoder * encL, Encoder * encR){
-	Motors * motors = (Motors*) malloc(sizeof(Motors));
+Motors Motors_init(PID_Values valuesL, PID_Values valuesR, Encoder encL, Encoder encR){
+	Motors motors = malloc(sizeof(__Motors));
 	motors->motorLeft = Motor_init(valuesL, encL);
 	motors->motorRight = Motor_init(valuesR, encR);
 	
 	return motors;
 }
 
-void Motor_Left_PID_action(Motor * motor){
+void Motor_Left_PID_action(Motor motor){
 	//double realSpeed =  Encoder_getSpeed(motor->encoder);
 }
 
-void Motor_Right_PID_action(Motor * motor){
+void Motor_Right_PID_action(Motor motor){
 
 }
 
 
 
-void Motors_PID_action(Motors * motors){
+void Motors_PID_action(Motors motors){
 	Motor_Left_PID_action(motors->motorLeft);
 	Motor_Right_PID_action(motors->motorRight);
 }
 
-void Motor_Left_setSpeed(Motor * motor, double speed){
+void Motor_Left_setSpeed(Motor motor, double speed){
 	motor->speed = speed;
 }
-void Motor_Right_setSpeed(Motor * motor, double speed){
+void Motor_Right_setSpeed(Motor motor, double speed){
 	motor->speed = speed;
 }
 
-void Motors_setSpeed(Motors * motors, double speedL, double speedR){
+void Motors_setSpeed(Motors motors, double speedL, double speedR){
 	Motor_Left_setSpeed(motors->motorLeft, speedL);
 	Motor_Right_setSpeed(motors->motorRight, speedR);
 }
