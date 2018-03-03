@@ -12,7 +12,7 @@ typedef struct {
   uint8_t char_x;
   uint8_t char_y;
   uint8_t orientation;
-} __LCD, *LCD;;
+} __LCD, *LCD;
 
 
 
@@ -62,8 +62,8 @@ void     LCD_character    (LCD lcd, uint8_t x, uint8_t y, char c);
 int      LCD_putc         (LCD lcd, char);
 int      LCD_putc_buffer  (LCD lcd, char);
 
-int      LCD_puts         (LCD lcd, uint8_t x, uint8_t y, char* stringToSend);
-int      LCD_puts_buffer  (LCD lcd, uint8_t x, uint8_t y, char* stringToSend);
+int      LCD_puts         (LCD lcd, char* stringToSend);
+int      LCD_puts_buffer  (LCD lcd, char* stringToSend);
 
 int      LCD_printf       (LCD lcd, const char *format, ...);
 int      LCD_printf_buffer(LCD lcd, const char *format, ...);
