@@ -4,6 +4,7 @@
 
 #include "DMA.h"
 #include "IO.h"
+#include "SR.h"
 #include "PID.h"
 #include "Motors.h"
 #include "Encoders.h"
@@ -38,9 +39,11 @@ int main(void)
 	// Initialize communication peripherials
 	LCD * lcd;
 	USART *usb, *esp;
+	SR sr = SR_init(6);
 	
 	lcd = LCD_init();
 	LCD_setFont(lcd, (char *)SmallFont);
+	LCD_cls(lcd);
 
 	usb = USART_USB_init();
 	esp = USART_ESP_init();
@@ -50,16 +53,13 @@ int main(void)
 	
 	
   /* Infinite loop */
-	int counter = 0;
   while (1)
   {
-		LCD_locate(lcd, 0, 0);
-		LCD_cls(lcd);
-		LCD_printf(lcd, "Hello %d", counter);
+		LL_GPIO_SetOutputPin(IO_SR_DATA);
+		delay_us(1);
+		LL_GPIO_ResetOutputPin(IO_SR_DATA);
+		delay_us(1);
 		
-		USART_printf(usb, "Hello %d\n", counter);
-		USART_printf(esp, "Hello %d\n", counter++);
-		delay(0.5);
 		
 	}
 }
