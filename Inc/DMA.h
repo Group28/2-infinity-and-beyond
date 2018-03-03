@@ -1,6 +1,6 @@
 #include "main.h"
 #include "utils.h"
-#include "ADC.h"
+#include "Analog.h"
 #include "LCD.h"
 #include "USART.h"
 
@@ -20,7 +20,7 @@ typedef struct {
 } __DMA_Buffers,  *DMA_Buffers;
 
 
-DMA_Buffers DMA_getBuffers(USART esp, USART usb, LCD lcd, ADC adc);
+DMA_Buffers DMA_getBuffers(USART esp, USART usb, LCD lcd, Analog adc);
 
 void DMA_init(DMA_Buffers buffers);
 

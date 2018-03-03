@@ -1,9 +1,11 @@
-#include "ADC.h"
+#include "Analog.h"
 #include "configuration.h"
 #include "utils.h"
 
-ADC ADC_init(){
-  ADC adc = malloc(sizeof(__ADC));
+#include <stdlib.h>
+
+Analog Analog_init(){
+  Analog adc = malloc(sizeof(__Analog));
   
   NVIC_SetPriority(ADC_IRQn, 0); /* ADC IRQ greater priority than DMA IRQ */
   NVIC_EnableIRQ(ADC_IRQn);
@@ -27,8 +29,8 @@ ADC ADC_init(){
   
   
 
-  LL_ADC_SetResolution(ADC_RESOLUTION);
-  LL_ADC_SetDataAlignment(LL_ADC_DATA_ALIGN_RIGHT);
+  LL_ADC_SetResolution(ADC1, ADC_RESOLUTION);
+  LL_ADC_SetDataAlignment(ADC1, LL_ADC_DATA_ALIGN_RIGHT);
   
   LL_ADC_SetSequencersScanMode(ADC1, LL_ADC_SEQ_SCAN_ENABLE);
   
@@ -74,22 +76,22 @@ ADC ADC_init(){
 }
 
 
-void ADC_enable(ADC adc){  
+void Analog_enable(Analog adc){  
   adc->enabled = 1;
   adc->converting = 0;
   if (!LL_ADC_IsEnabled(ADC1)) LL_ADC_Enable(ADC1);
 }
 
 
-void ADC_startConversion(ADC adc){
+void Analog_startConversion(Analog adc){
   if(LL_ADC_IsEnabled(ADC1)) {
     adc->converting = 1;
     LL_ADC_REG_StartConversionSWStart(ADC1);
   }
 }
 
-uint16_t * ADC_getValues(ADC adc){
-    return adc->buffer->buffer;
+uint16_t * Analog_getValues(Analog adc){
+    return adc->buffer.buffer;
 }
 
 

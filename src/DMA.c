@@ -1,5 +1,5 @@
 #include "DMA.h"
-#include "stdlib.h"
+#include <stdlib.h>
 
 static DMA_Buffers buffers;
 
@@ -160,7 +160,7 @@ LL_DMA_EnableStream(DMA2,LL_DMA_STREAM_0);
 }
 
 
-DMA_Buffers DMA_getBuffers(USART esp, USART usb, LCD lcd, ADC adc){
+DMA_Buffers DMA_getBuffers(USART esp, USART usb, LCD lcd, Analog adc){
 	DMA_Buffers dma_buffers = malloc(sizeof(__DMA_Buffers));
 	dma_buffers->espRX = &esp->buffRX;
 	dma_buffers->espTX = &esp->buffTX;

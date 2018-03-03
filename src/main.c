@@ -2,7 +2,7 @@
 
 #include "System_Functions.h"
 
-#include "ADC.h"
+#include "Analog.h"
 #include "DMA.h"
 #include "IO.h"
 #include "PID.h"
@@ -20,7 +20,7 @@ int main(void)
 {
 	LCD lcd;
 	USART usb, esp;
-	ADC adc;
+	Analog adc;
 	
 	/* Configure the system clock to 84 MHz */
 	SystemClock_Config();
@@ -47,25 +47,30 @@ int main(void)
 	usb = USART_USB_init();
 	esp = USART_ESP_init();
 	
-	adc = ADC_init();
-	ADC_activate(adc);
+	adc = Analog_init();
+	Analog_enable(adc);
 	
 	// Initialize DMA controller
 	DMA_init(DMA_getBuffers(esp, usb, lcd, adc));
 	
 	uint16_t *adcValues;
+	float conv[ADC_CHANNEL_COUNT];
 	
   /* Infinite loop */
   while (1)
   {
-		ADC_startConversion(adc);
+		Analog_startConversion(adc);
 		delay(0.1);
 		
-		adcValues = ADC_getValues(adc);
+		adcValues = Analog_getValues(adc);
+		
+		for(int i = 0; i< ADC_CHANNEL_COUNT; i++){
+			conv[i]=adcValues[i]/4096.0;
+		}
 		
 		LCD_locate(lcd, 0, 0);
 		LCD_cls(lcd);
-		LCD_printf(lcd, "0: %u, 1: %u, 2: %u, 3: %u", adcValues[0], adcValues[1], adcValues[2], adcValues[3]);
+		LCD_printf(lcd, "0:%.2f 1:%.2f 2:%.2f 3:%.2f\n4:%.2f 5:%.2f A+%.2f A-%.2f\nB+%.2f B-%.2f M:%.2f\n", conv[0], conv[1], conv[2], conv[3],conv[4],conv[5],conv[7],conv[8],conv[9],conv[10],conv[6]);
 		
 
 		delay(0.5);
