@@ -2,6 +2,7 @@
 
 #include "System_Functions.h"
 
+#include "ADC.h"
 #include "DMA.h"
 #include "IO.h"
 #include "PID.h"
@@ -17,6 +18,10 @@ DMA_Buffers dma_buffers;
 
 int main(void)
 {
+	LCD lcd;
+	USART usb, esp;
+	ADC adc;
+	
 	/* Configure the system clock to 84 MHz */
 	SystemClock_Config();
 	
@@ -36,29 +41,33 @@ int main(void)
 	
 	
 	// Initialize communication peripherials
-	LCD lcd;
-	USART usb, esp;
-	
 	lcd = LCD_init();
 	LCD_setFont(lcd, (char *)SmallFont);
 
 	usb = USART_USB_init();
 	esp = USART_ESP_init();
 	
-	// Initialize DMA controller
-	DMA_init(DMA_getBuffers(esp, usb, lcd));
+	adc = ADC_init();
+	ADC_activate(adc);
 	
+	// Initialize DMA controller
+	DMA_init(DMA_getBuffers(esp, usb, lcd, adc));
+	
+	uint16_t *adcValues;
 	
   /* Infinite loop */
-	int counter = 0;
   while (1)
   {
+		ADC_startConversion(adc);
+		delay(0.1);
+		
+		adcValues = ADC_getValues(adc);
+		
 		LCD_locate(lcd, 0, 0);
 		LCD_cls(lcd);
-		LCD_printf(lcd, "Hello %d", counter);
+		LCD_printf(lcd, "0: %u, 1: %u, 2: %u, 3: %u", adcValues[0], adcValues[1], adcValues[2], adcValues[3]);
 		
-		USART_printf(usb, "Hello %d\n", counter);
-		USART_printf(esp, "Hello %d\n", counter++);
+
 		delay(0.5);
 		
 	}

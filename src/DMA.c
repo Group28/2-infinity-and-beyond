@@ -117,12 +117,50 @@ void DMA_init(DMA_Buffers buffs) {
   LL_DMA_EnableIT_TE(DMA2, LL_DMA_STREAM_6);
 	
 	
+	/* ADC conversion DMA requests */
 	
+	NVIC_SetPriority(DMA2_Stream0_IRQn, 1);  /* DMA IRQ lower priority than ADC IRQ */
+  NVIC_EnableIRQ(DMA2_Stream0_IRQn);
+	
+	LL_DMA_SetChannelSelection(DMA2, LL_DMA_STREAM_0, LL_DMA_CHANNEL_0);
+	LL_DMA_ConfigTransfer(DMA2,
+										LL_DMA_STREAM_0,
+										LL_DMA_DIRECTION_PERIPH_TO_MEMORY |
+										LL_DMA_MODE_CIRCULAR              |
+										LL_DMA_PERIPH_NOINCREMENT         |
+										LL_DMA_MEMORY_INCREMENT           |
+										LL_DMA_PDATAALIGN_HALFWORD        |
+										LL_DMA_MDATAALIGN_HALFWORD        |
+										LL_DMA_PRIORITY_HIGH               );
+
+		/* Set DMA transfer addresses of source and destination */
+		LL_DMA_ConfigAddresses(DMA2,
+										LL_DMA_STREAM_0,
+										 LL_ADC_DMA_GetRegAddr(ADC1, LL_ADC_DMA_REG_REGULAR_DATA),
+										 (uint32_t)buffers->adcData->buffer,
+										 LL_DMA_DIRECTION_PERIPH_TO_MEMORY);
+
+/* Set DMA transfer size */
+LL_DMA_SetDataLength(DMA2,
+										LL_DMA_STREAM_0,
+									 ADC_CHANNEL_COUNT);
+
+/* Enable DMA transfer interruption: transfer complete */
+LL_DMA_EnableIT_TC(DMA2,
+										LL_DMA_STREAM_0);
+
+/* Enable DMA transfer interruption: transfer error */
+LL_DMA_EnableIT_TE(DMA2,
+										LL_DMA_STREAM_0);
+
+/*## Activation of DMA #####################################################*/
+/* Enable the DMA transfer */
+LL_DMA_EnableStream(DMA2,LL_DMA_STREAM_0);
 	
 }
 
 
-DMA_Buffers DMA_getBuffers(USART esp, USART usb, LCD lcd){
+DMA_Buffers DMA_getBuffers(USART esp, USART usb, LCD lcd, ADC adc){
 	DMA_Buffers dma_buffers = malloc(sizeof(__DMA_Buffers));
 	dma_buffers->espRX = &esp->buffRX;
 	dma_buffers->espTX = &esp->buffTX;
@@ -131,6 +169,8 @@ DMA_Buffers DMA_getBuffers(USART esp, USART usb, LCD lcd){
 	dma_buffers->usbTX = &usb->buffTX;
 	
 	dma_buffers->lcdTX = NULL; // TODO - implemnt LCD DMA requests
+	
+	dma_buffers->adcData = &adc->buffer;
 	
 	return dma_buffers;
 }
@@ -225,5 +265,30 @@ void DMA2_Stream6_IRQHandler(void){
 
     
 
+  }
+}
+
+
+// ADC Callback
+
+void DMA2_Stream0_IRQHandler(void)
+{
+  /* Check whether DMA transfer complete caused the DMA interruption */
+  if(LL_DMA_IsActiveFlag_TC0(DMA2) == 1)
+  {
+    /*  Clear Stream  transfer complete flag*/
+    LL_DMA_ClearFlag_TC0(DMA2);
+    /* Call interruption treatment function */
+    //AdcDmaTransferComplete_Callback();
+  }
+  
+  /* Check whether DMA transfer error caused the DMA interruption */
+  if(LL_DMA_IsActiveFlag_TE0(DMA2) == 1)
+  {
+    /* Clear flag DMA transfer error */
+    LL_DMA_ClearFlag_TE0(DMA2);
+    
+    /* Call interruption treatment function */
+    //AdcDmaTransferError_Callback();
   }
 }
