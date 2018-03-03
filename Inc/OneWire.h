@@ -8,19 +8,20 @@
 typedef struct {
   GPIO_TypeDef * port;
 	uint32_t pin;
-} OW;
+} __OW, *OW;
 
-OW * OW_init(GPIO_TypeDef * port, uint32_t pin);
 
-bool OW_reset(OW *ow);
+OW OW_init(GPIO_TypeDef *port, uint32_t pin);
 
-void OW_writeBit(OW *ow, BYTE b);
+bool OW_reset(OW ow);
 
-BYTE OW_readBit(OW *ow);
+void OW_writeBit(OW ow, BYTE b);
 
-void OW_writeByte(OW *ow, BYTE b);
+BYTE OW_readBit(OW ow);
 
-BYTE OW_readByte(OW *ow);
+void OW_writeByte(OW ow, BYTE b);
+
+BYTE OW_readByte(OW ow);
 
 #define __OW_OUTPUT() LL_GPIO_SetPinMode(ow->port, ow->pin, LL_GPIO_MODE_OUTPUT);
 #define __OW_INPUT()  LL_GPIO_SetPinMode(ow->port, ow->pin, LL_GPIO_MODE_INPUT);

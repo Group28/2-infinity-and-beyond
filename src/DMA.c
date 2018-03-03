@@ -1,9 +1,9 @@
 #include "DMA.h"
 #include "stdlib.h"
 
-static DMA_Buffers *buffers;
+static DMA_Buffers buffers;
 
-void DMA_init(DMA_Buffers *buffs) {
+void DMA_init(DMA_Buffers buffs) {
 
 	buffers = buffs;
   /* (1) Enable the clock of DMA1 and DMA2 */
@@ -122,8 +122,8 @@ void DMA_init(DMA_Buffers *buffs) {
 }
 
 
-DMA_Buffers * DMA_getBuffers(USART *esp, USART *usb, LCD *lcd){
-	DMA_Buffers *dma_buffers = malloc(sizeof(DMA_Buffers));
+DMA_Buffers DMA_getBuffers(USART esp, USART usb, LCD lcd){
+	DMA_Buffers dma_buffers = malloc(sizeof(__DMA_Buffers));
 	dma_buffers->espRX = &esp->buffRX;
 	dma_buffers->espTX = &esp->buffTX;
 	
@@ -136,7 +136,7 @@ DMA_Buffers * DMA_getBuffers(USART *esp, USART *usb, LCD *lcd){
 }
 
 
-int DMA_StartSerialTransfer(USART * usart) {
+int DMA_StartSerialTransfer(USART usart) {
 	LL_USART_EnableDMAReq_TX(usart->usart);
 	usart->buffTX.send = 1;
 	if(usart->usart == USART2){
@@ -227,4 +227,3 @@ void DMA2_Stream6_IRQHandler(void){
 
   }
 }
-

@@ -11,31 +11,27 @@ typedef struct {
 	PID * pid;
 	Encoder * encoder;
 	double speed;
-} Motor;
-
-
+} __Motor, *Motor;;
 
 typedef struct {
-	Motor * motorLeft;
-	Motor * motorRight;
+	Motor motorLeft;
+	Motor motorRight;
 	
-} Motors;
+} __Motors, *Motor;;
+
+Motor Motor_init(PID_Values values, Encoder encoder);
+
+Motors Motors_init(PID_Values valuesL, PID_Values valuesR, Encoder encL, Encoder encR);
 
 
 
-Motor * Motor_init(PID_Values values, Encoder * encoder);
+void Motor_Left_setSpeed(Motor motor, double speed);
+void Motor_Right_setSpeed(Motor motor, double speed);
+void Motor_Left_PID_action(Motor motor);
+void Motor_Right_PID_action(Motor motor);
 
-Motors * Motors_init(PID_Values valuesL, PID_Values valuesR, Encoder * encL, Encoder * encR);
-
-
-
-void Motor_Left_setSpeed(Motor * motor, double speed);
-void Motor_Right_setSpeed(Motor * motor, double speed);
-void Motor_Left_PID_action(Motor * motor);
-void Motor_Right_PID_action(Motor * motor);
-
-void Motors_setSpeed(Motors * motors, double speedL, double speedR);
-void Motors_PID_action(Motors * motors);
+void Motors_setSpeed(Motors motors, double speedL, double speedR);
+void Motors_PID_action(Motors motors);
 
 void Configure_Motor_Right(void);
 void Configure_Motor_Left(void);
