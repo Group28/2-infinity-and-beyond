@@ -40,6 +40,8 @@ static void LCD_writeCommand(unsigned char command);
 static void LCD_copyDataBuffer(LCD lcd);
 static void LCD_copyDataBufferFast(LCD lcd);										
 
+static void LCD_newLine(LCD lcd);
+												 
 /* LCD Commands */
 											
 // Displa ON/OFF
@@ -161,36 +163,41 @@ int LCD_printf(LCD lcd, const char *format, ...){
   va_start(argptr, format);
   vsprintf(outputString, format, argptr);
   va_end(argptr);
-  return LCD_puts(lcd, lcd->char_x, lcd->char_y, outputString);
+  return LCD_puts(lcd, outputString);
 }
 
-int LCD_puts(LCD lcd, uint8_t x, uint8_t y, char* stringToSend){
-	LCD_puts_buffer(lcd, x, y, stringToSend);
+int LCD_puts(LCD lcd, char* stringToSend){
+	LCD_puts_buffer(lcd, stringToSend);
 	LCD_copyDataBuffer(lcd);
 	return 1;
 }
 
-int LCD_puts_buffer(LCD lcd, uint8_t x, uint8_t y, char* stringToSend){
-	LCD_locate(lcd, x,y);
-	int width_of_font = lcd->font[1]-1;
+int LCD_puts_buffer(LCD lcd, char* stringToSend){
 	int length = strlen(stringToSend);
 	for(int i=0; i<length;i++){
-		LCD_putc(lcd, stringToSend[i]);
-		x+=width_of_font; 
-		LCD_locate(lcd, x,y);
+		LCD_putc_buffer(lcd, stringToSend[i]);
 	}
 	return 1;
 }
 
+int LCD_putc(LCD lcd, char value){
+	LCD_putc_buffer(lcd, value);
+	LCD_flushBuffer(lcd);
+	return 1;
+}
 
-int LCD_putc(LCD lcd, char value)
+void LCD_newLine(LCD lcd){
+	lcd->char_x = 0;
+  lcd->char_y += lcd->font[2]-1;
+  if (lcd->char_y >= LCD_height(lcd) - lcd->font[2]) {
+		lcd->char_y = 0;
+  }
+}
+
+int LCD_putc_buffer(LCD lcd, char value)
 {
-    if (value == '\n') {    // new line
-        lcd->char_x = 0;
-        lcd->char_y += lcd->font[2];
-        if (lcd->char_y >= LCD_height(lcd) - lcd->font[2]) {
-            lcd->char_y = 0;
-        }
+    if (value == '\n' || lcd->char_x + lcd->font[1] > LCD_width(lcd)) {    // new line
+       LCD_newLine(lcd);
     } else {
         LCD_character(lcd, lcd->char_x, lcd->char_y, value);
     }
@@ -250,14 +257,12 @@ void LCD_setFont(LCD lcd, char* f)
 
 int LCD_width(LCD lcd)
 {
-    if (lcd->orientation == 0 || lcd->orientation == 2) return 32;
-    else return 128;
+   return 128;
 }
  
 int LCD_height(LCD lcd)
 {
-    if (lcd->orientation == 0 || lcd->orientation == 2) return 128;
-    else return 32;
+    return 32;
 }
 
 int LCD_columns(LCD lcd)
