@@ -323,22 +323,3 @@ void IO_initJoyButton(void){
 	NVIC_EnableIRQ(EXTI15_10_IRQn); // Enable IRQ for EXTI line 13 in NVIC
 }
 
-void TIM5_IRQHandler(void)
-{
-  /* Check whether CC1 interrupt is pending */
-  if(LL_TIM_IsActiveFlag_CC1(TIM5) == 1)
-  {
-    /* Clear the update interrupt flag*/
-    LL_TIM_ClearFlag_CC1(TIM5);
-  }
-}
-
-void TIM2_IRQHandler(void)
-{
-  /* Check whether CC1 interrupt is pending */
-  if(LL_TIM_IsActiveFlag_CC1(TIM2) == 1)
-  {
-    /* Clear the update interrupt flag*/
-    LL_TIM_ClearFlag_CC1(TIM2);
-  }
-}
