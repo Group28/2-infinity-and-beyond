@@ -41,7 +41,7 @@ String webSite =R"(
           height: 400px;
           margin: auto;
           padding: 0px;
-          
+          font-family: monospace;
         }
         .commands {
           padding: 10px;
@@ -110,6 +110,11 @@ String webSite =R"(
           background: #000000ff;
         }
         
+        #status{
+          color: red;
+          
+        }
+        
       
       </style>
     
@@ -119,6 +124,7 @@ String webSite =R"(
     <img class="logo" src='https://secure.img1-fg.wfcdn.com/im/49483365/resize-h800%5Ecompr-r85/3557/3557499/Toy+Story+Buzz+Giant+Wall+Decal.jpg'></img><BR style='clear:both;'>
     <div class="container">
       <div class="commands">
+      Status:<span id="status">Disconnected</span><br>
       Runtime: <a id='runtime'></a><br>
 
       <input placeholder='Command' onkeydown='search(this)' id='tx' style='width:90%; font-family:monospace;'>
@@ -139,12 +145,36 @@ String webSite =R"(
       </div>
     </div>
     <script>
+    var tm,websock,connectInterval;
     function setSensor(sensor, value){
         var sensorSpan = document.getElementById('sensor' + sensor + 'Val');
         var sensor = document.getElementById('sensor'+sensor);
         sensorSpan.innerHTML = value.toFixed(3);
         sensor.style.backgroundColor = "rgba(0,0,0,"+ (1 - value) +')';
         
+    }
+    
+    function setStatus(status){
+      var doc = document.getElementById('status');
+      doc.innerHTML = status;
+      if(status == "Disconneted"){
+        doc.style.color = "red";
+      } else if(status == "Connected"){
+        doc.style.color = "green";
+      } else {
+        doc.style.color = "#ff9900";
+      }
+    }
+    
+    function lostConnection(){
+        websock.close();
+        setStatus("Connection lost");
+    }
+    
+    function disconnected(){
+      console.log("Disconnected, trying again in 5s");
+      setStatus("Reconnecting....");
+      tm = setTimeout(InitWebSocket,5000);
     }
     
     function processData(data){
@@ -169,9 +199,28 @@ String webSite =R"(
       
     }
     function InitWebSocket(){
+      if(typeof websock != 'undefined' && typeof websock.readyState != 'undefined' && (websock.readyState == 0 || websock.readyState == 1)){
+        console.log("Init already running");
+        return;
+      }
+      console.log("Trying to connect");
       websock=new WebSocket('ws://'+window.location.hostname+':88/');
+      websock.onopen=function(evt){
+        setStatus("Connected");
+        if(connectInterval){
+          clearInterval(connectInterval);
+        }
+        tm = setTimeout(lostConnection, 2000);
+      }
       websock.onmessage=function(evt){
+        clearTimeout(tm);
+        tm = setTimeout(lostConnection, 2000);
         processData(evt.data);
+      }
+      websock.onclose=function(evt){
+        console.log("Onclose:"+websock.readyState);
+        setStatus("Disconneted");
+        disconnected();
       }
     }
     function button(){
@@ -202,13 +251,16 @@ String webSite =R"(
     function search(){
      if(event.keyCode == 13) {button()};
     }
-    InitWebSocket();
+    
+    window.onload=function(){
+      connectInterval = setInterval(InitWebSocket,10000);
+      InitWebSocket();
+    }
     </script>
     
     </body>
    </html>
 
-  
 )";
   
 
