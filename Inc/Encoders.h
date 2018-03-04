@@ -16,15 +16,15 @@ typedef struct {
 } __Encoder, *Encoder;;
 
 
-Encoder Encoder_init(TIM_TypeDef * timer, double samplePeriod, int ticks);
+Encoder Encoder_init(TIM_TypeDef * timer, double samplePeriod, uint16_t ticks);
 
 double Encoder_getSpeed(Encoder encoder);
 
 double Encoder_getRevolutions(Encoder encoder);
 
-void Encoder_Reset(Encoder encoder);
+void Encoder_reset(Encoder encoder);
 
-void Encoder_Update(Encoder encoder);
+void Encoder_update(Encoder encoder);
 
 
 #endif
