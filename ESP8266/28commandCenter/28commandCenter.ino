@@ -33,8 +33,8 @@ String webSite =R"(
           font-size: 30px;
         }
         .logo{
-          height:150px;
-          float:right;
+          height:140px;
+          float:left;
         }
         .container {
           width: 96%;
@@ -45,19 +45,45 @@ String webSite =R"(
         }
         .commands {
           padding: 10px;
-          width: 30%;
-          height: 100%;
+          padding-top: 0; 
+          width: 100%;
+          height: 400px;
           float: left;
         }
+      
         .widgets {
           padding: 10px;
+          padding-top: 0; 
           float: left;
-          height: 100%;
+          height: 600px;
+          width: 100%;
+          text-align: center;
         }
+        @media(min-width:870px){
+          .commands {
+            width: 35%;
+            height: 100%;
+          }
+          .widgets {
+            height: 100%;
+            width: 60%;
+          }
+        }
+        
+        .sensorBoard{
+          width: 337px;
+          border-radius: 16px;
+          padding: 10px;
+          height: 300px;
+          background: #f1f1f1;
+          display: inline-block;
+          box-shadow: #00000085 1px 1px 12px 0px;
+        }
+        
         .sensors{
-          width: 100px;
           position: relative;
-          
+          height:100%;
+          width:100%;
         }
         .sensor{
           font-family: monospace;
@@ -67,7 +93,8 @@ String webSite =R"(
           width: 30px;
           height: 30px;
           position: absolute;
-          border: #8BC34B solid 5px;
+          border: #8BC34B solid 6px;
+          border-radius: 3px;
         }
         
         .sensor div{
@@ -110,11 +137,79 @@ String webSite =R"(
           background: #000000ff;
         }
         
+        #sensorM {
+          top: 0px;
+          left: 135px;
+          border: #4bc3bd solid 6px;
+          background: #000000ff;
+        }
+        
         #status{
           color: red;
+        }
+        .buggy{
+          margin-bottom: 30px;
+        }
+        .buggyBody{
+          width: 610px;
+          height: 520px;
+          background: gray;
+          display: inline-block;
+          border-radius: 10px;
+          box-shadow: #00000085 1px 1px 21px 0px;
+          position: relative;
+          margin-top: -20px;
           
         }
         
+        .motorboard{
+          width: 590px;
+          height: 200px;
+          background: #698257;
+          position: absolute;
+          bottom: 10px;
+          left: 10px;
+          border-radius: 10px;
+        }
+        
+        .motorL {
+          width: 100px;
+          height: 194px;
+          background: #424242;
+          bottom: 10px;
+          position: absolute;
+          border-radius: 5px;
+          left: -95px;
+        }
+        .motorR{
+          width: 100px;
+          height: 194px;
+          background: #424242;
+          bottom: 10px;
+          position: absolute;
+          border-radius: 5px;
+          right: -95px;
+        }
+        
+        .microchip{
+          width: 269px;
+          height: 261px;
+          background: #e8e8e8;
+          top: 20px;
+          position: absolute;
+          border-radius: 10px;
+          left: 20px;
+        }
+        
+        .battery{
+          width: 269px;
+          height: 261px;
+          background: #9bb1c1;
+          top: 20px;
+          position: absolute;
+          border-radius: 10px;
+          right: 20px;
+        }
       
       </style>
     
@@ -132,16 +227,40 @@ String webSite =R"(
       <pre id='rx' style='padding: 10px 0 5px 5px; background: rgb(228,228,228); max-height:30em; overflow: auto'></pre>
       </div>
       <div class="widgets">
-        <h3> Sensors </h3>
-        <div class="sensors">
-          <div class="sensor" id="sensor0"><div>0 <span id="sensor0Val">0.000</span></div></div>
-          <div class="sensor" id="sensor1"><div>1 <span id="sensor1Val">0.000</span></div></div>
-          <div class="sensor" id="sensor2"><div>2 <span id="sensor2Val">0.000</span></div></div>
-          <div class="sensor" id="sensor3"><div>3 <span id="sensor3Val">0.000</span></div></div>
-          <div class="sensor" id="sensor4"><div>4 <span id="sensor4Val">0.000</span></div></div>
-          <div class="sensor" id="sensor5"><div>5 <span id="sensor5Val">0.000</span></div></div>
+        <div class="buggy">
+          <div class="sensorBoard">
+            <h3> Sensors </h3>
+            <div class="sensors">
+              <div class="sensor" id="sensor0"><div>0 <span id="sensor0Val">0.000</span></div></div>
+              <div class="sensor" id="sensor1"><div>1 <span id="sensor1Val">0.000</span></div></div>
+              <div class="sensor" id="sensor2"><div>2 <span id="sensor2Val">0.000</span></div></div>
+              <div class="sensor" id="sensor3"><div>3 <span id="sensor3Val">0.000</span></div></div>
+              <div class="sensor" id="sensor4"><div>4 <span id="sensor4Val">0.000</span></div></div>
+              <div class="sensor" id="sensor5"><div>5 <span id="sensor5Val">0.000</span></div></div>
+              <div class="sensor" id="sensorM"><div>Mag <span id="sensorMVal">0.000</span></div></div>
+            </div>
+          </div>
+          <br>
+          <div class="buggyBody">
+            <div class="microchip">
+              <h3> STM32F401RE </h3>
+            </div>
+            <div class="battery">
+              <h3>Battery </h3>
+            </div>
+            <div class="motorboard">
+              <h3>Motor board </h3>
+              
+            </div>
+            
+            <div class="motorL">
+              <h3>Motor L  </h3>
+            </div>
+            <div class="motorR">
+              <h3>Motor R </h3>
+            </div>
+          </div>
         </div>
-      
       </div>
     </div>
     <script>
@@ -189,6 +308,7 @@ String webSite =R"(
           setSensor("3", msg["3"]);
           setSensor("4", msg["4"]);
           setSensor("5", msg["5"]);
+          setSensor("M", msg["M"]);
           
         } else {
           var element = document.getElementById('rx');
