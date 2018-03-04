@@ -36,7 +36,7 @@ double Encoder_getRevolutions(Encoder encoder){
 	return encoder->revolutions;
 }
 
-void Encoder_Reset(Encoder encoder){
+void Encoder_reset(Encoder encoder){
 	encoder->speed = 0;
 	encoder->revolutions=0;
 	Encoder_resetCounter(encoder);
@@ -44,7 +44,7 @@ void Encoder_Reset(Encoder encoder){
 }
 
 
-void Encoder_Update(Encoder encoder){
+void Encoder_update(Encoder encoder){
 	int32_t count = (int32_t) LL_TIM_GetCounter(encoder->timer);
 	int difference = count - encoder->lastCount;
 	encoder->speed = (difference)/(encoder->samplePeriod*encoder->ticks_per_revolution);
