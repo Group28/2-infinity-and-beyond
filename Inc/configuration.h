@@ -120,23 +120,23 @@
 
 // LCD screen
 
-/* SPI3 -> temporarily disabled for testing 
+/* SPI3 -> temporarily disabled for testing */
 #define IO_LCD_SCK      GPIOC, LL_GPIO_PIN_10
 #define IO_LCD_MISO     GPIOC, LL_GPIO_PIN_11
 #define IO_LCD_MOSI     GPIOC, LL_GPIO_PIN_12
 #define IO_LCD_nCS      GPIOD, LL_GPIO_PIN_2
 #define IO_LCD_A0       GPIOB, LL_GPIO_PIN_7
 #define IO_LCD_RESET    GPIOB, LL_GPIO_PIN_12
-*/
 
 
+/*
 #define IO_LCD_SCK      GPIOA, LL_GPIO_PIN_5
 #define IO_LCD_MISO     GPIOC, LL_GPIO_PIN_11
 #define IO_LCD_MOSI     GPIOA, LL_GPIO_PIN_7
 #define IO_LCD_nCS      GPIOB, LL_GPIO_PIN_6
 #define IO_LCD_A0       GPIOA, LL_GPIO_PIN_8
 #define IO_LCD_RESET    GPIOA, LL_GPIO_PIN_6
-
+*/
 // Other IO
 #define IO_SPEAKER      GPIOB, LL_GPIO_PIN_6
 #define IO_CENTER_JOY   GPIOC, LL_GPIO_PIN_13

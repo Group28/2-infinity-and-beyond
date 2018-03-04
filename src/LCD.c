@@ -5,10 +5,10 @@
 #include <stdlib.h>
 #include <stdarg.h>
 
-#define LCD_TEST_SPI				1
-#define LCD_SPI 						SPI1
-#define LCD_SPI_IRQHandler 	SPI1_IRQHandler
-#define LCD_SPI_IRQn 				SPI1_IRQn
+#define LCD_TEST_SPI				0
+#define LCD_SPI 						SPI3
+#define LCD_SPI_IRQHandler 	SPI3_IRQHandler
+#define LCD_SPI_IRQn 				SPI3_IRQn
 
 
 /* Local static helper functions */

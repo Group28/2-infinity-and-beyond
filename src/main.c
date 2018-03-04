@@ -64,7 +64,7 @@ int main(void)
   while (1)
   {
 		Analog_startConversion(adc);
-		delay(0.1);
+		delay(0.05);
 		
 		adcValues = Analog_getValues(adc);
 		
@@ -77,7 +77,7 @@ int main(void)
 		LCD_printf(lcd, "0:%.2f 1:%.2f 2:%.2f 3:%.2f\n4:%.2f 5:%.2f A+%.2f A-%.2f\nB+%.2f B-%.2f M:%.2f\n", conv[0], conv[1], conv[2], conv[3],conv[4],conv[5],conv[7],conv[8],conv[9],conv[10],conv[6]);
 		USART_printf(esp, "JSON={\"0\":%f, \"1\":%f, \"2\":%f, \"3\":%f,\"4\":%f, \"5\":%f, \"A+\":%f, \"A-\":%f,\"B+\":%f, \"B-\":%f, \"M\":%f}", conv[0], conv[1], conv[2], conv[3],conv[4],conv[5],conv[7],conv[8],conv[9],conv[10],conv[6]);
 
-		delay(0.5);
+		//delay(0.1);
 		
 	}
 }
