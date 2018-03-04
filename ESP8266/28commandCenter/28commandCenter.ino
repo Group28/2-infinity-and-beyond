@@ -16,72 +16,201 @@ const char* password = "nPHFPSfDRRfedqaYQyZcdXJLaJa1uuNAkwtQQDBntOQ=";
 
 
 // END ***********************************************************************
-
+String millis2time();
 ESP8266WebServer server(80);
 WebSocketsServer webSocket=WebSocketsServer(88);
 
 SimpleTimer timer;
 
-String webSite =R"(<!DOCTYPE HTML><html>
-  <meta name='viewport' content='width=device-width, initial-scale=1'>
-  <head></head>
-  <body>
-  <h1 style='float: left; font-family:monospace; font-size: 30px;'>2 &infin; and beyond - Command Center</h1>
-  <img style='height:150px; float:right;' src='https://secure.img1-fg.wfcdn.com/im/49483365/resize-h800%5Ecompr-r85/3557/3557499/Toy+Story+Buzz+Giant+Wall+Decal.jpg'></img><BR style='clear:both;'>
-  Runtime: <a id='runtime'></a><br>
+String webSite =R"(
+  <!DOCTYPE HTML><html>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+    <head>
+      <style>
+        h1 {
+          float: left;
+          font-family:monospace;
+          font-size: 30px;
+        }
+        .logo{
+          height:150px;
+          float:right;
+        }
+        .container {
+          width: 96%;
+          height: 400px;
+          margin: auto;
+          padding: 0px;
+          
+        }
+        .commands {
+          padding: 10px;
+          width: 30%;
+          height: 100%;
+          float: left;
+        }
+        .widgets {
+          padding: 10px;
+          float: left;
+          height: 100%;
+        }
+        .sensors{
+          width: 100px;
+          position: relative;
+          
+        }
+        .sensor{
+          font-family: monospace;
+          text-align: center;
+          font-size: 1.1em;
+          padding: 10px;
+          width: 30px;
+          height: 30px;
+          position: absolute;
+          border: #8BC34B solid 5px;
+        }
+        
+        .sensor div{
+          width:100%;
+          height:100%;
+          background: #ffffffbf;
+        }
+        .sensor div span {
+          
+          font-size:0.6em;
+        }
+        #sensor0 {
+          top:0px;
+          left:0px;
+          background: #000000ff;
+        }
+        #sensor1 {
+          top: 0px;
+          left: 275px;
+          background: #000000ff;
+        }
+        #sensor2 {
+          top: 90px;
+          left: 80px;
+          background: #000000ff;
+        }
+        #sensor3 {
+          top: 90px;
+          left: 195px;
+          background: #000000ff;
+        }
+        #sensor4 {
+          top: 160px;
+          left: 100px;
+          background: #000000ff;
+        }
+        #sensor5 {
+          top: 160px;
+          left:175px;
+          background: #000000ff;
+        }
+        
+      
+      </style>
+    
+    </head>
+    <body>
+    <h1>2 &infin; and beyond - Command Center</h1>
+    <img class="logo" src='https://secure.img1-fg.wfcdn.com/im/49483365/resize-h800%5Ecompr-r85/3557/3557499/Toy+Story+Buzz+Giant+Wall+Decal.jpg'></img><BR style='clear:both;'>
+    <div class="container">
+      <div class="commands">
+      Runtime: <a id='runtime'></a><br>
 
-  <input placeholder='Command' onkeydown='search(this)' id='tx' style='width:90%; font-family:monospace;'>
-  <button id='button' onclick='button()'>Send</button>
-  <pre id='rx' style='padding: 10px 0 5px 5px; background: rgb(228,228,228); max-height:30em; overflow: auto'></pre>
-  
-  <script>
-  function InitWebSocket(){
-    websock=new WebSocket('ws://'+window.location.hostname+':88/');
-    websock.onmessage=function(evt){
-      JSONobj=JSON.parse(evt.data);
+      <input placeholder='Command' onkeydown='search(this)' id='tx' style='width:90%; font-family:monospace;'>
+      <button id='button' onclick='button()'>Send</button>
+      <pre id='rx' style='padding: 10px 0 5px 5px; background: rgb(228,228,228); max-height:30em; overflow: auto'></pre>
+      </div>
+      <div class="widgets">
+        <h3> Sensors </h3>
+        <div class="sensors">
+          <div class="sensor" id="sensor0"><div>0 <span id="sensor0Val">0.000</span></div></div>
+          <div class="sensor" id="sensor1"><div>1 <span id="sensor1Val">0.000</span></div></div>
+          <div class="sensor" id="sensor2"><div>2 <span id="sensor2Val">0.000</span></div></div>
+          <div class="sensor" id="sensor3"><div>3 <span id="sensor3Val">0.000</span></div></div>
+          <div class="sensor" id="sensor4"><div>4 <span id="sensor4Val">0.000</span></div></div>
+          <div class="sensor" id="sensor5"><div>5 <span id="sensor5Val">0.000</span></div></div>
+        </div>
+      
+      </div>
+    </div>
+    <script>
+    function setSensor(sensor, value){
+        var sensorSpan = document.getElementById('sensor' + sensor + 'Val');
+        var sensor = document.getElementById('sensor'+sensor);
+        sensorSpan.innerHTML = value.toFixed(3);
+        sensor.style.backgroundColor = "rgba(0,0,0,"+ (1 - value) +')';
+        
+    }
+    
+    function processData(data){
+      JSONobj=JSON.parse(data);
       document.getElementById('runtime').innerHTML=JSONobj.runtime;
       if(JSONobj.rx){
-       var element = document.getElementById('rx');
-       element.innerHTML+=JSONobj.rx;
-       element.scrollTop = element.scrollHeight;
+        if(JSONobj.rx.startsWith('JSON={')){
+          var msg = JSON.parse(JSONobj.rx.substring(5));
+          setSensor("0", msg["0"]);
+          setSensor("1", msg["1"]);
+          setSensor("2", msg["2"]);
+          setSensor("3", msg["3"]);
+          setSensor("4", msg["4"]);
+          setSensor("5", msg["5"]);
+          
+        } else {
+          var element = document.getElementById('rx');
+          element.innerHTML+=JSONobj.rx;
+          element.scrollTop = element.scrollHeight;
+        }
+      }
+      
+    }
+    function InitWebSocket(){
+      websock=new WebSocket('ws://'+window.location.hostname+':88/');
+      websock.onmessage=function(evt){
+        processData(evt.data);
       }
     }
-  }
-  function button(){
-   websock.send('COMMAND=' + document.getElementById('tx').value + '\n');
-   document.getElementById('tx').value = '';
-  }
-  var keys = [];
-  function checkKeys(){
-   if(keys[38]) {websock.send('COMMAND=w\n');}
-   if(keys[40]) {websock.send('COMMAND=s\n');}
-   if(keys[37]) {websock.send('COMMAND=a\n');}
-   if(keys[39]) {websock.send('COMMAND=d\n');}
-   if(!keys[38] && !keys[40] && !keys[37] && !keys[39]){websock.send('COMMAND=f\n');}
-  }
-  document.addEventListener('keydown', function(event){
-    if(event.repeat){return;}
-   if(event.keyCode == 37 || event.keyCode == 38 || event.keyCode == 39 || event.keyCode == 40){
-    keys[event.keyCode] = true;
-    checkKeys();
-   }
-  });
-  document.addEventListener('keyup', function(event){
-    if(event.keyCode == 37 || event.keyCode == 38 || event.keyCode == 39 || event.keyCode == 40){
-      keys[event.keyCode] = false;
-      checkKeys();
+    function button(){
+     websock.send('COMMAND=' + document.getElementById('tx').value + '\n');
+     document.getElementById('tx').value = '';
     }
-  });
-  function search(){
-   if(event.keyCode == 13) {button()};
-  }
-  InitWebSocket();
-  </script>
-  
-  </body>
- </html>)";
-  
+    var keys = [];
+    function checkKeys(){
+     if(keys[38]) {websock.send('COMMAND=w\n');}
+     if(keys[40]) {websock.send('COMMAND=s\n');}
+     if(keys[37]) {websock.send('COMMAND=a\n');}
+     if(keys[39]) {websock.send('COMMAND=d\n');}
+     if(!keys[38] && !keys[40] && !keys[37] && !keys[39]){websock.send('COMMAND=f\n');}
+    }
+    document.addEventListener('keydown', function(event){
+      if(event.repeat){return;}
+     if(event.keyCode == 37 || event.keyCode == 38 || event.keyCode == 39 || event.keyCode == 40){
+      keys[event.keyCode] = true;
+      checkKeys();
+     }
+    });
+    document.addEventListener('keyup', function(event){
+      if(event.keyCode == 37 || event.keyCode == 38 || event.keyCode == 39 || event.keyCode == 40){
+        keys[event.keyCode] = false;
+        checkKeys();
+      }
+    });
+    function search(){
+     if(event.keyCode == 13) {button()};
+    }
+    InitWebSocket();
+    </script>
+    
+    </body>
+   </html>
 
+  
+)";
+  
 
 String JSONtxt;
 unsigned long websockCount=0;
@@ -124,6 +253,7 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t wsleng
 
 void setup() {
   Serial.begin(115200); 
+  Serial.setTimeout(50);
 
   WiFi.hostname("buggy28");
 
@@ -157,28 +287,19 @@ void setup() {
 }
 
 void loop() {
-  char inChar;
   String inputString = "";
   
   webSocket.loop();
   timer.run();
   server.handleClient();
-  while (Serial.available()) {
+  if(Serial.available()) {
     // get the new byte:
-    inChar = (char)Serial.read();
+    inputString = Serial.readString();
    
-     
-    if(inChar == '"') {
-      inputString += "\\\"";
-    } else if (inChar == '\r'){
-      inputString += "\\r";
-    } else if (inChar == '\n'){
-      inputString += "\\n";
-    } else {
-      inputString += inChar;
-    }  
-  }
-  if(inputString != ""){
+    inputString.replace("\"", "\\\"");
+    inputString.replace("\r", "\\r");
+    inputString.replace("\n", "\\n");
+
     websockCount++;
     JSONtxt="{\"runtime\":\""+millis2time()+"\","+              // JSON requires double quotes
              "\"websockCount\":\""+(String)websockCount+"\","+
@@ -186,6 +307,3 @@ void loop() {
     webSocket.broadcastTXT(JSONtxt);
   }
 }
-
-
-
