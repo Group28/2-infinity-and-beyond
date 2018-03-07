@@ -42,13 +42,15 @@ int main(void)
 	
 	}
 	IO_setSpeakerFreq(25000);
+	Motors_setSpeed(motors, 0, 0);
   /* Infinite loop */
-  while (1)
+  double speed = 0;
+	while (1)
   {
-			IO_set(IO_MOTOR_EN, 1);
+		IO_set(IO_MOTOR_EN, 1);
 		Analog_startConversion(adc);
 		delay(0.05);
-		
+		Motors_setSpeed(motors, 0, speed);
 		adcValues = Analog_getValues(adc);
 		
 		for(int i = 0; i< ADC_CHANNEL_COUNT; i++){
@@ -59,12 +61,23 @@ int main(void)
 		LCD_cls(lcd);
 		
 		LCD_printf(lcd, "L Spe: %5.3f, R Spe: %5.3f\nL Rev: %5.3f, R Rev: %5.3f", Encoder_getSpeed(encoderLeft), Encoder_getSpeed(encoderRight), Encoder_getRevolutions(encoderLeft), Encoder_getRevolutions(encoderRight));
-		//LCD_printf(lcd, "0:%.2f 1:%.2f 2:%.2f 3:%.2f\n4:%.2f 5:%.2f A+%.2f A-%.2f\nB+%.2f B-%.2f M:%.2f\n", conv[0], conv[1], conv[2], conv[3],conv[4],conv[5],conv[7],conv[8],conv[9],conv[10],conv[6]);
+		LCD_printf(lcd, "0:%.2f 1:%.2f 2:%.2f 3:%.2f\n4:%.2f 5:%.2f A+%.2f A-%.2f\nB+%.2f B-%.2f M:%.2f\n", conv[0], conv[1], conv[2], conv[3],conv[4],conv[5],conv[7],conv[8],conv[9],conv[10],conv[6]);
+		LCD_printf(lcd, "Speed: %f\n", speed);
 		USART_printf(esp, "JSON={\"0\":%f, \"1\":%f, \"2\":%f, \"3\":%f,\"4\":%f, \"5\":%f, \"A+\":%f, \"A-\":%f,\"B+\":%f, \"B-\":%f, \"M\":%f}", conv[0], conv[1], conv[2], conv[3],conv[4],conv[5],conv[7],conv[8],conv[9],conv[10],conv[6]);
 		delay(0.05);
 		USART_printf(esp, "A+:%f, A-:%f,\nB+:%f, B-:%f,\n DiffA: %f, DiffB: %f\n", conv[7],conv[8], conv[9], conv[10], conv[7]-conv[8], conv[9]-conv[10]);
-		//USART_printf(esp, "%u\n", __LL_TIM_CALC_ARR(SystemCoreClock, LL_TIM_GetPrescaler(TIM4), 50));
-		//LCD_printf(lcd, "Frequency: %dHz", freq);
+		USART_printf(esp, "%u\n", __LL_TIM_CALC_ARR(SystemCoreClock, LL_TIM_GetPrescaler(TIM4), 50));
+		LCD_printf(lcd, "Frequency: %dHz", freq);
+		
+
+		for(int i = 0; i<500; i++){
+			LCD_printf(lcd, "L Spe: %5.3f, R Spe: %5.3f\nL Rev: %5.3f, R Rev: %5.3f\n", Encoder_getSpeed(encoderLeft), Encoder_getSpeed(encoderRight), Encoder_getRevolutions(encoderLeft), Encoder_getRevolutions(encoderRight));
+			LCD_printf(lcd, "0:%.2f 1:%.2f 2:%.2f 3:%.2f\n4:%.2f 5:%.2f A+%.2f A-%.2f\nB+%.2f B-%.2f M:%.2f\n", conv[0], conv[1], conv[2], conv[3],conv[4],conv[5],conv[7],conv[8],conv[9],conv[10],conv[6]);
+			LCD_printf(lcd, "Speed: %f\n", speed);
+			USART_printf(usb, "%f %f\n", Encoder_getSpeed(encoderRight),speed);
+			delay(0.01);
+		}
+		speed+= 0.5;
 		
 		
 		
@@ -83,7 +96,7 @@ void Init_buggy(){
 	
 	// Initialize PID controllers for the Motors
 	PID_Values motorLeftPID = {0.25, 0.005, 0.8};
-	PID_Values motorRightPID = {0.2, 0.003, 0.8};
+	PID_Values motorRightPID = {0.25, 0.005, 0.8};
 	
 	// Initialize peripherals
 
@@ -91,7 +104,7 @@ void Init_buggy(){
 	encoderRight = Encoder_init(TIM2, 1/MOTOR_SAMPLE_FREQ, ENCODER_TICKS_PER_REV);
 	motors = Motors_init(motorLeftPID, motorRightPID, encoderLeft, encoderRight);
 	
-	Motors_setSpeed(motors, 1, 1);
+	Motors_setSpeed(motors, 0, 0);
 	
 	// Initialize communication peripherial	
 	lcd = LCD_init();
