@@ -13,6 +13,7 @@ static void Encoder_resetCounter(Encoder encoder){
 		LL_TIM_SetCounter(encoder->timer, 0);
 		NVIC_EnableIRQ(TIM5_IRQn);	
 	}
+	
 }
 
 Encoder Encoder_init(TIM_TypeDef * timer, double samplePeriod, uint16_t ticks_per_revolution){
@@ -47,7 +48,8 @@ void Encoder_reset(Encoder encoder){
 void Encoder_update(Encoder encoder){
 	int32_t count = (int32_t) LL_TIM_GetCounter(encoder->timer);
 	int difference = count - encoder->lastCount;
-	encoder->speed = (difference)/(encoder->samplePeriod*encoder->ticks_per_revolution);
+	encoder->speed += (difference)/(encoder->samplePeriod*encoder->ticks_per_revolution);
+	encoder->speed /=2;
 	encoder->revolutions += difference/(double)encoder->ticks_per_revolution;
 	encoder->lastCount = count;
 }
@@ -62,6 +64,10 @@ void TIM5_IRQHandler(void)
   {
     /* Clear the update interrupt flag*/
     LL_TIM_ClearFlag_CC1(TIM5);
+  } else if(LL_TIM_IsActiveFlag_CC2(TIM5) == 1)
+  {
+    /* Clear the update interrupt flag*/
+    LL_TIM_ClearFlag_CC2(TIM5);
   }
 }
 
@@ -72,5 +78,9 @@ void TIM2_IRQHandler(void)
   {
     /* Clear the update interrupt flag*/
     LL_TIM_ClearFlag_CC1(TIM2);
+  } else if(LL_TIM_IsActiveFlag_CC2(TIM2) == 1)
+  {
+    /* Clear the update interrupt flag*/
+    LL_TIM_ClearFlag_CC2(TIM2);
   }
 }
