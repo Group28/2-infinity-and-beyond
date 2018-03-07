@@ -9,7 +9,7 @@
 typedef struct {
 	double speed; 				// Revolutions per second
 	double samplePeriod; 	// Time between measuremnts
-	int lastCount; 				// Last value of counter
+	int32_t lastCount; 				// Last value of counter
 	uint16_t ticks_per_revolution;
 	double revolutions; 	// Number of total revolutions
 	TIM_TypeDef * timer; 	// Timer attached to encoders 
