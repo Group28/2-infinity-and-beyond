@@ -4,39 +4,44 @@
 #ifndef __DS2781_H
 #define __DS2781_H
 
-/* ***** net address commands ***** */
-#define __DS2781_READ_NETADDRESS 0x33
-#define __DS2781_SKIP_NETADDRESS 0xCC
 
+typedef struct {
+  OW ow;
+} __DS2781, *DS2781;
 
-/* ***** function commands ***** */
-#define __DS2781_READ_DATA 0x69
-#define __DS2781_WRITE_DATA 0x6C
-#define	__DS2781_COPY_DATA 0x48
-#define	__DS2781_RECALL_DATA 0xB8
-#define __DS2781_LOCK_EEPROM 0x6A	//DO NOT USE
 
 
 /* ***** function prototypes ***** */
 /* Function details can be found in the .c file */
-uint16_t DS2781_readVoltage (void);
-uint16_t DS2781_readCurrent (void);
-uint32_t DS2781_readAccumulatedCurrent (void);
-void DS2781_resetAccumulatedCurrent (void);
-QWORD DS2781_readNetAddress (void);
-uint16_t DS2781_readTemperature (void);
-BYTE DS2781_readCurrentOffset (void);
-void  DS2781_writeCurrentOffset (char offset);
-void DS2781_adjustCurrentOffset (void);
-void DS2781_updateControlRegister (BYTE control);
-BYTE DS2781_readRAM (BYTE addr);
-void DS2781_writeRAM (BYTE byte, BYTE addr);
-void DS2781_copyEEPROM (BYTE addr);
-void DS2781_recallEEPROM (BYTE addr);
-void DS2781_delay100MSx(BYTE counts);
+DS2781 DS2781_init(GPIO_TypeDef *port, uint32_t pin);
+
+inline void DS2781_write8bitReg(DS2781 ds, uint8_t addr, uint8_t data)
+inline void DS2781_write16bitReg(DS2781 ds, uint8_t addr, uint16_t data)
+
+inline uint8_t DS2781_read8bitReg(DS2781 ds, uint8_t addr)
+inline uint16_t DS2781_read16bitReg(DS2781 ds, uint8_t addr)
+inline uint32_t DS2781_read32bitReg(DS2781 ds, uint8_t addr)
+inline uint65_t DS2781_read64bitReg(DS2781 ds, uint8_t addr)
+
+uint16_t DS2781_readVoltage (DS2781 ds);
+uint16_t DS2781_readCurrent (DS2781 ds);
+
+uint32_t DS2781_readAccumulatedCurrent (DS2781 ds);
+void DS2781_resetAccumulatedCurrent (DS2781 ds);
+uint64_t DS2781_readNetAddress (DS2781 ds);
+uint16_t DS2781_readTemperature (DS2781 ds);
+
+uint8_t DS2781_readCurrentOffset (DS2781 ds);
+void  DS2781_writeCurrentOffset (DS2781 ds, uint8_t offset);
+void DS2781_adjustCurrentOffset (DS2781 ds);
+void DS2781_updateControlRegister (DS2781 ds, uint8_t control);
+
+inline uint8_t DS2781_readRAM (DS2781 ds, uint8_t addr);
+inline void DS2781_writeRAM (DS2781 ds, uint8_t addr, uint8_t byte);
+inline void DS2781_copyEEPROM (DS2781 ds, uint8_t addr);
+inline void DS2781_recallEEPROM (DS2781 ds, uint8_t addr);
 
 
-#define Delay_100MS()	__delay_ms(100);
 
 
 #endif
