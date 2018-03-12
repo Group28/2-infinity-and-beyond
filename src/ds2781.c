@@ -1,6 +1,7 @@
 #include "ds2781.h"
 #include "OneWire.h"
 #include <stdbool.h>
+#include <stdlib.h>
 #include "utils.h"
 
 
@@ -65,7 +66,7 @@
 
 
 
-void DS2781_init(GPIO_TypeDef *port, uint32_t pin){
+DS2781 DS2781_init(GPIO_TypeDef *port, uint32_t pin){
   DS2781 ds = malloc(sizeof(__DS2781));
   ds->ow = OW_init(port, pin);
   
@@ -80,7 +81,7 @@ void DS2781_write8bitReg(DS2781 ds, uint8_t addr, uint8_t data){
     OW_writeByte(ds->ow, DS2781_SKIP_NETADDRESS);
     OW_writeByte(ds->ow, DS2781_WRITE_DATA);
     OW_writeByte(ds->ow, addr);
-    OW_writeByte(ds->ow, byte);
+    OW_writeByte(ds->ow, data);
   }
 }
 
@@ -190,7 +191,7 @@ void DS2781_adjustCurrentOffset (DS2781 ds){
   DS2781_writeCurrentOffset(ds, offset);
   delay(3.6);
   
-  offset = 256 - DS2781_read8bitReg(ds, DS2781_REG_CURRENT_LSB)
+  offset = 256 - DS2781_read8bitReg(ds, DS2781_REG_CURRENT_LSB);
   
   DS2781_writeCurrentOffset(ds, offset);
   
@@ -206,7 +207,7 @@ void DS2781_updateControlRegister (DS2781 ds, uint8_t control){
 }
 
 uint8_t DS2781_readRAM (DS2781 ds, uint8_t addr){
-  return DS2781_read8bitReg(ds, addr)
+  return DS2781_read8bitReg(ds, addr);
   
 }
 void DS2781_writeRAM (DS2781 ds, uint8_t addr, uint8_t byte){

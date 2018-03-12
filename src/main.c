@@ -13,6 +13,7 @@
 #include "smallfont.h"
 #include "USART.h"
 #include "Timers.h"
+#include "ds2781.h"
 #include "utils.h"
 #include "configuration.h"
 
@@ -31,8 +32,8 @@ DS2781 battery;
 int main(void)
 {
 	Init_buggy();
-	uint16_t *adcValues;
-	float conv[ADC_CHANNEL_COUNT];
+	//uint16_t *adcValues;
+	//float conv[ADC_CHANNEL_COUNT];
 	for(int freq =200; freq <=800; freq += 100){
 		IO_setSpeakerFreq(freq);
 		delay(0.1);
@@ -50,7 +51,7 @@ int main(void)
 	uint16_t current = 0;
 	uint32_t accum = 0;
 	uint16_t temperature = 0;
-	
+	uint8_t counter =0;
 	
   while (1)
   {
@@ -63,7 +64,7 @@ int main(void)
 		temperature = DS2781_readTemperature(battery);
 		
 		LCD_locate(lcd, 0,0);
-		LCD_printf(lcd, "V: %dV, I: %dA\n ACI: %dA, T: %d*C", voltage, current, accum, temperature);
+		LCD_printf(lcd, "V: %5dV, I: %5dA \nACI: %5dA, T: %5d*C\n %d", voltage, current, accum, temperature, counter++);
 		
 		
 		delay(1);

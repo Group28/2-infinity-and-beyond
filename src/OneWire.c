@@ -45,7 +45,7 @@ OW OW_init(GPIO_TypeDef * port, uint32_t pin){
   LL_GPIO_SetPinPull(port, pin, LL_GPIO_PULL_DOWN);
   LL_GPIO_ResetOutputPin(port, pin);
   
-  OW_reset(ow)
+  OW_reset(ow);
   
   return ow;
 }
