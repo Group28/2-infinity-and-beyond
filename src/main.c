@@ -32,8 +32,8 @@ DS2781 battery;
 int main(void)
 {
 	Init_buggy();
-	//uint16_t *adcValues;
-	//float conv[ADC_CHANNEL_COUNT];
+	uint16_t *adcValues;
+	float conv[ADC_CHANNEL_COUNT];
 	for(int freq =200; freq <=800; freq += 100){
 		IO_setSpeakerFreq(freq);
 		delay(0.1);
@@ -53,8 +53,11 @@ int main(void)
 	uint16_t temperature = 0;
 	uint8_t counter =0;
 	
+	float speed = 0;
+	uint8_t dir = 1;
   while (1)
   {
+		/*
 		LCD_cls_buffer(lcd);
 		
 		voltage = DS2781_readVoltage(battery);
@@ -64,12 +67,12 @@ int main(void)
 		temperature = DS2781_readTemperature(battery);
 		
 		LCD_locate(lcd, 0,0);
-		LCD_printf(lcd, "V: %5dV, I: %5dA \nACI: %5dA, T: %5d*C\n %d", voltage, current, accum, temperature, counter++);
+		LCD_printf(lcd, "V: %5dV, I: %5dA \nACI: %5dA, T: %5d*C\n %d, EncL: %d, EncR: %d", voltage, current, accum, temperature, counter++,TIM5->CNT, TIM2->CNT);
 		
 		
 		delay(1);
-		
-		/*
+		*/
+		/**/
 		IO_set(IO_MOTOR_EN, 1);
 		Analog_startConversion(adc);
 		delay(0.05);
@@ -80,19 +83,33 @@ int main(void)
 			conv[i]=adcValues[i]/4096.0;
 		}
 		
-		LCD_locate(lcd, 0, 0);
-		LCD_cls(lcd);
-		
-		LCD_printf(lcd, "L Spe: %5.3f, R Spe: %5.3f\nL Rev: %5.3f, R Rev: %5.3f", Encoder_getSpeed(encoderLeft), Encoder_getSpeed(encoderRight), Encoder_getRevolutions(encoderLeft), Encoder_getRevolutions(encoderRight));
-		//LCD_printf(lcd, "0:%.2f 1:%.2f 2:%.2f 3:%.2f\n4:%.2f 5:%.2f A+%.2f A-%.2f\nB+%.2f B-%.2f M:%.2f\n", conv[0], conv[1], conv[2], conv[3],conv[4],conv[5],conv[7],conv[8],conv[9],conv[10],conv[6]);
-		USART_printf(esp, "JSON={\"0\":%f, \"1\":%f, \"2\":%f, \"3\":%f,\"4\":%f, \"5\":%f, \"A+\":%f, \"A-\":%f,\"B+\":%f, \"B-\":%f, \"M\":%f}", conv[0], conv[1], conv[2], conv[3],conv[4],conv[5],conv[7],conv[8],conv[9],conv[10],conv[6]);
-		delay(0.05);
-		USART_printf(esp, "A+:%f, A-:%f,\nB+:%f, B-:%f,\n DiffA: %f, DiffB: %f\n", conv[7],conv[8], conv[9], conv[10], conv[7]-conv[8], conv[9]-conv[10]);
+		for(int i = 0; i< 10; i++){
+			LCD_cls(lcd);
+			LCD_locate(lcd, 0, 0);
+			LCD_printf(lcd, "L Spe:%4.2fms, R Spe:%4.2fms\nL Rev: %5.3f, R Rev: %5.3f", Encoder_getSpeed(encoderLeft)*2*3.141592*WHEEL_RADIUS, Encoder_getSpeed(encoderRight)*2*3.141592*WHEEL_RADIUS, Encoder_getRevolutions(encoderLeft), Encoder_getRevolutions(encoderRight));
+			LCD_printf(lcd, "EffL: %.2f, EffR: %.2f, Sp: %.2f", motors->motorLeft->effort, motors->motorRight->effort, speed);
+			//LCD_printf(lcd, "0:%.2f 1:%.2f 2:%.2f 3:%.2f\n4:%.2f 5:%.2f A+%.2f A-%.2f\nB+%.2f B-%.2f M:%.2f\n", conv[0], conv[1], conv[2], conv[3],conv[4],conv[5],conv[7],conv[8],conv[9],conv[10],conv[6]);
+			USART_printf(esp, "JSON={\"0\":%f, \"1\":%f, \"2\":%f, \"3\":%f,\"4\":%f, \"5\":%f, \"A+\":%f, \"A-\":%f,\"B+\":%f, \"B-\":%f, \"M\":%f}", conv[0], conv[1], conv[2], conv[3],conv[4],conv[5],conv[7],conv[8],conv[9],conv[10],conv[6]);
+			
+			USART_printf(esp, "A+:%f, A-:%f,\nB+:%f, B-:%f,\n DiffA: %f, DiffB: %f\n", conv[7],conv[8], conv[9], conv[10], conv[7]-conv[8], conv[9]-conv[10]);
+			delay(0.1);
+		}
 		//USART_printf(esp, "%u\n", __LL_TIM_CALC_ARR(SystemCoreClock, LL_TIM_GetPrescaler(TIM4), 50));
 		//LCD_printf(lcd, "Frequency: %dHz", freq);
 		
-		*/
+		Motors_setSpeed(motors, speed, speed);
+		if(speed > 4) {
+			dir = 0;
+		}
+		if(speed < -4){
+			dir = 1;
+		}
 		
+		if(dir){
+			speed += 0.1;
+		}else {
+			speed -= 0.1;
+		}
 	}
 }
 
@@ -116,7 +133,7 @@ void Init_buggy(){
 	encoderRight = Encoder_init(TIM2, 1/MOTOR_SAMPLE_FREQ, ENCODER_TICKS_PER_REV);
 	motors = Motors_init(motorLeftPID, motorRightPID, encoderLeft, encoderRight);
 	
-	Motors_setSpeed(motors, 1, 1);
+	Motors_setSpeed(motors, 0, 0);
 	
 	// Initialize communication peripherial	
 	lcd = LCD_init();

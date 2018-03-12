@@ -169,12 +169,12 @@ void IO_initEncoders(void){
 	
 	/* Left Encoder*/
 	LL_GPIO_SetPinMode(		IO_ENC_1_CH_A, LL_GPIO_MODE_ALTERNATE);
-  LL_GPIO_SetPinPull(		IO_ENC_1_CH_A, LL_GPIO_PULL_NO);
+  LL_GPIO_SetPinPull(		IO_ENC_1_CH_A, LL_GPIO_PULL_DOWN);
   LL_GPIO_SetPinSpeed(	IO_ENC_1_CH_A, LL_GPIO_SPEED_FREQ_VERY_HIGH);
   LL_GPIO_SetAFPin_0_7(	IO_ENC_1_CH_A, LL_GPIO_AF_2);
 	
   LL_GPIO_SetPinMode(		IO_ENC_1_CH_B, LL_GPIO_MODE_ALTERNATE);
-  LL_GPIO_SetPinPull(		IO_ENC_1_CH_B, LL_GPIO_PULL_NO);
+  LL_GPIO_SetPinPull(		IO_ENC_1_CH_B, LL_GPIO_PULL_DOWN);
   LL_GPIO_SetPinSpeed(	IO_ENC_1_CH_B, LL_GPIO_SPEED_FREQ_VERY_HIGH);
   LL_GPIO_SetAFPin_0_7(	IO_ENC_1_CH_B, LL_GPIO_AF_2);
 	
@@ -184,7 +184,7 @@ void IO_initEncoders(void){
 	// Timer 5 peripheral Configuration
 	LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_TIM5); // Enable clock to Timer 5 peripheral
 	//Set the pre-scaler value to have TIM2 counter clock equal to 42 MHz */
-  LL_TIM_SetPrescaler(TIM5, __LL_TIM_CALC_PSC(SystemCoreClock, 42000000));
+  LL_TIM_SetPrescaler(TIM5, __LL_TIM_CALC_PSC(SystemCoreClock, 84000000));
 	
 	LL_TIM_IC_SetActiveInput(TIM5, LL_TIM_CHANNEL_CH1, LL_TIM_ACTIVEINPUT_DIRECTTI);
 	LL_TIM_IC_SetFilter(     TIM5, LL_TIM_CHANNEL_CH1, LL_TIM_IC_FILTER_FDIV1);
@@ -194,7 +194,7 @@ void IO_initEncoders(void){
 	LL_TIM_IC_SetActiveInput(TIM5, LL_TIM_CHANNEL_CH2, LL_TIM_ACTIVEINPUT_DIRECTTI);
 	LL_TIM_IC_SetFilter(     TIM5, LL_TIM_CHANNEL_CH2, LL_TIM_IC_FILTER_FDIV1);
 	LL_TIM_IC_SetPrescaler(  TIM5, LL_TIM_CHANNEL_CH2, LL_TIM_ICPSC_DIV1);
-	LL_TIM_IC_SetPolarity(   TIM5, LL_TIM_CHANNEL_CH2, LL_TIM_IC_POLARITY_RISING);
+	LL_TIM_IC_SetPolarity(   TIM5, LL_TIM_CHANNEL_CH2, LL_TIM_IC_POLARITY_FALLING);
 	
 
 	LL_TIM_SetEncoderMode(TIM5, LL_TIM_ENCODERMODE_X4_TI12);
@@ -203,9 +203,12 @@ void IO_initEncoders(void){
 	
 	LL_TIM_CC_EnableChannel(TIM5, LL_TIM_CHANNEL_CH1);
 	LL_TIM_CC_EnableChannel(TIM5, LL_TIM_CHANNEL_CH2);
+	TIM5->CCMR1 = 0xF1F1;
 	LL_TIM_EnableCounter(TIM5);
 	LL_TIM_GenerateEvent_UPDATE(TIM5);
+
 	
+
 	
 	/* Rigth Encoder */
 	
@@ -226,15 +229,15 @@ void IO_initEncoders(void){
 	// Timer 2 peripheral Configuration
 	LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_TIM2); // Enable clock to Timer 2 peripheral
 	//Set the pre-scaler value to have TIM2 counter clock equal to 42 MHz */
-	LL_TIM_SetPrescaler(TIM2, __LL_TIM_CALC_PSC(SystemCoreClock, 42000000));
+	LL_TIM_SetPrescaler(TIM2, __LL_TIM_CALC_PSC(SystemCoreClock, 84000000));
 	
 	
-	LL_TIM_IC_SetActiveInput(TIM2, LL_TIM_CHANNEL_CH1, LL_TIM_ACTIVEINPUT_DIRECTTI);
+	LL_TIM_IC_SetActiveInput(TIM2, LL_TIM_CHANNEL_CH1, LL_TIM_ACTIVEINPUT_INDIRECTTI);
 	LL_TIM_IC_SetFilter(     TIM2, LL_TIM_CHANNEL_CH1, LL_TIM_IC_FILTER_FDIV1);
 	LL_TIM_IC_SetPrescaler(  TIM2, LL_TIM_CHANNEL_CH1, LL_TIM_ICPSC_DIV1);
 	LL_TIM_IC_SetPolarity(   TIM2, LL_TIM_CHANNEL_CH1, LL_TIM_IC_POLARITY_RISING);
 	
-	LL_TIM_IC_SetActiveInput(TIM2, LL_TIM_CHANNEL_CH2, LL_TIM_ACTIVEINPUT_DIRECTTI);
+	LL_TIM_IC_SetActiveInput(TIM2, LL_TIM_CHANNEL_CH2, LL_TIM_ACTIVEINPUT_INDIRECTTI);
 	LL_TIM_IC_SetFilter(     TIM2, LL_TIM_CHANNEL_CH2, LL_TIM_IC_FILTER_FDIV1);
 	LL_TIM_IC_SetPrescaler(  TIM2, LL_TIM_CHANNEL_CH2, LL_TIM_ICPSC_DIV1);
 	LL_TIM_IC_SetPolarity(   TIM2, LL_TIM_CHANNEL_CH2, LL_TIM_IC_POLARITY_RISING);
@@ -244,6 +247,7 @@ void IO_initEncoders(void){
 	
 	LL_TIM_CC_EnableChannel(TIM2, LL_TIM_CHANNEL_CH1);
 	LL_TIM_CC_EnableChannel(TIM2, LL_TIM_CHANNEL_CH2);
+	TIM5->CCMR1 = 0xF1F1;
 	LL_TIM_EnableCounter(TIM2);
 	LL_TIM_GenerateEvent_UPDATE(TIM2);
 
