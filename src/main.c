@@ -98,17 +98,17 @@ int main(void)
 		//LCD_printf(lcd, "Frequency: %dHz", freq);
 		
 		Motors_setSpeed(motors, speed, speed);
-		if(speed > 4) {
+		if(speed > 2) {
 			dir = 0;
 		}
-		if(speed < -4){
+		if(speed < -2){
 			dir = 1;
 		}
 		
 		if(dir){
-			speed += 0.1;
+			speed += 0.25;
 		}else {
-			speed -= 0.1;
+			speed -= 0.25;
 		}
 	}
 }
