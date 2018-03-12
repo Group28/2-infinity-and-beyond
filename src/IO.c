@@ -16,6 +16,8 @@ static void IO_initLCD(void);
 static void IO_initUSART_USB(void);
 static void IO_initUSART_ESP(void);
 
+static void IO_initI2C(void);
+
 static void IO_initJoyButton(void);
 
 
@@ -51,6 +53,7 @@ void IO_init(void){
 	IO_initUSART_USB();
 	
 	// I2C
+	IO_initI2C();
 	
 	// LCD
 	IO_initLCD();
@@ -273,14 +276,16 @@ void IO_initLCD(void){
   LL_GPIO_SetPinMode(  IO_LCD_SCK, LL_GPIO_MODE_ALTERNATE);
   LL_GPIO_SetAFPin_0_7(IO_LCD_SCK, LL_GPIO_AF_5);
   LL_GPIO_SetPinSpeed( IO_LCD_SCK, LL_GPIO_SPEED_FREQ_VERY_HIGH);
-  LL_GPIO_SetPinPull(  IO_LCD_SCK, LL_GPIO_PULL_DOWN);
+	LL_GPIO_SetPinOutputType(IO_USART2_TX, LL_GPIO_OUTPUT_PUSHPULL);
+  LL_GPIO_SetPinPull(  IO_LCD_SCK, LL_GPIO_PULL_NO);
 
   /* Configure MOSI Pin */
 
   LL_GPIO_SetPinMode(  IO_LCD_MOSI, LL_GPIO_MODE_ALTERNATE);
   LL_GPIO_SetAFPin_0_7(IO_LCD_MOSI, LL_GPIO_AF_5);
   LL_GPIO_SetPinSpeed( IO_LCD_MOSI, LL_GPIO_SPEED_FREQ_VERY_HIGH);
-  LL_GPIO_SetPinPull(  IO_LCD_MOSI, LL_GPIO_PULL_DOWN);
+	LL_GPIO_SetPinOutputType(IO_USART2_TX, LL_GPIO_OUTPUT_PUSHPULL);
+  LL_GPIO_SetPinPull(  IO_LCD_MOSI, LL_GPIO_PULL_NO);
 	
 	/* Configure MISO Pin */
 	//LL_GPIO_SetPinMode(  IO_LCD_MISO, LL_GPIO_MODE_ALTERNATE);
@@ -295,14 +300,14 @@ void IO_initUSART_USB(void){
   LL_GPIO_SetAFPin_0_7(IO_USART2_TX, LL_GPIO_AF_7);        //See AF Mapping PDF in Useful Information Folder
   LL_GPIO_SetPinSpeed(IO_USART2_TX, LL_GPIO_SPEED_FREQ_VERY_HIGH);
   LL_GPIO_SetPinOutputType(IO_USART2_TX, LL_GPIO_OUTPUT_PUSHPULL);
-  LL_GPIO_SetPinPull(IO_USART2_TX,LL_GPIO_PULL_UP);
+  LL_GPIO_SetPinPull(IO_USART2_TX,LL_GPIO_PULL_NO);
 
   /* Configure Rx Pin as : Alternate function, High Speed, Push pull, Pull up */
   LL_GPIO_SetPinMode(IO_USART2_RX, LL_GPIO_MODE_ALTERNATE);
   LL_GPIO_SetAFPin_0_7(IO_USART2_RX, LL_GPIO_AF_7);        //See AF Mapping PDF in Useful Information Folder
   LL_GPIO_SetPinSpeed(IO_USART2_RX, LL_GPIO_SPEED_FREQ_VERY_HIGH);
   LL_GPIO_SetPinOutputType(IO_USART2_RX, LL_GPIO_OUTPUT_PUSHPULL);
-  LL_GPIO_SetPinPull(IO_USART2_RX, LL_GPIO_PULL_UP);
+  LL_GPIO_SetPinPull(IO_USART2_RX, LL_GPIO_PULL_NO);
 }
 
 void IO_initUSART_ESP(void){
@@ -312,16 +317,35 @@ void IO_initUSART_ESP(void){
 	  LL_GPIO_SetAFPin_8_15(IO_ESP_TX, LL_GPIO_AF_8);        //See AF Mapping PDF in Useful Information Folder
 	  LL_GPIO_SetPinSpeed(IO_ESP_TX, LL_GPIO_SPEED_FREQ_VERY_HIGH);
 	  LL_GPIO_SetPinOutputType(IO_ESP_TX, LL_GPIO_OUTPUT_PUSHPULL);
-	  LL_GPIO_SetPinPull(IO_ESP_TX,LL_GPIO_PULL_UP);
+	  LL_GPIO_SetPinPull(IO_ESP_TX,LL_GPIO_PULL_NO);
 
 	  /* Configure Rx Pin as : Alternate function, High Speed, Push pull, Pull up */
 	  LL_GPIO_SetPinMode(IO_ESP_RX, LL_GPIO_MODE_ALTERNATE);
 	  LL_GPIO_SetAFPin_8_15(IO_ESP_RX, LL_GPIO_AF_8);        //See AF Mapping PDF in Useful Information Folder
 	  LL_GPIO_SetPinSpeed(IO_ESP_RX, LL_GPIO_SPEED_FREQ_VERY_HIGH);
 	  LL_GPIO_SetPinOutputType(IO_ESP_RX, LL_GPIO_OUTPUT_PUSHPULL);
-	  LL_GPIO_SetPinPull(IO_ESP_RX, LL_GPIO_PULL_UP);
+	  LL_GPIO_SetPinPull(IO_ESP_RX, LL_GPIO_PULL_NO);
 
 
+}
+
+
+void IO_initI2C(void){
+
+/* Configure SCL Pin as : Alternate function, High Speed, Open drain, Pull up */
+LL_GPIO_SetPinMode(IO_I2C_SCL, LL_GPIO_MODE_ALTERNATE);
+LL_GPIO_SetAFPin_8_15(IO_I2C_SCL, LL_GPIO_AF_4);
+LL_GPIO_SetPinSpeed(IO_I2C_SCL, LL_GPIO_SPEED_FREQ_HIGH);
+LL_GPIO_SetPinOutputType(IO_I2C_SCL, LL_GPIO_OUTPUT_OPENDRAIN);
+LL_GPIO_SetPinPull(IO_I2C_SCL, LL_GPIO_PULL_UP);
+
+/* Configure SDA Pin as : Alternate function, High Speed, Open drain, Pull up */
+LL_GPIO_SetPinMode(IO_I2C_SDA, LL_GPIO_MODE_ALTERNATE);
+LL_GPIO_SetAFPin_8_15(IO_I2C_SDA, LL_GPIO_AF_4);
+LL_GPIO_SetPinSpeed(IO_I2C_SDA, LL_GPIO_SPEED_FREQ_HIGH);
+LL_GPIO_SetPinOutputType(IO_I2C_SDA, LL_GPIO_OUTPUT_OPENDRAIN);
+LL_GPIO_SetPinPull(IO_I2C_SDA, LL_GPIO_PULL_UP);
+	
 }
 
 void IO_initJoyButton(void){
@@ -336,4 +360,3 @@ void IO_initJoyButton(void){
 	LL_EXTI_EnableIT_0_31(LL_EXTI_LINE_13);
 	NVIC_EnableIRQ(EXTI15_10_IRQn); // Enable IRQ for EXTI line 13 in NVIC
 }
-
