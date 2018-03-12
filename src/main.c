@@ -14,6 +14,7 @@
 #include "USART.h"
 #include "Timers.h"
 #include "utils.h"
+#include "configuration.h"
 
 static void Init_buggy(void);
 
@@ -24,6 +25,7 @@ LCD lcd;
 USART usb, esp;
 Analog adc;
 SR sr;
+DS2781 battery;
 
 
 int main(void)
@@ -43,9 +45,31 @@ int main(void)
 	}
 	IO_setSpeakerFreq(25000);
   /* Infinite loop */
+	
+	uint16_t voltage = 0;
+	uint16_t current = 0;
+	uint32_t accum = 0;
+	uint16_t temperature = 0;
+	
+	
   while (1)
   {
-			IO_set(IO_MOTOR_EN, 1);
+		LCD_cls_buffer(lcd);
+		
+		voltage = DS2781_readVoltage(battery);
+		current = DS2781_readCurrent(battery);
+		
+		accum = DS2781_readAccumulatedCurrent(battery);
+		temperature = DS2781_readTemperature(battery);
+		
+		LCD_locate(lcd, 0,0);
+		LCD_printf(lcd, "V: %dV, I: %dA\n ACI: %dA, T: %d*C", voltage, current, accum, temperature);
+		
+		
+		delay(1);
+		
+		/*
+		IO_set(IO_MOTOR_EN, 1);
 		Analog_startConversion(adc);
 		delay(0.05);
 		
@@ -66,7 +90,7 @@ int main(void)
 		//USART_printf(esp, "%u\n", __LL_TIM_CALC_ARR(SystemCoreClock, LL_TIM_GetPrescaler(TIM4), 50));
 		//LCD_printf(lcd, "Frequency: %dHz", freq);
 		
-		
+		*/
 		
 	}
 }
@@ -104,6 +128,9 @@ void Init_buggy(){
 	adc = Analog_init();
 	Analog_enable(adc);
 	sr = SR_init(6);
+	
+	// Initialize battery voltage and current sensing
+	battery = DS2781_init(IO_MICROLAN);
 	
 	// Initialize DMA controller
 	DMA_init(DMA_getBuffers(esp, usb, lcd, adc));

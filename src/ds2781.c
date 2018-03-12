@@ -16,15 +16,52 @@
 #define	DS2781_RECALL_DATA      0xB8
 #define DS2781_LOCK_EEPROM      0x6A	//DO NOT USE
 
+
+// Memory map
+#define DS2781_REG_STATUS       0x01
+#define DS2781_REG_RAAC         0x02
+#define DS2781_REG_RSAC         0x04
+
+#define DS2781_REG_RARC         0x06
+#define DS2781_REG_RSRC         0x07
+
+#define DS2781_REG_IAVG         0x08
+
+#define DS2781_REG_TEMP         0x0A
+
 #define DS2781_REG_VOLTAGE      0x0C
 
 #define DS2781_REG_CURRENT      0x0E
 #define DS2781_REG_CURRENT_LSB  0x0F
 
 #define DS2781_REG_ACCUM_C      0x10
-#define DS2781_REG_TEMP         0x0A
-#define DS2781_REG_OFFSETC      0x7B
+
+#define DS2781_REG_ACRL         0x12
+
+#define DS2781_REG_AgeScalar    0x14
+#define DS2781_REG_SpecialFeat  0x15
+#define DS2781_REG_FullCapacity 0x16
+
+#define DS2781_REG_AE           0x18
+
+#define DS2781_REG_SE           0x1A
+
+
+// EEPROM Memory Block 1
 #define DS2781_REG_CTRL         0x60
+#define DS2781_REG_AB           0x61
+#define DS2781_REG_AC           0x62
+#define DS2781_REG_VCHG         0x64
+#define DS2781_REG_IMIN         0x65
+#define DS2781_REG_VAE          0x66
+#define DS2781_REG_IAE          0x67
+#define DS2781_REG_RSNSP        0x69
+#define DS2781_REG_RSGAIN       0x78
+#define DS2781_REG_RSTC         0x7A
+#define DS2781_REG_OFFSETC      0x7B
+
+
+
 
 
 
