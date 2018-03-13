@@ -13,7 +13,7 @@ static void Motor_setPWMDutyCycle(Motor motor);
 
 Motor Motor_init(PID_Values values, Encoder encoder, uint8_t position){
 	Motor motor = malloc(sizeof(__Motor));
-	motor->pid = PID_init(values, MOTOR_SAMPLE_FREQ, 0,1);
+	motor->pid = PID_init(values, MOTOR_SAMPLE_FREQ, -1,1);
 	motor->speed = 0;
 	motor->position = position;
 	motor->encoder = encoder;
@@ -36,11 +36,7 @@ void Motor_PID_action(Motor motor){
 	
 	motor->effort = PID_compute(motor->pid);
 	
-	if(motor->effort > 1.0){
-		motor->effort = 1;
-	} else if(motor->effort < -1.0){
-		motor->effort = -1;
-	}
+
 	
 	Motor_setPWMDutyCycle(motor);
 }
@@ -82,4 +78,3 @@ void Motor_setPWMDutyCycle(Motor motor){
 		IO_set(IO_MOTOR_2_DIR, direction);
 	}
 }
-

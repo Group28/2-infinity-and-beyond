@@ -284,7 +284,7 @@ void LCD_locate(LCD lcd, uint8_t x, uint8_t y)
 }
  
 void LCD_cls(LCD lcd){
-    LCD_cls_buffer(lcd)
+    LCD_cls_buffer(lcd);
 	  LCD_copyDataBufferFast(lcd);
 }
 
