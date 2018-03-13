@@ -47,17 +47,20 @@ int main(void)
 	IO_setSpeakerFreq(25000);
   /* Infinite loop */
 	
-	uint16_t voltage = 0;
-	uint16_t current = 0;
-	uint32_t accum = 0;
-	uint16_t temperature = 0;
+	double voltage = 0;
+	double current = 0;
+	double accum = 0;
+	double temperature = 0;
 	uint8_t counter =0;
 	
 	float speed = 0;
 	uint8_t dir = 1;
+	
+	DS2781_resetAccumulatedCurrent(battery);
+	
   while (1)
   {
-		/*
+		
 		LCD_cls_buffer(lcd);
 		
 		voltage = DS2781_readVoltage(battery);
@@ -66,13 +69,13 @@ int main(void)
 		accum = DS2781_readAccumulatedCurrent(battery);
 		temperature = DS2781_readTemperature(battery);
 		
-		LCD_locate(lcd, 0,0);
-		LCD_printf(lcd, "V: %5dV, I: %5dA \nACI: %5dA, T: %5d*C\n %d, EncL: %d, EncR: %d", voltage, current, accum, temperature, counter++,TIM5->CNT, TIM2->CNT);
+		//LCD_locate(lcd, 0,0);
+		USART_printf(esp, "V: %.3fV, I: %.4fA \nACI: %.2fmAh, T: %.3f*C\n %d, EncL: %d, EncR: %d\n\n\n\n", voltage, current, accum*1000, temperature, counter++,TIM5->CNT, TIM2->CNT);
 		
 		
 		delay(1);
-		*/
-		/**/
+		
+		/*
 		IO_set(IO_MOTOR_EN, 1);
 		Analog_startConversion(adc);
 		delay(0.05);
@@ -110,7 +113,9 @@ int main(void)
 		}else {
 			speed -= 0.25;
 		}
+	*/
 	}
+	
 }
 
 

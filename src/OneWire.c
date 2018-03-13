@@ -42,7 +42,7 @@ OW OW_init(GPIO_TypeDef * port, uint32_t pin){
   
   OW_INPUT(ow);
   LL_GPIO_SetPinSpeed(port, pin, LL_GPIO_SPEED_FREQ_VERY_HIGH);
-  LL_GPIO_SetPinPull(port, pin, LL_GPIO_PULL_DOWN);
+  LL_GPIO_SetPinPull(port, pin, LL_GPIO_PULL_UP);
   LL_GPIO_ResetOutputPin(port, pin);
   
   OW_reset(ow);
@@ -62,7 +62,7 @@ bool OW_reset(OW ow){
   
   OW_Delay_I();
   
-  if(LL_GPIO_IsInputPinSet(ow->port, ow->pin)) result = true;
+  if(!LL_GPIO_IsInputPinSet(ow->port, ow->pin)) result = true;
   
   OW_Delay_J();
   return result;

@@ -155,15 +155,15 @@ uint64_t DS2781_read64bitReg(DS2781 ds, uint8_t addr){
 }
 
 
-uint16_t DS2781_readVoltage (DS2781 ds){
-  return DS2781_read16bitReg(ds, DS2781_REG_VOLTAGE) >> 5;
+double DS2781_readVoltage (DS2781 ds){
+  return (DS2781_read16bitReg(ds, DS2781_REG_VOLTAGE) >> 5)*0.00976;
 }
-uint16_t DS2781_readCurrent (DS2781 ds){
-  return DS2781_read16bitReg(ds, DS2781_REG_CURRENT);
+double DS2781_readCurrent (DS2781 ds){
+  return ((int16_t)DS2781_read16bitReg(ds, DS2781_REG_CURRENT)) * 0.00015625;
   
 }
-uint32_t DS2781_readAccumulatedCurrent (DS2781 ds){
-  return DS2781_read32bitReg(ds, DS2781_REG_ACCUM_C) >> 4;
+double DS2781_readAccumulatedCurrent (DS2781 ds){
+  return (DS2781_read32bitReg(ds, DS2781_REG_ACCUM_C)>>4) * 1.626e-7;
 }
 void DS2781_resetAccumulatedCurrent (DS2781 ds){
   DS2781_write16bitReg(ds, DS2781_REG_ACCUM_C, 0x0000);
@@ -173,8 +173,8 @@ uint64_t DS2781_readNetAddress (DS2781 ds){
 }
 
 
-uint16_t DS2781_readTemperature (DS2781 ds){
-  return DS2781_read16bitReg(ds, DS2781_REG_TEMP) >> 5;
+double DS2781_readTemperature (DS2781 ds){
+  return (DS2781_read16bitReg(ds, DS2781_REG_TEMP) >> 5)*0.125;
 }
 
 uint8_t DS2781_readCurrentOffset (DS2781 ds){
