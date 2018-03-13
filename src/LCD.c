@@ -168,7 +168,7 @@ int LCD_printf(LCD lcd, const char *format, ...){
 
 int LCD_puts(LCD lcd, char* stringToSend){
 	LCD_puts_buffer(lcd, stringToSend);
-	LCD_copyDataBuffer(lcd);
+	LCD_copyDataBufferFast(lcd);
 	return 1;
 }
 
@@ -283,10 +283,13 @@ void LCD_locate(LCD lcd, uint8_t x, uint8_t y)
     lcd->char_y = y;
 }
  
-
 void LCD_cls(LCD lcd){
-	  memset(lcd->buffer,0x00,sizeof(lcd->buffer[0])*LCD_BUFFER_SIZE);  // clear display buffer
-	  LCD_copyDataBuffer(lcd);
+    LCD_cls_buffer(lcd);
+	  LCD_copyDataBufferFast(lcd);
+}
+
+void LCD_cls_buffer(LCD lcd){
+  memset(lcd->buffer,0x00,sizeof(lcd->buffer[0])*LCD_BUFFER_SIZE);  // clear display buffer
 }
 
  
@@ -327,7 +330,7 @@ void LCD_fillPage(LCD lcd, char page){
 			lcd->buffer[i] = 0xff;
 		}
 	}
-	LCD_copyDataBuffer(lcd);
+	LCD_copyDataBufferFast(lcd);
 }
 
 
