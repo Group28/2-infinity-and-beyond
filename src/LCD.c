@@ -158,7 +158,7 @@ LCD LCD_init(void){
 }
 
 int LCD_printf(LCD lcd, const char *format, ...){
-  char outputString[128];
+  char outputString[512];
   va_list argptr;
   va_start(argptr, format);
   vsprintf(outputString, format, argptr);

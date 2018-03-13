@@ -11,7 +11,7 @@
 #define WHEEL_RADIUS 						0.0417 	// Wheel radius [m]
 #define ENCODER_TICKS_PER_REV 	512 		// Counter ticks per revolution 
 
-#define MOTOR_SAMPLE_FREQ 			10.0 	// Motor speed sample frequency [Hz]
+#define MOTOR_SAMPLE_FREQ 			15.0 	// Motor speed sample frequency [Hz]
 #define SENSOR_SAMPLE_FREQ 			1000.0 	// Sensor sample frequency [Hz]
 
 #define DEFAULT_PWM_FREQ 				20000.0 // Default PWM switching frequency [Hz]
