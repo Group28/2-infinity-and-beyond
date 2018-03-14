@@ -16,6 +16,7 @@
 #include "ds2781.h"
 #include "utils.h"
 #include "configuration.h"
+#include "arm_math.h"
 
 static void Init_buggy(void);
 
@@ -28,7 +29,23 @@ Analog adc;
 SR sr;
 DS2781 battery;
 
+//#define USING_SIMULATOR
 
+#ifdef USING_SIMULATOR
+
+int main(void){
+	int y1=0, y2=0, x = 0, sum=0;
+	while(1){
+		y1 = arm_sin_f32(2*3.1415*x*100);
+		y2 = arm_cos_f32(2*3.1415*x*100);
+		x++;
+		sum=y1+y2;
+		if(x==100)
+			x=0;
+	}
+}
+
+#else
 int main(void)
 {
 	Init_buggy();
@@ -70,12 +87,9 @@ int main(void)
 		temperature = DS2781_readTemperature(battery);
 		
 		//LCD_locate(lcd, 0,0);
-		USART_printf(esp, "V: %.3fV, I: %.4fA \nACI: %.2fmAh, T: %.3f*C\n %d, EncL: %d, EncR: %d\n\n\n\n", voltage, current, accum*1000, temperature, counter++,TIM5->CNT, TIM2->CNT);
 		
+	
 		
-		delay(1);
-		
-		/*
 		IO_set(IO_MOTOR_EN, 1);
 		Analog_startConversion(adc);
 		delay(0.05);
@@ -95,29 +109,31 @@ int main(void)
 			USART_printf(esp, "JSON={\"0\":%f, \"1\":%f, \"2\":%f, \"3\":%f,\"4\":%f, \"5\":%f, \"A+\":%f, \"A-\":%f,\"B+\":%f, \"B-\":%f, \"M\":%f}", conv[0], conv[1], conv[2], conv[3],conv[4],conv[5],conv[7],conv[8],conv[9],conv[10],conv[6]);
 			
 			USART_printf(esp, "A+:%f, A-:%f,\nB+:%f, B-:%f,\n DiffA: %f, DiffB: %f\n", conv[7],conv[8], conv[9], conv[10], conv[7]-conv[8], conv[9]-conv[10]);
-			delay(0.1);
+			USART_printf(esp, "V: %.3fV, I: %.4fA \nACI: %.2fmAh, T: %.3f*C\n %d, EncL: %d, EncR: %d\n\n\n\n", voltage, current, accum*1000, temperature, counter++,TIM5->CNT, TIM2->CNT);
+
+			delay(0.05);
 		}
 		//USART_printf(esp, "%u\n", __LL_TIM_CALC_ARR(SystemCoreClock, LL_TIM_GetPrescaler(TIM4), 50));
 		//LCD_printf(lcd, "Frequency: %dHz", freq);
 		
 		Motors_setSpeed(motors, speed, speed);
-		if(speed > 2) {
+		if(speed > 7) {
 			dir = 0;
 		}
-		if(speed < -2){
+		if(speed < -7){
 			dir = 1;
 		}
 		
 		if(dir){
-			speed += 0.25;
+			speed += 0.5;
 		}else {
-			speed -= 0.25;
+			speed -= 0.5;
 		}
-	*/
 	}
 	
 }
 
+#endif
 
 void Init_buggy(){
 
