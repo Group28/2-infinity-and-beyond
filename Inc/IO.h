@@ -24,6 +24,8 @@ void IO_init(void);
 // Set output high/low
 void IO_set(GPIO_TypeDef * port, uint32_t pin, uint8_t state);
 
+
+void IO_setSpeakerFreq(int freq);
 //void IO_Analog_init();
 
 

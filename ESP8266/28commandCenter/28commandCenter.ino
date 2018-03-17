@@ -466,7 +466,7 @@ void loop() {
   server.handleClient();
   if(Serial.available()) {
     // get the new byte:
-    inputString = Serial.readString();
+    inputString = Serial.readStringUntil('\r');
    
     inputString.replace("\"", "\\\"");
     inputString.replace("\r", "\\r");
