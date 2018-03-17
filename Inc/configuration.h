@@ -11,7 +11,7 @@
 #define WHEEL_RADIUS 						0.0417 	// Wheel radius [m]
 #define ENCODER_TICKS_PER_REV 	1024 		// Counter ticks per revolution 
 
-#define MOTOR_SAMPLE_FREQ 			500.0 	// Motor speed sample frequency [Hz]
+#define MOTOR_SAMPLE_FREQ 			20.0 	// Motor speed sample frequency [Hz]
 #define SENSOR_SAMPLE_FREQ 			1000.0 	// Sensor sample frequency [Hz]
 
 #define DEFAULT_PWM_FREQ 				20000.0 // Default PWM switching frequency [Hz]
@@ -20,6 +20,12 @@
 #define HALL_SENSOR_POLARITY 		1 			// Hall sensor polarity -1 = South, 1 = North, 0 = Both
 
 #define MOTOR_KT 								0.0076 	// Motor Kt [Nm/A] 
+
+#define LEFT_MOTOR_PID_VALUES		{0.25, 0.005, 0.8} // Default PID values for left motor
+#define RIGHT_MOTOR_PID_VALUES	{0.2, 0.003, 0.8}; // Default PID values for right motor
+
+#define IR_SENSOR_COUNT					6 // Number of infrared sensors
+
 
 #define ADC_CHANNEL_COUNT 11
 #define ADC_RESOLUTION LL_ADC_RESOLUTION_12B
@@ -65,8 +71,8 @@
 
 // Shift register
 #define IO_SR_CLK       GPIOB, LL_GPIO_PIN_13
-#define IO_SR_DATA      GPIOB, LL_GPIO_PIN_14
-#define IO_SR_LATCH     GPIOB, LL_GPIO_PIN_15
+#define IO_SR_LATCH      GPIOB, LL_GPIO_PIN_14
+#define IO_SR_DATA     GPIOB, LL_GPIO_PIN_15
 
 // Magnetic sensor
 #define IO_MAGNETIC     GPIOB, LL_GPIO_PIN_1
@@ -120,23 +126,23 @@
 
 // LCD screen
 
-/* SPI3 -> temporarily disabled for testing 
+/* SPI3 -> temporarily disabled for testing */
 #define IO_LCD_SCK      GPIOC, LL_GPIO_PIN_10
 #define IO_LCD_MISO     GPIOC, LL_GPIO_PIN_11
 #define IO_LCD_MOSI     GPIOC, LL_GPIO_PIN_12
 #define IO_LCD_nCS      GPIOD, LL_GPIO_PIN_2
 #define IO_LCD_A0       GPIOB, LL_GPIO_PIN_7
 #define IO_LCD_RESET    GPIOB, LL_GPIO_PIN_12
-*/
 
 
+/*
 #define IO_LCD_SCK      GPIOA, LL_GPIO_PIN_5
 #define IO_LCD_MISO     GPIOC, LL_GPIO_PIN_11
 #define IO_LCD_MOSI     GPIOA, LL_GPIO_PIN_7
 #define IO_LCD_nCS      GPIOB, LL_GPIO_PIN_6
 #define IO_LCD_A0       GPIOA, LL_GPIO_PIN_8
 #define IO_LCD_RESET    GPIOA, LL_GPIO_PIN_6
-
+*/
 // Other IO
 #define IO_SPEAKER      GPIOB, LL_GPIO_PIN_6
 #define IO_CENTER_JOY   GPIOC, LL_GPIO_PIN_13

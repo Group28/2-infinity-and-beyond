@@ -4,14 +4,18 @@
 #include "configuration.h"
 #include <stdbool.h>
 #include <stdlib.h>
+#include "utils.h"
+#include "IO.h"
 #include "math.h"
 
+static void Motor_setPWMDutyCycle(Motor motor);
 
-Motor Motor_init(PID_Values values, Encoder encoder){
+
+Motor Motor_init(PID_Values values, Encoder encoder, uint8_t position){
 	Motor motor = malloc(sizeof(__Motor));
 	motor->pid = PID_init(values, MOTOR_SAMPLE_FREQ, -1,1);
 	motor->speed = 0;
-	
+	motor->position = position;
 	motor->encoder = encoder;
 	
 	
@@ -20,64 +24,57 @@ Motor Motor_init(PID_Values values, Encoder encoder){
 
 Motors Motors_init(PID_Values valuesL, PID_Values valuesR, Encoder encL, Encoder encR){
 	Motors motors = malloc(sizeof(__Motors));
-	motors->motorLeft = Motor_init(valuesL, encL);
-	motors->motorRight = Motor_init(valuesR, encR);
+	motors->motorLeft = Motor_init(valuesL, encL, MOTOR_LEFT);
+	motors->motorRight = Motor_init(valuesR, encR, MOTOR_RIGHT);
 	
 	return motors;
 }
 
-void Motor_Left_PID_action(Motor motor){
-	//double realSpeed =  Encoder_getSpeed(motor->encoder);
-}
+void Motor_PID_action(Motor motor){
+	double realSpeed =  Encoder_getSpeed(motor->encoder);
+	PID_setMeasuredValue(motor->pid, realSpeed);
+	
+	motor->effort = PID_compute(motor->pid);
+	
 
-void Motor_Right_PID_action(Motor motor){
-
+	
+	Motor_setPWMDutyCycle(motor);
 }
 
 
 
 void Motors_PID_action(Motors motors){
-	Motor_Left_PID_action(motors->motorLeft);
-	Motor_Right_PID_action(motors->motorRight);
+	Motor_PID_action(motors->motorLeft);
+	Motor_PID_action(motors->motorRight);
 }
 
-void Motor_Left_setSpeed(Motor motor, double speed){
+void Motor_setSpeed(Motor motor, double speed){
 	motor->speed = speed;
-}
-void Motor_Right_setSpeed(Motor motor, double speed){
-	motor->speed = speed;
+	PID_setTargetValue(motor->pid, speed);
 }
 
 void Motors_setSpeed(Motors motors, double speedL, double speedR){
-	Motor_Left_setSpeed(motors->motorLeft, speedL);
-	Motor_Right_setSpeed(motors->motorRight, speedR);
+	Motor_setSpeed(motors->motorLeft, speedL);
+	Motor_setSpeed(motors->motorRight, speedR);
 }
 
 
-void Set_DutyCycle_Motor_Left(float D){
-	float P;    //Pulse duration                                           
-  float T;    //PWM signal period  
-	D = fabs(D);
+void Motor_setPWMDutyCycle(Motor motor){
+	double effort = motor->effort;
+	uint8_t direction = MOTOR_FORWARD;
+	if(effort < 0){
+		effort = fabs(effort);
+		direction = MOTOR_REVERSE;
+		
+	}
 	
-	/* PWM signal period is determined by the value of the auto-reload register */
-  T = LL_TIM_GetAutoReload(TIM3) + 1;
-  /* Pulse duration is determined by the value of the compare register.       */
-  /* Its value is calculated in order to match the requested duty cycle.      */
-  P = ((100.0f-D)*T)/100.0f;
-
-  LL_TIM_OC_SetCompareCH3(TIM3, (uint32_t)P);	
-}
-
-void Set_DutyCycle_Motor_Right(float D){
-	float P;    //Pulse duration                                           
-  float T;    //PWM signal period  
-	D = fabs(D);
+	uint32_t compareValue = (uint32_t)((1.0-effort)*(LL_TIM_GetAutoReload(TIM3)+1));
 	
-	/* PWM signal period is determined by the value of the auto-reload register */
-  T = LL_TIM_GetAutoReload(TIM3) + 1;
-  /* Pulse duration is determined by the value of the compare register.       */
-  /* Its value is calculated in order to match the requested duty cycle.      */
-  P = ((100.0f-D)*T)/100.0f;
-
-  LL_TIM_OC_SetCompareCH4(TIM3, (uint32_t)P);	
+	if(motor->position == MOTOR_LEFT){
+		LL_TIM_OC_SetCompareCH3(TIM3, compareValue);
+		IO_set(IO_MOTOR_1_DIR, direction);
+	} else if(motor->position == MOTOR_RIGHT){
+		LL_TIM_OC_SetCompareCH4(TIM3, compareValue);
+		IO_set(IO_MOTOR_2_DIR, direction);
+	}
 }
