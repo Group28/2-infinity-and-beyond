@@ -21,6 +21,12 @@
 
 #define MOTOR_KT 								0.0076 	// Motor Kt [Nm/A] 
 
+#define LEFT_MOTOR_PID_VALUES		{0.25, 0.005, 0.8} // Default PID values for left motor
+#define RIGHT_MOTOR_PID_VALUES	{0.2, 0.003, 0.8}; // Default PID values for right motor
+
+#define IR_SENSOR_COUNT					6 // Number of infrared sensors
+
+
 #define ADC_CHANNEL_COUNT 11
 #define ADC_RESOLUTION LL_ADC_RESOLUTION_12B
 #define ADC_SENSOR_SAMPLETIME LL_ADC_SAMPLINGTIME_480CYCLES
@@ -65,8 +71,8 @@
 
 // Shift register
 #define IO_SR_CLK       GPIOB, LL_GPIO_PIN_13
-#define IO_SR_DATA      GPIOB, LL_GPIO_PIN_14
-#define IO_SR_LATCH     GPIOB, LL_GPIO_PIN_15
+#define IO_SR_LATCH      GPIOB, LL_GPIO_PIN_14
+#define IO_SR_DATA     GPIOB, LL_GPIO_PIN_15
 
 // Magnetic sensor
 #define IO_MAGNETIC     GPIOB, LL_GPIO_PIN_1
