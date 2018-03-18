@@ -10,6 +10,7 @@
 #define LCD_SPI_IRQHandler 	SPI3_IRQHandler
 #define LCD_SPI_IRQn 				SPI3_IRQn
 
+#define USE_SPI_IT
 
 /* Local static helper functions */
 
@@ -37,11 +38,9 @@ static void LCD_SPI_sendDataBuffer(void);
 static void LCD_writeData(unsigned char data);
 static void LCD_writeCommand(unsigned char command);
 
-static void LCD_copyDataBuffer(LCD lcd);
-static void LCD_copyDataBufferFast(LCD lcd);										
-
 static void LCD_newLine(LCD lcd);
 												 
+
 /* LCD Commands */
 											
 // Displa ON/OFF
@@ -168,7 +167,7 @@ int LCD_printf(LCD lcd, const char *format, ...){
 
 int LCD_puts(LCD lcd, char* stringToSend){
 	LCD_puts_buffer(lcd, stringToSend);
-	LCD_copyDataBufferFast(lcd);
+	LCD_flushBuffer(lcd);
 	return 1;
 }
 
@@ -244,11 +243,6 @@ void LCD_character(LCD lcd, uint8_t x, uint8_t y, char c)
  
     lcd->char_x += w;
 }
- 
-void LCD_flushBuffer(LCD lcd){
-	LCD_copyDataBufferFast(lcd);
-}
-
 
 void LCD_setFont(LCD lcd, char* f)
 {
@@ -285,7 +279,7 @@ void LCD_locate(LCD lcd, uint8_t x, uint8_t y)
  
 void LCD_cls(LCD lcd){
     LCD_cls_buffer(lcd);
-	  LCD_copyDataBufferFast(lcd);
+	  LCD_flushBuffer(lcd);
 }
 
 void LCD_cls_buffer(LCD lcd){
@@ -330,12 +324,34 @@ void LCD_fillPage(LCD lcd, char page){
 			lcd->buffer[i] = 0xff;
 		}
 	}
-	LCD_copyDataBufferFast(lcd);
+	LCD_flushBuffer(lcd);
 }
 
 
-void LCD_copyDataBuffer(LCD lcd) {   
-  
+void LCD_flushBuffer(LCD lcd) {
+
+#ifdef USE_SPI_IT
+	SPI_TX_BUFFER.buffer = lcd->buffer;
+	//SPI_TX_BUFFER.send = 1;
+	//SPI_TX_BUFFER.length = LCD_BUFFER_SIZE;
+	
+	for(uint8_t page = 0; page < 4; page++){
+		while(LL_SPI_IsActiveFlag_BSY(LCD_SPI));
+		LCD_writeCommand(LCD_CMD_LOWER_BIT | 0x00);
+    LCD_writeCommand(LCD_CMD_UPPER_BIT | 0x00);
+    LCD_writeCommand(LCD_CMD_PAGE_ADDR | page);
+    
+    // Copy the local buffer to the 
+		
+		SPI_TX_BUFFER.index = page * 128;
+		SPI_TX_BUFFER.length = SPI_TX_BUFFER.index + 128;
+		SPI_TX_BUFFER.send = 1;
+		LCD_SPI_sendDataBuffer();
+		
+	}
+		
+#else 
+
   // Loop through all pages
   for(uint8_t page = 0; page < 4; page++){
     LCD_writeCommand(LCD_CMD_LOWER_BIT | 0x00);
@@ -350,28 +366,8 @@ void LCD_copyDataBuffer(LCD lcd) {
   
   // End transmission
   //LCD_writeCommand(LCD_CMD_END);
+#endif
 }
-
-void LCD_copyDataBufferFast(LCD lcd) {
-	SPI_TX_BUFFER.buffer = lcd->buffer;
-	SPI_TX_BUFFER.send = 1;
-	//SPI_TX_BUFFER.length = LCD_BUFFER_SIZE;
-	
-	for(uint8_t page = 0; page < 4; page++){
-		LCD_writeCommand(LCD_CMD_LOWER_BIT | 0x00);
-    LCD_writeCommand(LCD_CMD_UPPER_BIT | 0x00);
-    LCD_writeCommand(LCD_CMD_PAGE_ADDR | page);
-    
-    // Copy the local buffer to the 
-		
-		SPI_TX_BUFFER.index = page * 128;
-		SPI_TX_BUFFER.length = SPI_TX_BUFFER.index + 128;
-		SPI_TX_BUFFER.send = 1;
-		LCD_SPI_sendDataBuffer();
-		while(LL_SPI_IsActiveFlag_BSY(LCD_SPI));
-	}
-}
-
 
 
 void LCD_writeData(unsigned char data) {

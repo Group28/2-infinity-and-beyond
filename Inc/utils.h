@@ -5,9 +5,9 @@
 
 typedef struct {
 	char *buffer;
-	uint32_t length;
-	uint32_t index;
-	uint8_t send:1;
+	volatile uint32_t length;
+	volatile uint32_t index;
+	volatile uint8_t send:1;
 } Buffer;
 
 typedef struct {
