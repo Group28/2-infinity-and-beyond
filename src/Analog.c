@@ -91,7 +91,10 @@ void Analog_startConversion(Analog adc){
 }
 
 uint16_t * Analog_getValues(Analog adc){
+	if(!adc->converting)
     return adc->buffer.buffer;
+	else 
+		return NULL;
 }
 
 
@@ -112,7 +115,7 @@ void ADC_IRQHandler(void)
   /*       must be selected among end of unitary conversion                   */
   /*       or end of sequence conversions.                                    */
   /*       Refer to function "LL_ADC_REG_SetFlagEndOfConversion()".           */
-  else /* if(LL_ADC_IsActiveFlag_EOCS(ADC1) != 0) */
+  if(LL_ADC_IsActiveFlag_EOCS(ADC1) != 0)
   {
     /* Clear flag ADC group regular end of sequence conversions */
     LL_ADC_ClearFlag_EOCS(ADC1);
@@ -121,3 +124,4 @@ void ADC_IRQHandler(void)
     //AdcGrpRegularSequenceConvComplete_Callback();
   }
 }
+

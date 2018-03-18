@@ -3,6 +3,8 @@
 
 static DMA_Buffers buffers;
 
+
+
 void DMA_init(DMA_Buffers buffs) {
 
 	buffers = buffs;
@@ -278,8 +280,9 @@ void DMA2_Stream0_IRQHandler(void)
   {
     /*  Clear Stream  transfer complete flag*/
     LL_DMA_ClearFlag_TC0(DMA2);
+		
     /* Call interruption treatment function */
-    //AdcDmaTransferComplete_Callback();
+		Analog_TransferComplete();
   }
   
   /* Check whether DMA transfer error caused the DMA interruption */
@@ -290,5 +293,6 @@ void DMA2_Stream0_IRQHandler(void)
     
     /* Call interruption treatment function */
     //AdcDmaTransferError_Callback();
+		Analog_TransferError();
   }
 }
