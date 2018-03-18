@@ -110,7 +110,13 @@
   
 /* Exported macro ------------------------------------------------------------*/
 /* Exported functions ------------------------------------------------------- */
-    
+
+
+inline void Analog_TransferComplete(void);
+inline void Analog_TransferError(void);
+																								
+																								
+																								
 #endif /* __MAIN_H */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
