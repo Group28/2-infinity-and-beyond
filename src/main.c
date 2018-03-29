@@ -7,6 +7,7 @@
 #include "IO.h"
 #include "SR.h"
 #include "LightSensors.h"
+#include "Magnets.h"
 #include "PID.h"
 #include "Motors.h"
 #include "Encoders.h"
@@ -33,6 +34,7 @@ Analog adc;
 SR sr;
 DS2781 battery;
 LightSensors ls;
+Magnet magnet;
 
 
 
@@ -196,7 +198,7 @@ void Init_buggy(){
 	ls = LightSensors_init(adc, sr, IR_SENSOR_COUNT);
 	
   // Magnetic sensor
-	
+	magnet = magnet_init(adc);
 	
 	// Initialize battery voltage and current sensing
 	battery = DS2781_init(IO_MICROLAN);
