@@ -6,6 +6,7 @@
 #include "DMA.h"
 #include "IO.h"
 #include "SR.h"
+#include "LightSensors.h"
 #include "PID.h"
 #include "Motors.h"
 #include "Encoders.h"
@@ -31,6 +32,7 @@ USART usb, esp;
 Analog adc;
 SR sr;
 DS2781 battery;
+LightSensors ls;
 
 
 
@@ -183,10 +185,18 @@ void Init_buggy(){
 	usb = USART_USB_init();
 	esp = USART_ESP_init();
 	
+	
+	// Initialize sensors
 	adc = Analog_init();
 	Analog_enable(adc);
 	
+	
+	// Light sensors
 	sr = SR_init(IR_SENSOR_COUNT);
+	ls = LightSensors_init(adc, sr, IR_SENSOR_COUNT);
+	
+  // Magnetic sensor
+	
 	
 	// Initialize battery voltage and current sensing
 	battery = DS2781_init(IO_MICROLAN);
