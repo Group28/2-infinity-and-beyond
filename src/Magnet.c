@@ -8,3 +8,17 @@ Magnet Magnet_init(Analog adc){
   
   return magnet;
 }
+
+
+MagnetValue Magnet_getValue(Magnet magnet){
+  MagnetValue returnValue = MAGNET_ERROR;
+  if(magnet->rawReading > MAGNET_NORTH_THRESHOLD){
+    returnValue = MAGNET_NORTH;
+  } else if (magnet->rawReading < MAGNET_SOUTH_THRESHOLD){
+    returnValue = MAGNET_SOUTH;
+  } else {
+    returnValue = MAGNET_NOMAG;
+  }
+  
+  return returnValue;
+}
