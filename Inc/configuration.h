@@ -26,12 +26,12 @@
 
 #define IR_SENSOR_COUNT					6 // Number of infrared sensors
 
-
-#define ADC_CHANNEL_COUNT 11
-#define ADC_RESOLUTION LL_ADC_RESOLUTION_12B
-#define ADC_SENSOR_SAMPLETIME LL_ADC_SAMPLINGTIME_480CYCLES
-#define ADC_MAGNETIC_SAMPLETIME LL_ADC_SAMPLINGTIME_480CYCLES
-#define ADC_SENS_SAMPLETIME LL_ADC_SAMPLINGTIME_480CYCLES
+// ADC configuration
+#define ADC_CHANNEL_COUNT 11    // Number of ADC channels to sample
+#define ADC_RESOLUTION LL_ADC_RESOLUTION_12B // ADC resolution (using 12bits)
+#define ADC_SENSOR_SAMPLETIME LL_ADC_SAMPLINGTIME_480CYCLES    // Sample time for Light sensors 
+#define ADC_MAGNETIC_SAMPLETIME LL_ADC_SAMPLINGTIME_480CYCLES  // Sample time for Magnetic sensor
+#define ADC_SENS_SAMPLETIME LL_ADC_SAMPLINGTIME_480CYCLES      // Sample time for current sensing sensors
 
 
 #define MAGNET_NORTH_THRESHOLD 2482   // Upper threshold for north magnetic field detection
@@ -45,9 +45,9 @@
 #define ESP_USART 							1 			// Set to 1 to enable, 0 to disable Wifi serial communication
 
 #define USART_BAUDRATE 					115200 	// Default baud rade used for USART communication
-#define USART_BUFFER_SIZE 			128
+#define USART_BUFFER_SIZE 			128    // Size of USART buffer in bytes
 
-#define LCD_BUFFER_SIZE 				512
+#define LCD_BUFFER_SIZE 				512    // Size of LCD buffer - determined by size of LCD
 
 /* IO -------------------------------------------------------------------------------------------------- //
 //
