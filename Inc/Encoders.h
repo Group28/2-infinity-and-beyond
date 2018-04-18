@@ -13,7 +13,7 @@ typedef struct {
 	uint16_t ticks_per_revolution;
 	double revolutions; 	// Number of total revolutions
 	TIM_TypeDef * timer; 	// Timer attached to encoders 
-} __Encoder, *Encoder;;
+} __Encoder, *Encoder;
 
 
 Encoder Encoder_init(TIM_TypeDef * timer, double samplePeriod, uint16_t ticks);

@@ -3,7 +3,7 @@
 
 
 
-LightSensors LightSensors_init(Analog adc, SR sr, unit8_t count){
+LightSensors LightSensors_init(Analog adc, SR sr, uint8_t count){
   LightSensors ls = malloc(sizeof(__LightSensors)); 
   ls->adc = adc;
   ls->count = count;

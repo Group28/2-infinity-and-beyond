@@ -91,10 +91,7 @@ void Analog_startConversion(Analog adc){
 }
 
 uint16_t * Analog_getValues(Analog adc){
-	if(!adc->converting)
-    return adc->buffer.buffer;
-	else 
-		return NULL;
+  return adc->buffer.buffer;
 }
 
 
