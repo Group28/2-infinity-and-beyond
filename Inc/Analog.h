@@ -18,4 +18,6 @@ inline void Analog_startConversion(Analog adc);
 
 uint16_t * Analog_getValues(Analog adc);
 
+
+
 #endif

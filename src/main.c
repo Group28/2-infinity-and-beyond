@@ -7,7 +7,7 @@
 #include "IO.h"
 #include "SR.h"
 #include "LightSensors.h"
-#include "Magnets.h"
+#include "Magnet.h"
 #include "PID.h"
 #include "Motors.h"
 #include "Encoders.h"
@@ -37,7 +37,8 @@ LightSensors ls;
 Magnet magnet;
 
 
-
+int analogConversions = 0;
+int adcErrors = 0;
 
 #ifndef USING_SIMULATOR
 /* Default main function */
@@ -90,9 +91,9 @@ int main(void)
 		
 	
 		
-		IO_set(IO_MOTOR_EN, 1);
-		Analog_startConversion(adc);
-		delay(0.05);
+		IO_set(IO_MOTOR_EN, 0);
+		//Analog_startConversion(adc);
+		//delay(0.05);
 		
 		
 		Motors_setSpeed(motors, speed, speed);
@@ -104,8 +105,8 @@ int main(void)
 			}
 			LCD_cls(lcd);
 			LCD_locate(lcd, 0, 0);
-			LCD_printf(lcd, "LS:%5.2fms, RS:%5.2fms\nLRev:%6.3f, RRev:%6.3f\n", Encoder_getSpeed(encoderLeft)*2*3.141592*WHEEL_RADIUS, Encoder_getSpeed(encoderRight)*2*3.141592*WHEEL_RADIUS, Encoder_getRevolutions(encoderLeft), Encoder_getRevolutions(encoderRight));
-			LCD_printf(lcd, "EffL:%5.2f, EffR:%5.2f, Sp:%.2f", motors->motorLeft->effort, motors->motorRight->effort, speed);
+			//LCD_printf(lcd, "LS:%5.2fms, RS:%5.2fms\nLRev:%6.3f, RRev:%6.3f\n", Encoder_getSpeed(encoderLeft)*2*3.141592*WHEEL_RADIUS, Encoder_getSpeed(encoderRight)*2*3.141592*WHEEL_RADIUS, Encoder_getRevolutions(encoderLeft), Encoder_getRevolutions(encoderRight));
+			//LCD_printf(lcd, "EffL:%5.2f, EffR:%5.2f, Sp:%.2f", motors->motorLeft->effort, motors->motorRight->effort, speed);
 			//LCD_printf(lcd, "0:%.2f 1:%.2f 2:%.2f 3:%.2f\n4:%.2f 5:%.2f A+%.2f A-%.2f\nB+%.2f B-%.2f M:%.2f\n", conv[0], conv[1], conv[2], conv[3],conv[4],conv[5],conv[7],conv[8],conv[9],conv[10],conv[6]);
 			USART_printf(esp, "JSON={\"0\":%f, \"1\":%f, \"2\":%f, \"3\":%f,\"4\":%f, \"5\":%f, \"A+\":%f, \"A-\":%f,\"B+\":%f, \"B-\":%f, \"M\":%f}\r", conv[0], conv[1], conv[2], conv[3],conv[4],conv[5],conv[7],conv[8],conv[9],conv[10],conv[6]);
 			
@@ -117,9 +118,10 @@ int main(void)
 
 			USART_printf(esp, "  Speed:   %5.2fm/s  Speed:%5.2fm/s\n  Distance:%6.3fm   Distance:%6.3fm\n", Encoder_getSpeed(encoderLeft)*2*3.141592*WHEEL_RADIUS, Encoder_getSpeed(encoderRight)*2*3.141592*WHEEL_RADIUS, Encoder_getRevolutions(encoderLeft)*2*3.141592*WHEEL_RADIUS, Encoder_getRevolutions(encoderRight)*2*3.141592*WHEEL_RADIUS);
 			USART_printf(esp, "  Effort:  %5.2f     Effort:%5.2f        Set speed :%.2f\n", motors->motorLeft->effort, motors->motorRight->effort, speed);
-			USART_printf(esp, "  Encoder: %d         Encoder: %d",TIM5->CNT, TIM2->CNT);
-			Analog_startConversion(adc);
-			delay(0.05);
+			USART_printf(esp, "  Encoder: %d         Encoder: %d\n",TIM5->CNT, TIM2->CNT);
+			USART_printf(esp, "  ADC Conversions: %d, ADC Errors: %d\n", analogConversions, adcErrors);
+			USART_printf(esp, "  RAW ADC %d %d %d %d %d %d %d %d %d %d %d\n", adcValues[0],adcValues[1],adcValues[2],adcValues[3],adcValues[4],adcValues[5],adcValues[6],adcValues[7],adcValues[8],adcValues[9],adcValues[10]);
+			delay(0.5);
 		}
 		//USART_printf(esp, "%u\n", __LL_TIM_CALC_ARR(SystemCoreClock, LL_TIM_GetPrescaler(TIM4), 50));
 		//LCD_printf(lcd, "Frequency: %dHz", freq);
@@ -133,9 +135,9 @@ int main(void)
 		}
 		
 		if(dir){
-			speed += 0.5;
+			speed += 0.5l;
 		}else {
-			speed -= 0.5;
+			speed -= 0.5l;
 		}
 	}
 	
@@ -198,7 +200,7 @@ void Init_buggy(){
 	ls = LightSensors_init(adc, sr, IR_SENSOR_COUNT);
 	
   // Magnetic sensor
-	magnet = magnet_init(adc);
+	magnet = Magnet_init(adc);
 	
 	// Initialize battery voltage and current sensing
 	battery = DS2781_init(IO_MICROLAN);
@@ -207,4 +209,12 @@ void Init_buggy(){
 	DMA_init(DMA_getBuffers(esp, usb, lcd, adc));
 	
 	Timers_init();
+}
+
+void Analog_TransferComplete(){
+	analogConversions++;
+}
+
+void Analog_TransferError(){
+	adcErrors++;
 }

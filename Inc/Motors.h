@@ -19,13 +19,13 @@ typedef struct {
 	double speed;
 	double effort;
 	uint8_t position:1;
-} __Motor, *Motor;;
+} __Motor, *Motor;
 
 typedef struct {
 	Motor motorLeft;
 	Motor motorRight;
 	
-} __Motors, *Motors;;
+} __Motors, *Motors;
 
 Motor Motor_init(PID_Values values, Encoder encoder, uint8_t position);
 
