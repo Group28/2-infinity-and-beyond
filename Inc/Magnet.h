@@ -6,6 +6,7 @@
 
 typedef struct {
   uint16_t * rawReading;
+	uint16_t runningAverage;
   Analog adc;
 } __Magnet, *Magnet;
 
@@ -17,5 +18,9 @@ typedef int8_t MagnetValue;
 #define MAGNET_ERROR 2
 
 Magnet Magnet_init(Analog adc);
+
+void Magnet_update(Magnet magnet);
+
+MagnetValue Magnet_getValue(Magnet magnet);
 
 #endif
