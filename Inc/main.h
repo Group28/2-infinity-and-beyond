@@ -42,6 +42,8 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f4xx.h"
+#include "arm_math.h"
+#include "stdbool.h"
 
 
 /* LL drivers common to all LL examples */
