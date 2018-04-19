@@ -32,7 +32,7 @@ PID PID_init(PID_Values values, double interval, double minEffort,
               double maxEffort);
 
 // Compute the effort based on the latest measured value and the target value
-double PID_compute(PID pid);
+float PID_compute(PID pid);
 
 // Reset the integral and derivative error counters
 void PID_reset(PID pid);
