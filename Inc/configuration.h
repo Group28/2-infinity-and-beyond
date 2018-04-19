@@ -21,19 +21,27 @@
 
 #define MOTOR_KT 								0.0076 	// Motor Kt [Nm/A] 
 
+
+#define ROTATION_SPEED          3
+
 #define LEFT_MOTOR_PID_VALUES		{0.25, 0.005, 0.8} // Default PID values for left motor
-#define RIGHT_MOTOR_PID_VALUES	{0.2, 0.003, 0.8}; // Default PID values for right motor
+#define RIGHT_MOTOR_PID_VALUES	{0.2, 0.003, 0.8} // Default PID values for right motor
+
+#define LS_WEIGHTS							{-1.5, 1.5, -0.9, 0.9, -1, 1} // Sensor weights
+                                   
 
 #define IR_SENSOR_COUNT					6 // Number of infrared sensors
 
+// ADC configuration
+#define ADC_CHANNEL_COUNT 11    // Number of ADC channels to sample
+#define ADC_RESOLUTION LL_ADC_RESOLUTION_12B // ADC resolution (using 12bits)
+#define ADC_SENSOR_SAMPLETIME LL_ADC_SAMPLINGTIME_480CYCLES    // Sample time for Light sensors 
+#define ADC_MAGNETIC_SAMPLETIME LL_ADC_SAMPLINGTIME_480CYCLES  // Sample time for Magnetic sensor
+#define ADC_SENS_SAMPLETIME LL_ADC_SAMPLINGTIME_480CYCLES      // Sample time for current sensing sensors
 
-#define ADC_CHANNEL_COUNT 11
-#define ADC_RESOLUTION LL_ADC_RESOLUTION_12B
-#define ADC_SENSOR_SAMPLETIME LL_ADC_SAMPLINGTIME_480CYCLES
-#define ADC_MAGNETIC_SAMPLETIME LL_ADC_SAMPLINGTIME_480CYCLES
-#define ADC_SENS_SAMPLETIME LL_ADC_SAMPLINGTIME_480CYCLES
 
-
+#define MAGNET_NORTH_THRESHOLD 2482   // Upper threshold for north magnetic field detection
+#define MAGNET_SOUTH_THRESHOLD 1675   // Lower threshold for south magnetic field detection
 /* Communication --------------------------------------------------------------------------------------- //
 //
 // Toggles communication channels
@@ -43,9 +51,9 @@
 #define ESP_USART 							1 			// Set to 1 to enable, 0 to disable Wifi serial communication
 
 #define USART_BAUDRATE 					115200 	// Default baud rade used for USART communication
-#define USART_BUFFER_SIZE 			128
+#define USART_BUFFER_SIZE 			128    // Size of USART buffer in bytes
 
-#define LCD_BUFFER_SIZE 				512
+#define LCD_BUFFER_SIZE 				512    // Size of LCD buffer - determined by size of LCD
 
 /* IO -------------------------------------------------------------------------------------------------- //
 //

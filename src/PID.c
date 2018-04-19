@@ -21,7 +21,7 @@ PID PID_init(PID_Values values, double interval, double minEffort, double maxEff
 	return pid;
 }
 
-double PID_compute(PID pid){
+float PID_compute(PID pid){
   pid->lastError = pid->error; // Set last error
   
   pid->error = pid->target - pid->measured; // Calculate current error from target and measured values
@@ -37,7 +37,7 @@ double PID_compute(PID pid){
   if(effort >= pid->maxEffort) return pid->maxEffort; // Effort is bound by the max and min Effort values
   if(effort <= pid->minEffort) return pid->minEffort;
   
-	return effort;
+	return (float)effort;
 }
 
 void PID_reset(PID pid){

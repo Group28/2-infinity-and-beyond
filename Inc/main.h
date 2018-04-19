@@ -42,6 +42,8 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f4xx.h"
+#include "arm_math.h"
+#include "stdbool.h"
 
 
 /* LL drivers common to all LL examples */
@@ -71,7 +73,6 @@
 #if defined(USE_FULL_ASSERT)
 #include "stm32_assert.h"
 #endif /* USE_FULL_ASSERT */
-
 
 inline void Analog_TransferComplete(void);
 inline void Analog_TransferError(void);

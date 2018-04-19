@@ -58,8 +58,8 @@ void SR_flushBuffer(SR sr){
 }
 
 inline void SR_shiftIn(SR sr, uint8_t value){
-	sr->buffer = (sr->buffer << 1) | (value & 0x01);
-	shiftBit(value & 0x01);
+	sr->buffer = (sr->buffer << 1) | (!!value);
+	shiftBit(value);
 }
 
 void SR_clr(SR sr){
