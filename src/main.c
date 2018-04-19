@@ -37,6 +37,12 @@ LightSensors ls;
 Magnet magnet;
 
 
+PID_Values ctrlPID_values = {2, 0, 1};
+
+
+PID ctrl;
+
+
 int analogConversions = 0;
 int adcErrors = 0;
 
@@ -47,7 +53,10 @@ int main(void)
 {
 	Init_buggy();
 	uint16_t *adcValues;
-	float conv[ADC_CHANNEL_COUNT];
+	float32_t conv[ADC_CHANNEL_COUNT];
+	float32_t weights[] = {-1.5, 1.5, -0.4, 0.4, -0.3, 0.3};
+	
+	
 	for(int freq =200; freq <=800; freq += 100){
 		IO_setSpeakerFreq(freq);
 		delay(0.1);
@@ -68,50 +77,55 @@ int main(void)
 	double temperature = 0;
 	uint8_t counter =0;
 	
-	float speed = 0;
+	float speed = 1.5;
 	uint8_t dir = 1;
 	
 	//DS2781_resetAccumulatedCurrent(battery);
 	SR_set(sr, 0x26);
 	SR_set(sr, 0xFF);
+	int loopCounter = 0;
   while (1)
   {
-		SR_rotateLeft(sr);
-		SR_rotateLeft(sr);
 		//SR_rotateLeft(sr);
-		LCD_cls_buffer(lcd);
 		
-		voltage = DS2781_readVoltage(battery);
-		current = DS2781_readCurrent(battery);
+		IO_set(IO_MOTOR_EN, 1);
 		
-		accum = DS2781_readAccumulatedCurrent(battery);
-		temperature = DS2781_readTemperature(battery);
-		
-		//LCD_locate(lcd, 0,0);
-		
+		adcValues = Analog_getValues(adc);
 	
+		for(int i = 0; i< ADC_CHANNEL_COUNT; i++){
+			conv[i]=adcValues[i]/4096.0;
+		}
 		
-		IO_set(IO_MOTOR_EN, 0);
-		//Analog_startConversion(adc);
-		//delay(0.05);
+		float32_t sum;
+		
+		arm_dot_prod_f32(conv, weights, 6, &sum);
+		PID_setMeasuredValue(ctrl, sum);
+		
+		float effort = PID_compute(ctrl);
 		
 		
-		Motors_setSpeed(motors, speed, speed);
-		for(int i = 0; i< 10; i++){
-			adcValues = Analog_getValues(adc);
-		
-			for(int i = 0; i< ADC_CHANNEL_COUNT; i++){
-				conv[i]=adcValues[i]/4096.0;
-			}
-			LCD_cls(lcd);
+		Motors_setSpeed(motors, speed-effort, speed+effort);
+		if(loopCounter % 10000 == 0){
+			voltage = DS2781_readVoltage(battery);
+			current = DS2781_readCurrent(battery);
+			
+			accum = DS2781_readAccumulatedCurrent(battery);
+			temperature = DS2781_readTemperature(battery);
+			
+			
+			LCD_cls_buffer(lcd);
 			LCD_locate(lcd, 0, 0);
 			//LCD_printf(lcd, "LS:%5.2fms, RS:%5.2fms\nLRev:%6.3f, RRev:%6.3f\n", Encoder_getSpeed(encoderLeft)*2*3.141592*WHEEL_RADIUS, Encoder_getSpeed(encoderRight)*2*3.141592*WHEEL_RADIUS, Encoder_getRevolutions(encoderLeft), Encoder_getRevolutions(encoderRight));
 			//LCD_printf(lcd, "EffL:%5.2f, EffR:%5.2f, Sp:%.2f", motors->motorLeft->effort, motors->motorRight->effort, speed);
 			//LCD_printf(lcd, "0:%.2f 1:%.2f 2:%.2f 3:%.2f\n4:%.2f 5:%.2f A+%.2f A-%.2f\nB+%.2f B-%.2f M:%.2f\n", conv[0], conv[1], conv[2], conv[3],conv[4],conv[5],conv[7],conv[8],conv[9],conv[10],conv[6]);
 			USART_printf(esp, "JSON={\"0\":%f, \"1\":%f, \"2\":%f, \"3\":%f,\"4\":%f, \"5\":%f, \"A+\":%f, \"A-\":%f,\"B+\":%f, \"B-\":%f, \"M\":%f}\r", conv[0], conv[1], conv[2], conv[3],conv[4],conv[5],conv[7],conv[8],conv[9],conv[10],conv[6]);
 			
+			
+			
 			//USART_printf(esp, "A+:%f, A-:%f,\nB+:%f, B-:%f,\n DiffA: %f, DiffB: %f\n", conv[7],conv[8], conv[9], conv[10], conv[7]-conv[8], conv[9]-conv[10]);
 			USART_printf(esp, "\n\n\n\n\n\n\n         Message %d\n",counter++);
+			USART_printf(esp, "SUM: %f\n", sum);
+			
 			USART_printf(esp, "Battery\n---------\n  Voltage: %.3fV, Current: %.4fA \n  Accumulated current: %.2fmAh, Temperature: %.3f*C\n\n", voltage, current, accum*1000, temperature);
 			
 			USART_printf(esp, "Motors\n----------\n  Left               Right\n");
@@ -119,26 +133,13 @@ int main(void)
 			USART_printf(esp, "  Speed:   %5.2fm/s  Speed:%5.2fm/s\n  Distance:%6.3fm   Distance:%6.3fm\n", Encoder_getSpeed(encoderLeft)*2*3.141592*WHEEL_RADIUS, Encoder_getSpeed(encoderRight)*2*3.141592*WHEEL_RADIUS, Encoder_getRevolutions(encoderLeft)*2*3.141592*WHEEL_RADIUS, Encoder_getRevolutions(encoderRight)*2*3.141592*WHEEL_RADIUS);
 			USART_printf(esp, "  Effort:  %5.2f     Effort:%5.2f        Set speed :%.2f\n", motors->motorLeft->effort, motors->motorRight->effort, speed);
 			USART_printf(esp, "  Encoder: %d         Encoder: %d\n",TIM5->CNT, TIM2->CNT);
-			USART_printf(esp, "  ADC Conversions: %d, ADC Errors: %d\n", analogConversions, adcErrors);
+			USART_printf(esp, "  ADC Conversions: %d, ADC Errors: %d Counter: %d\n", analogConversions, adcErrors, loopCounter);
 			USART_printf(esp, "  RAW ADC %d %d %d %d %d %d %d %d %d %d %d\n", adcValues[0],adcValues[1],adcValues[2],adcValues[3],adcValues[4],adcValues[5],adcValues[6],adcValues[7],adcValues[8],adcValues[9],adcValues[10]);
-			delay(0.5);
+			//delay(0.5);
 		}
+		loopCounter++;
 		//USART_printf(esp, "%u\n", __LL_TIM_CALC_ARR(SystemCoreClock, LL_TIM_GetPrescaler(TIM4), 50));
 		//LCD_printf(lcd, "Frequency: %dHz", freq);
-		
-		
-		if(speed > 3) {
-			dir = 0;
-		}
-		if(speed < -3){
-			dir = 1;
-		}
-		
-		if(dir){
-			speed += 0.5l;
-		}else {
-			speed -= 0.5l;
-		}
 	}
 	
 }
@@ -172,6 +173,9 @@ void Init_buggy(){
 	// Initialize PID controllers for the Motors
 	PID_Values motorLeftPID = LEFT_MOTOR_PID_VALUES;
 	PID_Values motorRightPID = RIGHT_MOTOR_PID_VALUES;
+	
+	ctrl = PID_init(ctrlPID_values, 500, -1, 1);
+	PID_setTargetValue(ctrl, 0);
 	
 	// Initialize peripherals
 
