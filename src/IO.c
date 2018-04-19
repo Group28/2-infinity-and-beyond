@@ -380,14 +380,17 @@ LL_GPIO_SetPinPull(IO_I2C_SDA, LL_GPIO_PULL_UP);
 void IO_initJoyButton(void){
   //Setup User Button GPIO PC13
 	LL_GPIO_SetPinMode(IO_CENTER_JOY, LL_GPIO_MODE_INPUT);
-	LL_GPIO_SetPinPull(IO_CENTER_JOY, LL_GPIO_PULL_UP);
+	LL_GPIO_SetPinPull(IO_CENTER_JOY, LL_GPIO_PULL_NO);
 	
 	//Setup Interrupts for Line 13 EXTI
-	//LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_SYSCFG);                  \
-  //LL_SYSCFG_SetEXTISource(LL_SYSCFG_EXTI_PORTC, LL_SYSCFG_EXTI_LINE13); 
-	//LL_EXTI_EnableFallingTrig_0_31(LL_EXTI_LINE_13);
-	//LL_EXTI_EnableIT_0_31(LL_EXTI_LINE_13);
-	//NVIC_EnableIRQ(EXTI15_10_IRQn); // Enable IRQ for EXTI line 13 in NVIC
+	LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_SYSCFG);                 
+  do { 
+		LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_SYSCFG);
+		LL_SYSCFG_SetEXTISource(LL_SYSCFG_EXTI_PORTC, LL_SYSCFG_EXTI_LINE13);
+  } while(0);
+	LL_EXTI_EnableRisingTrig_0_31(LL_EXTI_LINE_13);
+	LL_EXTI_EnableIT_0_31(LL_EXTI_LINE_13);
+	NVIC_EnableIRQ(EXTI15_10_IRQn); // Enable IRQ for EXTI line 13 in NVIC
 }
 
 void IO_initSpeaker(void){
