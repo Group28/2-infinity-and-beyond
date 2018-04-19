@@ -11,6 +11,12 @@ typedef struct {
 	uint8_t mask;
 } __SR, *SR;
 
+/**
+ * Initialize the shift register
+ *
+ * @param lenght - length of internal buffer
+ * @return SR handle
+ */
 SR SR_init(uint8_t length);
 
 
