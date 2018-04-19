@@ -37,9 +37,8 @@ LightSensors ls;
 Magnet magnet;
 
 
+
 PID_Values ctrlPID_values = {2, 0, 1};
-
-
 PID ctrl;
 
 
@@ -96,6 +95,7 @@ int main(void)
 			conv[i]=adcValues[i]/4096.0;
 		}
 		
+
 		float32_t sum;
 		
 		arm_dot_prod_f32(conv, weights, 6, &sum);
