@@ -12,7 +12,7 @@
 #define ENCODER_TICKS_PER_REV 	1024 		// Counter ticks per revolution 
 
 #define MOTOR_SAMPLE_FREQ 			20.0 	// Motor speed sample frequency [Hz]
-#define SENSOR_SAMPLE_FREQ 			1.0 	// Sensor sample frequency [Hz]
+#define SENSOR_SAMPLE_FREQ 			1000.0 	// Sensor sample frequency [Hz]
 
 #define DEFAULT_PWM_FREQ 				20000.0 // Default PWM switching frequency [Hz]
 #define DEFAULT_MOTOR_MODE 			0 			// 0 = unipolar, 1 = bipolar
@@ -21,8 +21,14 @@
 
 #define MOTOR_KT 								0.0076 	// Motor Kt [Nm/A] 
 
+
+#define ROTATION_SPEED          3
+
 #define LEFT_MOTOR_PID_VALUES		{0.25, 0.005, 0.8} // Default PID values for left motor
 #define RIGHT_MOTOR_PID_VALUES	{0.2, 0.003, 0.8} // Default PID values for right motor
+
+#define LS_WEIGHTS							{-1.5, 1.5, -0.9, 0.9, -1, 1} // Sensor weights
+                                   
 
 #define IR_SENSOR_COUNT					6 // Number of infrared sensors
 
