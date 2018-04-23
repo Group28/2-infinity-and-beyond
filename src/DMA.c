@@ -16,7 +16,7 @@ void DMA_init(DMA_Buffers buffs) {
 	
 	/* USART2 - local USB usart transmission;
 	*/
-	
+	/*
 	NVIC_SetPriority(DMA1_Stream5_IRQn, 0);
   NVIC_EnableIRQ(DMA1_Stream5_IRQn);
 	NVIC_SetPriority(DMA1_Stream6_IRQn, 0);
@@ -65,7 +65,7 @@ void DMA_init(DMA_Buffers buffs) {
   LL_DMA_EnableIT_TE(DMA1, LL_DMA_STREAM_5);
   LL_DMA_EnableIT_TC(DMA1, LL_DMA_STREAM_6);
   LL_DMA_EnableIT_TE(DMA1, LL_DMA_STREAM_6);
-	
+	*/
 	
 	// USART 6 - Wireless transmission
 	
@@ -142,36 +142,39 @@ void DMA_init(DMA_Buffers buffs) {
 										 (uint32_t)buffers->adcData->buffer,
 										 LL_DMA_DIRECTION_PERIPH_TO_MEMORY);
 
-/* Set DMA transfer size */
-LL_DMA_SetDataLength(DMA2,
-										LL_DMA_STREAM_0,
-									 ADC_CHANNEL_COUNT);
+		/* Set DMA transfer size */
+		LL_DMA_SetDataLength(DMA2,
+												LL_DMA_STREAM_0,
+											 ADC_CHANNEL_COUNT);
 
-/* Enable DMA transfer interruption: transfer complete */
-LL_DMA_EnableIT_TC(DMA2,
-										LL_DMA_STREAM_0);
+		/* Enable DMA transfer interruption: transfer complete */
+		LL_DMA_EnableIT_TC(DMA2,
+												LL_DMA_STREAM_0);
 
-/* Enable DMA transfer interruption: transfer error */
-LL_DMA_EnableIT_TE(DMA2,
-										LL_DMA_STREAM_0);
+		/* Enable DMA transfer interruption: transfer error */
+		LL_DMA_EnableIT_TE(DMA2,
+												LL_DMA_STREAM_0);
 
-/*## Activation of DMA #####################################################*/
-/* Enable the DMA transfer */
-LL_DMA_EnableStream(DMA2,LL_DMA_STREAM_0);
+		/*## Activation of DMA #####################################################*/
+		/* Enable the DMA transfer */
+		LL_DMA_EnableStream(DMA2,LL_DMA_STREAM_0);
 	
 }
 
 
-DMA_Buffers DMA_getBuffers(USART esp, USART usb, LCD lcd, Analog adc){
+//DMA_Buffers DMA_getBuffers(USART esp, USART usb, LCD lcd, Analog adc){
+DMA_Buffers DMA_getBuffers(USART esp, Analog adc){
+
 	DMA_Buffers dma_buffers = malloc(sizeof(__DMA_Buffers));
 	dma_buffers->espRX = &esp->buffRX;
 	dma_buffers->espTX = &esp->buffTX;
 	
+	/*
 	dma_buffers->usbRX = &usb->buffRX;
 	dma_buffers->usbTX = &usb->buffTX;
 	
 	dma_buffers->lcdTX = NULL; // TODO - implemnt LCD DMA requests
-	
+	*/
 	dma_buffers->adcData = &adc->buffer;
 	
 	return dma_buffers;
@@ -181,13 +184,13 @@ DMA_Buffers DMA_getBuffers(USART esp, USART usb, LCD lcd, Analog adc){
 int DMA_StartSerialTransfer(USART usart) {
 	LL_USART_EnableDMAReq_TX(usart->usart);
 	usart->buffTX.send = 1;
-	if(usart->usart == USART2){
+/*	if(usart->usart == USART2){
 		LL_DMA_SetDataLength(DMA1, LL_DMA_STREAM_6, usart->buffTX.index);
 		LL_DMA_EnableStream(DMA1, LL_DMA_STREAM_6);
-	} else if(usart->usart == USART6) {
+	} else if(usart->usart == USART6) {*/
 		LL_DMA_SetDataLength(DMA2, LL_DMA_STREAM_6, usart->buffTX.index);
 		LL_DMA_EnableStream(DMA2, LL_DMA_STREAM_6);
-	}
+	//}
 	
 	return 0;
 	
@@ -196,16 +199,17 @@ int DMA_StartSerialTransfer(USART usart) {
 
 
 // USART2 RX Callback
+/*
 void DMA1_Stream5_IRQHandler(void){
 	if(LL_DMA_IsActiveFlag_TC5(DMA1)){
 
     LL_DMA_ClearFlag_TC5(DMA1);
 
-    /* Call function Reception complete Callback */
+
 
   } else if(LL_DMA_IsActiveFlag_TE5(DMA1)){
 
-    /* Call Error function */
+
 
   }
 }
@@ -217,14 +221,12 @@ void DMA1_Stream6_IRQHandler(void){
     LL_DMA_ClearFlag_TC6(DMA1);
 		
 
-    /* Call function Transmission complete Callback */
 		buffers->usbTX->index = 0;
 		buffers->usbTX->send = 0;
 		LL_USART_DisableDMAReq_TX(USART2);
 
   } else if(LL_DMA_IsActiveFlag_TE6(DMA1)) {
 
-    /* Call Error function */
 		LL_DMA_DisableStream(DMA1, LL_DMA_STREAM_6);
 
     
@@ -232,6 +234,7 @@ void DMA1_Stream6_IRQHandler(void){
   }
 }
 
+*/
 
 // USART6 RX Callback
 void DMA2_Stream1_IRQHandler(void){

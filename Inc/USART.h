@@ -25,7 +25,7 @@ int USART_flushBuffer(USART usart);
 
 
 
-USART USART_USB_init(void);
+//USART USART_USB_init(void);
 USART USART_ESP_init(void);
 
 

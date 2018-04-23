@@ -1,7 +1,7 @@
 #include "main.h"
 #include "utils.h"
 #include "Analog.h"
-#include "LCD.h"
+//#include "LCD.h"
 #include "USART.h"
 
 
@@ -11,16 +11,17 @@
 typedef struct {
 	Buffer *espRX;
 	Buffer *espTX;
-	Buffer *usbRX;
-	Buffer *usbTX;
-	Buffer *lcdTX;
+	//Buffer *usbRX;
+	//Buffer *usbTX;
+	//Buffer *lcdTX;
 	
 	ADCBuffer *adcData;
 	
 } __DMA_Buffers,  *DMA_Buffers;
 
 
-DMA_Buffers DMA_getBuffers(USART esp, USART usb, LCD lcd, Analog adc);
+//DMA_Buffers DMA_getBuffers(USART esp, USART usb, LCD lcd, Analog adc);
+DMA_Buffers DMA_getBuffers(USART esp, Analog adc);
 
 void DMA_init(DMA_Buffers buffers);
 
