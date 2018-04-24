@@ -49,8 +49,8 @@ void LF_update(LF lf){
 		
 	}
 	
-	float motorLeftSpeed = (-lf->effort + 0.8) * lf->speed;
-	float motorRightSpeed = (lf->effort + 0.8) * lf->speed;
+	float motorLeftSpeed =  lf->speed - lf->effort;
+	float motorRightSpeed = lf->speed + lf->effort;
 	Motors_setSpeed(lf->motors, motorLeftSpeed, motorRightSpeed);
 		
 	
