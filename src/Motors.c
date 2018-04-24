@@ -8,6 +8,12 @@
 #include "IO.h"
 #include "math.h"
 
+/**
+ * Sets the PWM duty cycle of a motor according to the effort
+ *
+ * @param motor - Motor handle
+ * @return 
+ */
 static void Motor_setPWMDutyCycle(Motor motor);
 
 
