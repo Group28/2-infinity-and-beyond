@@ -1,4 +1,7 @@
 Objects
+Drivers/LL_old
+Drivers/CMSIS/DSP_Lib/Examples
+build
 *.bak
 *.Sam
 *.TMP
