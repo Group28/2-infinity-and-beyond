@@ -39,11 +39,13 @@
 #ifndef __MAIN_H
 #define __MAIN_H
 
+#define ARM_MATH_CM4
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f4xx.h"
 #include "arm_math.h"
 #include "stdbool.h"
+
 
 
 /* LL drivers common to all LL examples */
@@ -57,9 +59,9 @@
 #include "stm32f4xx_ll_adc.h"
 #include "stm32f4xx_ll_cortex.h"
 #include "stm32f4xx_ll_crc.h"
-#include "stm32f4xx_ll_dac.h"
+//#include "stm32f4xx_ll_dac.h"
 #include "stm32f4xx_ll_dma.h"
-#include "stm32f4xx_ll_dma2d.h"
+//#include "stm32f4xx_ll_dma2d.h"
 #include "stm32f4xx_ll_i2c.h"
 #include "stm32f4xx_ll_iwdg.h"
 #include "stm32f4xx_ll_rtc.h"
@@ -67,15 +69,15 @@
 #include "stm32f4xx_ll_tim.h"
 #include "stm32f4xx_ll_usart.h"
 #include "stm32f4xx_ll_wwdg.h"
-#include "stm32f4xx_ll_rng.h"
-#include "stm32f4xx_ll_lptim.h"
+//#include "stm32f4xx_ll_rng.h"
+//#include "stm32f4xx_ll_lptim.h"
 
 #if defined(USE_FULL_ASSERT)
 #include "stm32_assert.h"
 #endif /* USE_FULL_ASSERT */
 
-inline void Analog_TransferComplete(void);
-inline void Analog_TransferError(void);
+void Analog_TransferComplete(void);
+void Analog_TransferError(void);
 
 #endif /* __MAIN_H */
 
