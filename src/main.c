@@ -10,6 +10,7 @@
 #include "SR.h"
 #include "LightSensors.h"
 #include "Magnet.h"
+#include "Memory.h"
 #include "PID.h"
 #include "Motors.h"
 #include "Encoders.h"
@@ -42,6 +43,7 @@ SR sr;
 DS2781 battery;
 LS ls;
 Magnet magnet;
+Memory memory;
 
 
 int analogConversions = 0;
@@ -126,8 +128,10 @@ void Init_buggy(){
 	
 	lf = LF_init(motors, ls);
 	
+	memory = Memory_init();
+	
 	// Initialize main task arbiter
-	arbiter = Arbiter_init(lf, ls, magnet, motors);
+	arbiter = Arbiter_init(lf, ls, magnet, motors, memory);
 	
 	// Initialize Timers
 	Timers_init();
@@ -253,7 +257,3 @@ void EXTI15_10_IRQHandler(void){
 		} 
   }
 }
-
-
-
-
