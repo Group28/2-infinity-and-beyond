@@ -251,10 +251,6 @@ void DMA2_Stream1_IRQHandler(void){
 	if(LL_DMA_IsActiveFlag_TC1(DMA2)){
 
     LL_DMA_ClearFlag_TC1(DMA2);
-		
-		
-		
-		
 
     LL_DMA_EnableStream(DMA2, LL_DMA_STREAM_1); // Enable RX stream if disabled by IDLE line 
 

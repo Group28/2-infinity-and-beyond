@@ -20,6 +20,8 @@ typedef struct {
 	Buffer *usbTX; //< USB transmit buffer
 	Buffer *lcdTX; //< LCD transmit buffer
 	
+	Buffer *espRXinterBuffer; // < Small interbuffer for RX DMA buffering
+	
 	ADCBuffer *adcData; //< ADC conversion data buffer
 	
 } __DMA_Buffers,  *DMA_Buffers;

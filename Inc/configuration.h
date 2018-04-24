@@ -51,7 +51,10 @@
 #define ESP_USART 							1 			// Set to 1 to enable, 0 to disable Wifi serial communication
 
 #define USART_BAUDRATE 					115200 	// Default baud rade used for USART communication
-#define USART_BUFFER_SIZE 			128    // Size of USART buffer in bytes
+#define USART_BUFFER_SIZE 			256    // Size of USART buffer in bytes
+
+#define USART_RX_INTERBUFFER    64    // Size of USART RX interbuffer
+
 
 #define LCD_BUFFER_SIZE 				512    // Size of LCD buffer - determined by size of LCD
 

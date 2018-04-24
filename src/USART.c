@@ -56,6 +56,12 @@ USART  USART_ESP_init(void){
   /* Configure USART functional parameters ********************************/
   /* Note: Commented as corresponding to Reset value */
   LL_USART_Disable(USART6);
+	
+	// Enable USART6 interrupts
+	NVIC_SetPriority(USART6_IRQn, 1);
+	NVIC_EnableIRQ(USART6_IRQn);
+	
+	LL_USART_EnableIT_IDLE(USART6); // Enable IDLE line interrupts
 
   /* TX/RX direction */
   LL_USART_SetTransferDirection(USART6, LL_USART_DIRECTION_TX_RX);
@@ -67,6 +73,9 @@ USART  USART_ESP_init(void){
 
   /* (4) Enable USART *********************************************************/
   LL_USART_Enable(USART6);
+	
+	// Enable DMA RX requests
+	LL_USART_EnableDMAReq_RX(USART6);
 
   return usart;
 }
@@ -132,4 +141,12 @@ int USART_printf(USART usart, const char *format, ...){
 int USART_flushBuffer(USART usart) {
 	usart->buffTX.send = 1;
 	return DMA_StartSerialTransfer(usart);
+}
+
+
+void USART6_IRQHandler(void){
+	if(LL_USART_IsActiveFlag_IDLE(USART6)){
+		LL_USART_ClearFlag_IDLE(USART6);
+		LL_DMA_DisableStream(DMA2, LL_DMA_STREAM_1);
+	}
 }
