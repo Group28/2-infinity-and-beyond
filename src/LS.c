@@ -1,4 +1,4 @@
-#include "LightSensors.h"
+#include "LS.h"
 #include <stdlib.h>
 #include "arm_math.h"
 
