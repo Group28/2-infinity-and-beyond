@@ -1,7 +1,7 @@
 #include "main.h"
 #include "utils.h"
 #include "Analog.h"
-#include "LCD.h"
+//#include "LCD.h"
 #include "USART.h"
 
 
@@ -14,17 +14,19 @@
  * Used to hold pointers to data source and destination buffers
  */
 typedef struct {
+
 	Buffer *espRX; //< ESP receive buffer
 	Buffer *espTX; //< ESP transmit buffer
-	Buffer *usbRX; //< USB receive buffer
-	Buffer *usbTX; //< USB transmit buffer
-	Buffer *lcdTX; //< LCD transmit buffer
+	//Buffer *usbRX; //< USB receive buffer
+	//Buffer *usbTX; //< USB transmit buffer
+	//Buffer *lcdTX; //< LCD transmit buffer
 	
 	Buffer *espRXinterBuffer; // < Small interbuffer for RX DMA buffering
 	
 	ADCBuffer *adcData; //< ADC conversion data buffer
 	
 } __DMA_Buffers,  *DMA_Buffers;
+
 
 /*
  * Extracts the data buffers from relevant peripherals into the DMA_Buffers struct
@@ -35,7 +37,9 @@ typedef struct {
  * @param adc - ADC handle
  * @return DMA_Buffers - extracted buffers
  */
-DMA_Buffers DMA_getBuffers(USART esp, USART usb, LCD lcd, Analog adc);
+//DMA_Buffers DMA_getBuffers(USART esp, USART usb, LCD lcd, Analog adc);
+DMA_Buffers DMA_getBuffers(USART esp, Analog adc);
+
 
 /*
  * Initializes DMA controller and sets up source and sink buffers
