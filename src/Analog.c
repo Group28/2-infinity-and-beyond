@@ -15,14 +15,14 @@ Analog Analog_init(){
   LL_ADC_SetCommonClock(__LL_ADC_COMMON_INSTANCE(ADC1), LL_ADC_CLOCK_SYNC_PCLK_DIV2);
   
   
-  #if (ADC_CHANNEL_COUNT == 11)
+  #if (ADC_CHANNEL_COUNT == 9)
   LL_ADC_SetCommonPathInternalCh(__LL_ADC_COMMON_INSTANCE(ADC1), (LL_ADC_PATH_INTERNAL_NONE));
-  LL_ADC_REG_SetSequencerLength(ADC1, LL_ADC_REG_SEQ_SCAN_ENABLE_11RANKS);
+  LL_ADC_REG_SetSequencerLength(ADC1, LL_ADC_REG_SEQ_SCAN_ENABLE_9RANKS);
   
-  #elif (ADC_CHANNEL_COUNT == 12)
+  #elif (ADC_CHANNEL_COUNT == 10)
     LL_ADC_SetCommonPathInternalCh(__LL_ADC_COMMON_INSTANCE(ADC1), (LL_ADC_PATH_INTERNAL_TEMPSENSOR));
     delay_us(LL_ADC_DELAY_TEMPSENSOR_STAB_US);
-    LL_ADC_REG_SetSequencerLength(ADC1, LL_ADC_REG_SEQ_SCAN_ENABLE_12RANKS);
+    LL_ADC_REG_SetSequencerLength(ADC1, LL_ADC_REG_SEQ_SCAN_ENABLE_10RANKS);
   #else
     #error Wrong number of ADC channels
   #endif
@@ -50,10 +50,10 @@ Analog Analog_init(){
   
   LL_ADC_REG_SetSequencerRanks(ADC1, LL_ADC_REG_RANK_7,   ADC_CH_MAGNETIC);
   
-  LL_ADC_REG_SetSequencerRanks(ADC1, LL_ADC_REG_RANK_8,   ADC_CH_A_PLUS);
-  LL_ADC_REG_SetSequencerRanks(ADC1, LL_ADC_REG_RANK_9,   ADC_CH_A_MINUS);
-  LL_ADC_REG_SetSequencerRanks(ADC1, LL_ADC_REG_RANK_10,  ADC_CH_B_PLUS);
-  LL_ADC_REG_SetSequencerRanks(ADC1, LL_ADC_REG_RANK_11,  ADC_CH_B_MINUS);
+  LL_ADC_REG_SetSequencerRanks(ADC1, LL_ADC_REG_RANK_8,   ADC_CH_A);
+  LL_ADC_REG_SetSequencerRanks(ADC1, LL_ADC_REG_RANK_9,   ADC_CH_B);
+  //LL_ADC_REG_SetSequencerRanks(ADC1, LL_ADC_REG_RANK_10,  ADC_CH_B_PLUS);
+  //LL_ADC_REG_SetSequencerRanks(ADC1, LL_ADC_REG_RANK_11,  ADC_CH_B_MINUS);
   
   
   
@@ -67,10 +67,10 @@ Analog Analog_init(){
   
   LL_ADC_SetChannelSamplingTime(ADC1, ADC_CH_MAGNETIC, ADC_MAGNETIC_SAMPLETIME);
   
-  LL_ADC_SetChannelSamplingTime(ADC1, ADC_CH_A_PLUS, ADC_SENS_SAMPLETIME);
-  LL_ADC_SetChannelSamplingTime(ADC1, ADC_CH_A_MINUS, ADC_SENS_SAMPLETIME);
-  LL_ADC_SetChannelSamplingTime(ADC1, ADC_CH_B_PLUS, ADC_SENS_SAMPLETIME);
-  LL_ADC_SetChannelSamplingTime(ADC1, ADC_CH_B_MINUS, ADC_SENS_SAMPLETIME);
+  LL_ADC_SetChannelSamplingTime(ADC1, ADC_CH_A, ADC_SENS_SAMPLETIME);
+  LL_ADC_SetChannelSamplingTime(ADC1, ADC_CH_B, ADC_SENS_SAMPLETIME);
+  //LL_ADC_SetChannelSamplingTime(ADC1, ADC_CH_B_PLUS, ADC_SENS_SAMPLETIME);
+  //LL_ADC_SetChannelSamplingTime(ADC1, ADC_CH_B_MINUS, ADC_SENS_SAMPLETIME);
   
   return adc;
 }

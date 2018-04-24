@@ -265,10 +265,10 @@ void IO_initAnalogueSensors(void){
 	
 	IO_Analog_init(IO_MAGNETIC);
 	
-	IO_Analog_init(IO_SENS_A_PLUS);
-	IO_Analog_init(IO_SENS_A_MINUS);
-	IO_Analog_init(IO_SENS_B_PLUS);
-	IO_Analog_init(IO_SENS_B_MINUS);	
+	IO_Analog_init(IO_SENS_A);
+	IO_Analog_init(IO_SENS_B);
+	//IO_Analog_init(IO_SENS_B_PLUS);
+	//IO_Analog_init(IO_SENS_B_MINUS);	
 }
 
 void IO_initLCD(void){

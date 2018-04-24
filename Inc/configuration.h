@@ -33,7 +33,7 @@
 #define IR_SENSOR_COUNT					6 // Number of infrared sensors
 
 // ADC configuration
-#define ADC_CHANNEL_COUNT 11    // Number of ADC channels to sample
+#define ADC_CHANNEL_COUNT 9    // Number of ADC channels to sample
 #define ADC_RESOLUTION LL_ADC_RESOLUTION_12B // ADC resolution (using 12bits)
 #define ADC_SENSOR_SAMPLETIME LL_ADC_SAMPLINGTIME_480CYCLES    // Sample time for Light sensors 
 #define ADC_MAGNETIC_SAMPLETIME LL_ADC_SAMPLINGTIME_480CYCLES  // Sample time for Magnetic sensor
@@ -87,15 +87,20 @@
 #define ADC_CH_MAGNETIC LL_ADC_CHANNEL_9
 
 // Current Sensing
-#define IO_SENS_A_PLUS  GPIOA, LL_GPIO_PIN_4
-#define IO_SENS_A_MINUS GPIOB, LL_GPIO_PIN_0
-#define IO_SENS_B_PLUS  GPIOA, LL_GPIO_PIN_6
-#define IO_SENS_B_MINUS GPIOA, LL_GPIO_PIN_7
+//#define IO_SENS_A_PLUS  GPIOA, LL_GPIO_PIN_4
+//#define IO_SENS_A_MINUS GPIOB, LL_GPIO_PIN_0
+//#define IO_SENS_B_PLUS  GPIOA, LL_GPIO_PIN_6
+//#define IO_SENS_B_MINUS GPIOA, LL_GPIO_PIN_7
+#define IO_SENS_A 				GPIOA, LL_GPIO_PIN_6
+#define IO_SENS_B 				GPIOA, LL_GPIO_PIN_7
 
-#define ADC_CH_A_PLUS   LL_ADC_CHANNEL_4
-#define ADC_CH_A_MINUS  LL_ADC_CHANNEL_8
-#define ADC_CH_B_PLUS   LL_ADC_CHANNEL_6
-#define ADC_CH_B_MINUS  LL_ADC_CHANNEL_7
+
+//#define ADC_CH_A_PLUS   LL_ADC_CHANNEL_4
+//#define ADC_CH_A_MINUS  LL_ADC_CHANNEL_8
+//#define ADC_CH_B_PLUS   LL_ADC_CHANNEL_6
+//#define ADC_CH_B_MINUS  LL_ADC_CHANNEL_7
+#define ADC_CH_A			    LL_ADC_CHANNEL_6
+#define ADC_CH_B					LL_ADC_CHANNEL_7
 
 // Battery voltage sensing
 #define IO_MICROLAN     GPIOB, LL_GPIO_PIN_4

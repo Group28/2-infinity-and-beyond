@@ -223,7 +223,8 @@ void DMA1_Stream6_IRQHandler(void){
 		LL_USART_DisableDMAReq_TX(USART2);
 
   } else if(LL_DMA_IsActiveFlag_TE6(DMA1)) {
-
+		buffers->usbTX->index = 0;
+		buffers->usbTX->send = 0;
     /* Call Error function */
 		LL_DMA_DisableStream(DMA1, LL_DMA_STREAM_6);
 
@@ -235,6 +236,8 @@ void DMA1_Stream6_IRQHandler(void){
 
 // USART6 RX Callback
 void DMA2_Stream1_IRQHandler(void){
+		
+		
 	if(LL_DMA_IsActiveFlag_TC1(DMA2)){
 
     LL_DMA_ClearFlag_TC1(DMA2);

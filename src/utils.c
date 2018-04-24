@@ -23,3 +23,8 @@ void delay(double t){
 	delay_ms((uint32_t) (t*1000.0));
 }
 
+
+void Utils_resetBuffer(Buffer * buffer){
+	buffer->index = 0;
+	buffer->send = 0;
+}

@@ -24,6 +24,14 @@ typedef struct {
 	
 } ADCBuffer;
 
+
+/**
+ * Reset the buffer to zero
+ *
+ * @param buffer - buffer pointer to be reset
+ */
+void Utils_resetBuffer(Buffer * buffer);
+
 /**
  * Delay for microseconds
  *
