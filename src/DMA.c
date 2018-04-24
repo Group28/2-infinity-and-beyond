@@ -17,9 +17,9 @@ void DMA_init(DMA_Buffers buffs) {
 	/* USART2 - local USB usart transmission;
 	*/
 	
-	NVIC_SetPriority(DMA1_Stream5_IRQn, 0);
+	NVIC_SetPriority(DMA1_Stream5_IRQn, 3);
   NVIC_EnableIRQ(DMA1_Stream5_IRQn);
-	NVIC_SetPriority(DMA1_Stream6_IRQn, 0);
+	NVIC_SetPriority(DMA1_Stream6_IRQn, 3);
   NVIC_EnableIRQ(DMA1_Stream6_IRQn);
 	
 	// USART2 RX
@@ -69,9 +69,9 @@ void DMA_init(DMA_Buffers buffs) {
 	
 	// USART 6 - Wireless transmission
 	
-	NVIC_SetPriority(DMA2_Stream1_IRQn, 0);
+	NVIC_SetPriority(DMA2_Stream1_IRQn, 3);
   NVIC_EnableIRQ(DMA2_Stream1_IRQn);
-	NVIC_SetPriority(DMA2_Stream6_IRQn, 0);
+	NVIC_SetPriority(DMA2_Stream6_IRQn, 3);
   NVIC_EnableIRQ(DMA2_Stream6_IRQn);
 	
 	// USART6 RX
@@ -86,11 +86,11 @@ void DMA_init(DMA_Buffers buffs) {
                         LL_DMA_MDATAALIGN_BYTE);
 
   LL_DMA_ConfigAddresses(DMA2, LL_DMA_STREAM_1,
-                         (uint32_t)buffers->espRX->buffer,
+                         (uint32_t)buffers->espRXinterBuffer->buffer,
                          LL_USART_DMA_GetRegAddr(USART6),
                          LL_DMA_GetDataTransferDirection(DMA2, LL_DMA_STREAM_1));
 
-  LL_DMA_SetDataLength(DMA2, LL_DMA_STREAM_1, buffers->espRX->length);
+  LL_DMA_SetDataLength(DMA2, LL_DMA_STREAM_1, buffers->espRXinterBuffer->length);
 	
 	// USART6 TX
 	LL_DMA_SetChannelSelection(DMA2, LL_DMA_STREAM_6, LL_DMA_CHANNEL_5); 
@@ -117,6 +117,8 @@ void DMA_init(DMA_Buffers buffs) {
   LL_DMA_EnableIT_TE(DMA2, LL_DMA_STREAM_1);
   LL_DMA_EnableIT_TC(DMA2, LL_DMA_STREAM_6);
   LL_DMA_EnableIT_TE(DMA2, LL_DMA_STREAM_6);
+	
+	LL_DMA_EnableStream(DMA2, LL_DMA_STREAM_1); // Enable RX stream 
 	
 	
 	/* ADC conversion DMA requests */
@@ -174,6 +176,14 @@ DMA_Buffers DMA_getBuffers(USART esp, USART usb, LCD lcd, Analog adc){
 	
 	dma_buffers->adcData = &adc->buffer;
 	
+	
+	// Allocate ESP RX interbuffer
+	dma_buffers->espRXinterBuffer = malloc(sizeof(Buffer));
+	dma_buffers->espRXinterBuffer->buffer = malloc(USART_RX_INTERBUFFER);
+	dma_buffers->espRXinterBuffer->length = USART_RX_INTERBUFFER;
+	dma_buffers->espRXinterBuffer->index = 0;
+	dma_buffers->espRXinterBuffer->send = 0;
+	
 	return dma_buffers;
 }
 
@@ -223,8 +233,7 @@ void DMA1_Stream6_IRQHandler(void){
 		LL_USART_DisableDMAReq_TX(USART2);
 
   } else if(LL_DMA_IsActiveFlag_TE6(DMA1)) {
-		buffers->usbTX->index = 0;
-		buffers->usbTX->send = 0;
+
     /* Call Error function */
 		LL_DMA_DisableStream(DMA1, LL_DMA_STREAM_6);
 
@@ -236,17 +245,22 @@ void DMA1_Stream6_IRQHandler(void){
 
 // USART6 RX Callback
 void DMA2_Stream1_IRQHandler(void){
-		
-		
+	size_t len, tocopy;
+	uint8_t* ptr;
+	
 	if(LL_DMA_IsActiveFlag_TC1(DMA2)){
 
     LL_DMA_ClearFlag_TC1(DMA2);
+		
+		
+		
+		
 
-    /* Call function Reception complete Callback */
+    LL_DMA_EnableStream(DMA2, LL_DMA_STREAM_1); // Enable RX stream if disabled by IDLE line 
 
   } else if(LL_DMA_IsActiveFlag_TE1(DMA2)){
 
-    /* Call Error function */
+    LL_DMA_DisableStream(DMA2, LL_DMA_STREAM_1);
 
   }
 }
