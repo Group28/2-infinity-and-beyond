@@ -1,5 +1,5 @@
 #include "main.h"
-#include "LightSensors.h"
+#include "LS.h"
 #include "Motors.h"
 #include "Magnet.h"
 #include "LF.h"
