@@ -17,11 +17,6 @@ static void IO_initUSART_USB(void);
 static void IO_initUSART_ESP(void);
 
 static void IO_initI2C(void);
-<<<<<<< HEAD
-
-static void IO_initJoyButton(void);
-=======
->>>>>>> d63471aa57a6da3bf7be69d3786f52377901b957
 
 static void IO_initJoyButton(void);
 
@@ -343,37 +338,24 @@ void IO_initUSART_ESP(void){
 
 
 }
-<<<<<<< HEAD
-=======
-
-
-void IO_initI2C(void){
->>>>>>> d63471aa57a6da3bf7be69d3786f52377901b957
-
-/* Configure SCL Pin as : Alternate function, High Speed, Open drain, Pull up */
-LL_GPIO_SetPinMode(IO_I2C_SCL, LL_GPIO_MODE_ALTERNATE);
-LL_GPIO_SetAFPin_8_15(IO_I2C_SCL, LL_GPIO_AF_4);
-LL_GPIO_SetPinSpeed(IO_I2C_SCL, LL_GPIO_SPEED_FREQ_HIGH);
-LL_GPIO_SetPinOutputType(IO_I2C_SCL, LL_GPIO_OUTPUT_OPENDRAIN);
-LL_GPIO_SetPinPull(IO_I2C_SCL, LL_GPIO_PULL_UP);
 
 
 void IO_initI2C(void){
 
-/* Configure SCL Pin as : Alternate function, High Speed, Open drain, Pull up */
-LL_GPIO_SetPinMode(IO_I2C_SCL, LL_GPIO_MODE_ALTERNATE);
-LL_GPIO_SetAFPin_8_15(IO_I2C_SCL, LL_GPIO_AF_4);
-LL_GPIO_SetPinSpeed(IO_I2C_SCL, LL_GPIO_SPEED_FREQ_HIGH);
-LL_GPIO_SetPinOutputType(IO_I2C_SCL, LL_GPIO_OUTPUT_OPENDRAIN);
-LL_GPIO_SetPinPull(IO_I2C_SCL, LL_GPIO_PULL_UP);
+	/* Configure SCL Pin as : Alternate function, High Speed, Open drain, Pull up */
+	LL_GPIO_SetPinMode(IO_I2C_SCL, LL_GPIO_MODE_ALTERNATE);
+	LL_GPIO_SetAFPin_8_15(IO_I2C_SCL, LL_GPIO_AF_4);
+	LL_GPIO_SetPinSpeed(IO_I2C_SCL, LL_GPIO_SPEED_FREQ_HIGH);
+	LL_GPIO_SetPinOutputType(IO_I2C_SCL, LL_GPIO_OUTPUT_OPENDRAIN);
+	LL_GPIO_SetPinPull(IO_I2C_SCL, LL_GPIO_PULL_UP);
 
 
-/* Configure SDA Pin as : Alternate function, High Speed, Open drain, Pull up */
-LL_GPIO_SetPinMode(IO_I2C_SDA, LL_GPIO_MODE_ALTERNATE);
-LL_GPIO_SetAFPin_8_15(IO_I2C_SDA, LL_GPIO_AF_4);
-LL_GPIO_SetPinSpeed(IO_I2C_SDA, LL_GPIO_SPEED_FREQ_HIGH);
-LL_GPIO_SetPinOutputType(IO_I2C_SDA, LL_GPIO_OUTPUT_OPENDRAIN);
-LL_GPIO_SetPinPull(IO_I2C_SDA, LL_GPIO_PULL_UP);
+	/* Configure SDA Pin as : Alternate function, High Speed, Open drain, Pull up */
+	LL_GPIO_SetPinMode(IO_I2C_SDA, LL_GPIO_MODE_ALTERNATE);
+	LL_GPIO_SetAFPin_8_15(IO_I2C_SDA, LL_GPIO_AF_4);
+	LL_GPIO_SetPinSpeed(IO_I2C_SDA, LL_GPIO_SPEED_FREQ_HIGH);
+	LL_GPIO_SetPinOutputType(IO_I2C_SDA, LL_GPIO_OUTPUT_OPENDRAIN);
+	LL_GPIO_SetPinPull(IO_I2C_SDA, LL_GPIO_PULL_UP);
 	
 }
 
