@@ -8,7 +8,7 @@
 #include "DMA.h"
 #include "IO.h"
 #include "SR.h"
-#include "LightSensors.h"
+#include "LS.h"
 #include "Magnet.h"
 #include "PID.h"
 #include "Motors.h"
@@ -253,7 +253,3 @@ void EXTI15_10_IRQHandler(void){
 		} 
   }
 }
-
-
-
-

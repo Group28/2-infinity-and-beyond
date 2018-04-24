@@ -1,7 +1,7 @@
 #include "main.h"
 #include "Motors.h"
 #include "IO.h"
-#include "LightSensors.h"
+#include "LS.h"
 #include "PID.h"
 
 
