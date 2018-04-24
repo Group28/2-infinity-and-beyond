@@ -22,6 +22,13 @@ typedef struct {
 	
 	ADCBuffer *adcData; //< ADC conversion data buffer
 	
+	USART esp;
+	USART usb;
+	
+	LCD lcd;
+	
+	Analog adc;
+	
 } __DMA_Buffers,  *DMA_Buffers;
 
 /*
@@ -49,5 +56,8 @@ void DMA_init(DMA_Buffers buffers);
  * @return int - status
  */
 int DMA_StartSerialTransfer(USART usart);
+
+int DMA_StartLCDTransfer(LCD lcd);
+
 
 #endif

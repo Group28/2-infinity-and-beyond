@@ -12,7 +12,7 @@
 #define ENCODER_TICKS_PER_REV 	1024 		// Counter ticks per revolution 
 
 #define MOTOR_SAMPLE_FREQ 			20.0 	// Motor speed sample frequency [Hz]
-#define SENSOR_SAMPLE_FREQ 			1000.0 	// Sensor sample frequency [Hz]
+#define SENSOR_SAMPLE_FREQ 			10.0 	// Sensor sample frequency [Hz]
 
 #define DEFAULT_PWM_FREQ 				20000.0 // Default PWM switching frequency [Hz]
 #define DEFAULT_MOTOR_MODE 			0 			// 0 = unipolar, 1 = bipolar
@@ -32,6 +32,18 @@
 
 #define IR_SENSOR_COUNT					6 // Number of infrared sensors
 
+
+/*
+LL_ADC_SAMPLINGTIME_3CYCLES
+LL_ADC_SAMPLINGTIME_15CYCLES
+LL_ADC_SAMPLINGTIME_28CYCLES
+LL_ADC_SAMPLINGTIME_56CYCLES
+LL_ADC_SAMPLINGTIME_84CYCLES
+LL_ADC_SAMPLINGTIME_112CYCLES
+LL_ADC_SAMPLINGTIME_144CYCLES
+LL_ADC_SAMPLINGTIME_480CYCLES
+*/
+
 // ADC configuration
 #define ADC_CHANNEL_COUNT 11    // Number of ADC channels to sample
 #define ADC_RESOLUTION LL_ADC_RESOLUTION_12B // ADC resolution (using 12bits)
@@ -42,6 +54,8 @@
 
 #define MAGNET_NORTH_THRESHOLD 2482   // Upper threshold for north magnetic field detection
 #define MAGNET_SOUTH_THRESHOLD 1675   // Lower threshold for south magnetic field detection
+
+
 /* Communication --------------------------------------------------------------------------------------- //
 //
 // Toggles communication channels

@@ -1,9 +1,9 @@
 #include "DMA.h"
 #include <stdlib.h>
-
+#include "USART.h"
 static DMA_Buffers buffers;
 
-
+extern USART esp;
 
 void DMA_init(DMA_Buffers buffs) {
 
@@ -26,7 +26,7 @@ void DMA_init(DMA_Buffers buffs) {
 	LL_DMA_SetChannelSelection(DMA1, LL_DMA_STREAM_5, LL_DMA_CHANNEL_4); 
 	LL_DMA_ConfigTransfer(DMA1, LL_DMA_STREAM_5, 
                         LL_DMA_DIRECTION_PERIPH_TO_MEMORY | 
-                        LL_DMA_PRIORITY_HIGH              | 
+                        LL_DMA_PRIORITY_MEDIUM            | 
                         LL_DMA_MODE_NORMAL                | 
                         LL_DMA_PERIPH_NOINCREMENT         | 
                         LL_DMA_MEMORY_INCREMENT           | 
@@ -46,7 +46,7 @@ void DMA_init(DMA_Buffers buffs) {
 
   LL_DMA_ConfigTransfer(DMA1, LL_DMA_STREAM_6, 
                         LL_DMA_DIRECTION_MEMORY_TO_PERIPH | 
-                        LL_DMA_PRIORITY_HIGH              | 
+                        LL_DMA_PRIORITY_MEDIUM            | 
                         LL_DMA_MODE_NORMAL                | 
                         LL_DMA_PERIPH_NOINCREMENT         | 
                         LL_DMA_MEMORY_INCREMENT           | 
@@ -78,7 +78,7 @@ void DMA_init(DMA_Buffers buffs) {
 	LL_DMA_SetChannelSelection(DMA2, LL_DMA_STREAM_1, LL_DMA_CHANNEL_5); 
 	LL_DMA_ConfigTransfer(DMA2, LL_DMA_STREAM_1, 
                         LL_DMA_DIRECTION_PERIPH_TO_MEMORY | 
-                        LL_DMA_PRIORITY_HIGH              | 
+                        LL_DMA_PRIORITY_MEDIUM            | 
                         LL_DMA_MODE_NORMAL                | 
                         LL_DMA_PERIPH_NOINCREMENT         | 
                         LL_DMA_MEMORY_INCREMENT           | 
@@ -98,7 +98,7 @@ void DMA_init(DMA_Buffers buffs) {
 
   LL_DMA_ConfigTransfer(DMA2, LL_DMA_STREAM_6, 
                         LL_DMA_DIRECTION_MEMORY_TO_PERIPH | 
-                        LL_DMA_PRIORITY_HIGH              | 
+                        LL_DMA_PRIORITY_MEDIUM            | 
                         LL_DMA_MODE_NORMAL                | 
                         LL_DMA_PERIPH_NOINCREMENT         | 
                         LL_DMA_MEMORY_INCREMENT           | 
@@ -133,31 +133,62 @@ void DMA_init(DMA_Buffers buffs) {
 										LL_DMA_MEMORY_INCREMENT           |
 										LL_DMA_PDATAALIGN_HALFWORD        |
 										LL_DMA_MDATAALIGN_HALFWORD        |
-										LL_DMA_PRIORITY_HIGH               );
+										LL_DMA_PRIORITY_VERYHIGH          );
 
-		/* Set DMA transfer addresses of source and destination */
-		LL_DMA_ConfigAddresses(DMA2,
+	/* Set DMA transfer addresses of source and destination */
+	LL_DMA_ConfigAddresses(DMA2,
 										LL_DMA_STREAM_0,
 										 LL_ADC_DMA_GetRegAddr(ADC1, LL_ADC_DMA_REG_REGULAR_DATA),
 										 (uint32_t)buffers->adcData->buffer,
 										 LL_DMA_DIRECTION_PERIPH_TO_MEMORY);
 
-/* Set DMA transfer size */
-LL_DMA_SetDataLength(DMA2,
-										LL_DMA_STREAM_0,
-									 ADC_CHANNEL_COUNT);
+	/* Set DMA transfer size */
+	LL_DMA_SetDataLength(DMA2,
+											LL_DMA_STREAM_0,
+										 ADC_CHANNEL_COUNT);
 
-/* Enable DMA transfer interruption: transfer complete */
-LL_DMA_EnableIT_TC(DMA2,
-										LL_DMA_STREAM_0);
+	/* Enable DMA transfer interruption: transfer complete */
+	LL_DMA_EnableIT_TC(DMA2,
+											LL_DMA_STREAM_0);
 
-/* Enable DMA transfer interruption: transfer error */
-LL_DMA_EnableIT_TE(DMA2,
-										LL_DMA_STREAM_0);
+	/* Enable DMA transfer interruption: transfer error */
+	LL_DMA_EnableIT_TE(DMA2,
+											LL_DMA_STREAM_0);
 
-/*## Activation of DMA #####################################################*/
-/* Enable the DMA transfer */
-LL_DMA_EnableStream(DMA2,LL_DMA_STREAM_0);
+	/*## Activation of DMA #####################################################*/
+	/* Enable the DMA transfer */
+	LL_DMA_EnableStream(DMA2,LL_DMA_STREAM_0);
+	
+	
+	
+	// LCD_SPI
+	
+	NVIC_SetPriority(DMA1_Stream7_IRQn, 2);
+  NVIC_EnableIRQ(DMA1_Stream7_IRQn);
+	
+	// LCD TX
+	LL_DMA_SetChannelSelection(DMA1, LL_DMA_STREAM_7, LL_DMA_CHANNEL_0); 
+
+
+  LL_DMA_ConfigTransfer(DMA1, LL_DMA_STREAM_7, 
+                        LL_DMA_DIRECTION_MEMORY_TO_PERIPH | 
+												LL_DMA_PRIORITY_HIGH					| 
+                        LL_DMA_MODE_NORMAL                | 
+                        LL_DMA_PERIPH_NOINCREMENT         | 
+                        LL_DMA_MEMORY_INCREMENT           | 
+                        LL_DMA_PDATAALIGN_BYTE            | 
+                        LL_DMA_MDATAALIGN_BYTE);
+
+  LL_DMA_ConfigAddresses(DMA1, LL_DMA_STREAM_7,
+                         (uint32_t)buffers->lcdTX->buffer,
+												 LL_SPI_DMA_GetRegAddr(SPI3),
+                         LL_DMA_GetDataTransferDirection(DMA1, LL_DMA_STREAM_7));
+
+  LL_DMA_SetDataLength(DMA1, LL_DMA_STREAM_7, buffers->lcdTX->length/4);
+
+
+  LL_DMA_EnableIT_TC(DMA1, LL_DMA_STREAM_7);
+  LL_DMA_EnableIT_TE(DMA1, LL_DMA_STREAM_7);
 	
 }
 
@@ -170,9 +201,13 @@ DMA_Buffers DMA_getBuffers(USART esp, USART usb, LCD lcd, Analog adc){
 	dma_buffers->usbRX = &usb->buffRX;
 	dma_buffers->usbTX = &usb->buffTX;
 	
-	dma_buffers->lcdTX = NULL; // TODO - implemnt LCD DMA requests
+	dma_buffers->lcdTX = &lcd->bufferOut;
 	
 	dma_buffers->adcData = &adc->buffer;
+	
+	dma_buffers->esp = esp;
+	dma_buffers->usb = usb;
+	dma_buffers->adc = adc;
 	
 	return dma_buffers;
 }
@@ -190,8 +225,17 @@ int DMA_StartSerialTransfer(USART usart) {
 	}
 	
 	return 0;
-	
+}
 
+int DMA_StartLCDTransfer(LCD lcd){
+	LL_SPI_EnableDMAReq_TX(SPI3);
+	lcd->bufferOut.send = 1;
+	LL_DMA_ConfigAddresses(DMA1, LL_DMA_STREAM_7,
+                         (uint32_t)lcd->bufferOut.buffer + lcd->bufferOut.index,
+												 LL_SPI_DMA_GetRegAddr(SPI3),
+                         LL_DMA_GetDataTransferDirection(DMA1, LL_DMA_STREAM_7));
+	LL_DMA_EnableStream(DMA1, LL_DMA_STREAM_7);
+	return 0;
 }
 
 
@@ -206,6 +250,8 @@ void DMA1_Stream5_IRQHandler(void){
   } else if(LL_DMA_IsActiveFlag_TE5(DMA1)){
 
     /* Call Error function */
+		LL_DMA_DisableStream(DMA1, LL_DMA_STREAM_5);
+		LL_DMA_ClearFlag_TE5(DMA1);
 
   }
 }
@@ -226,7 +272,8 @@ void DMA1_Stream6_IRQHandler(void){
 
     /* Call Error function */
 		LL_DMA_DisableStream(DMA1, LL_DMA_STREAM_6);
-
+		LL_DMA_ClearFlag_TE6(DMA1);
+    
     
 
   }
@@ -244,6 +291,9 @@ void DMA2_Stream1_IRQHandler(void){
   } else if(LL_DMA_IsActiveFlag_TE1(DMA2)){
 
     /* Call Error function */
+		LL_DMA_DisableStream(DMA2, LL_DMA_STREAM_1);
+		LL_DMA_ClearFlag_TE1(DMA2);
+    
 
   }
 }
@@ -264,7 +314,7 @@ void DMA2_Stream6_IRQHandler(void){
 
     /* Call Error function */
 		LL_DMA_DisableStream(DMA2, LL_DMA_STREAM_6);
-
+		LL_DMA_ClearFlag_TE6(DMA2);
     
 
   }
@@ -289,10 +339,36 @@ void DMA2_Stream0_IRQHandler(void)
   if(LL_DMA_IsActiveFlag_TE0(DMA2) == 1)
   {
     /* Clear flag DMA transfer error */
-    LL_DMA_ClearFlag_TE0(DMA2);
-    
+    LL_DMA_DisableStream(DMA2, LL_DMA_STREAM_0);
+		LL_DMA_ClearFlag_TE0(DMA2);
+		
     /* Call interruption treatment function */
     //AdcDmaTransferError_Callback();
 		Analog_TransferError();
   }
 }
+
+
+// LCD TX Callback
+void DMA1_Stream7_IRQHandler(void){
+	if(LL_DMA_IsActiveFlag_TC7(DMA1)) {
+    LL_DMA_ClearFlag_TC7(DMA1);
+
+    /* Call function Transmission complete Callback */
+		if(buffers->lcd->page >= 4){
+			buffers->lcdTX->send = 0;
+			buffers->lcdTX->index = 0;
+			LL_SPI_DisableDMAReq_TX(SPI3);
+		} else {
+			LCD_DMA_nextPage(buffers->lcd);
+		}
+  } else if(LL_DMA_IsActiveFlag_TE7(DMA1)) {
+
+    /* Call Error function */
+		LL_DMA_DisableStream(DMA1, LL_DMA_STREAM_7);
+		LL_DMA_ClearFlag_TE0(DMA1);
+    
+
+  }
+}
+

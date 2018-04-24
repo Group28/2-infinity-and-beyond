@@ -1,5 +1,6 @@
 #include "main.h"
 #include "configuration.h"
+#include "utils.h"
 
 #ifndef __LCD_H
 #define __LCD_H
@@ -10,11 +11,13 @@
  *
  */
 typedef struct {
-  char buffer[LCD_BUFFER_SIZE]; //<LCD Buffer
+  Buffer bufferOut;             //<LCD Buffer
   char * font;                  //<Current font used for rendering text
   uint8_t char_x;               //<Current X position
   uint8_t char_y;               //<Current Y position
   uint8_t orientation;          //<orientation Unused
+  
+  uint8_t page;
 } __LCD, *LCD;
 
 
@@ -165,5 +168,8 @@ int      LCD_printf_buffer(LCD lcd, const char *format, ...);
  * @param lcd - Handle to the LCD controller
  */
 void		 LCD_flushBuffer	(LCD lcd);
+
+
+void 		LCD_DMA_nextPage(LCD lcd);
 
 #endif

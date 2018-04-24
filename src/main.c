@@ -24,6 +24,7 @@
 
 /* Uncomment to use simulator - will compile alternative main function */
 //#define USING_SIMULATOR
+//#define STARTUP_SOUND	
 
 static void Init_buggy(void);
 static void startSound(void);
@@ -44,14 +45,18 @@ LS ls;
 Magnet magnet;
 
 
+<<<<<<< Updated upstream
 int analogConversions = 0;
 int adcErrors = 0;
 
+=======
+>>>>>>> Stashed changes
 #ifndef USING_SIMULATOR
 /* Default main function */
 
 int main(void){
 	Init_buggy();
+<<<<<<< Updated upstream
 	startSound();
 	
 	Motors_setSpeed(motors, 0, 0);
@@ -62,6 +67,64 @@ int main(void){
 		printDebugInfo();
 		delay(0.5);
 	
+=======
+	uint16_t *adcValues;
+	float conv[ADC_CHANNEL_COUNT];
+	
+	#ifdef STARTUP_SOUND
+	for(int freq =200; freq <=800; freq += 100){
+		IO_setSpeakerFreq(freq);
+		delay(0.1);
+	
+	}
+	for(int freq =700; freq >=400; freq -= 100){
+		IO_setSpeakerFreq(freq);
+		delay(0.1);
+	
+	}
+	#endif
+	IO_setSpeakerFreq(25000);
+	Motors_setSpeed(motors, 0, 0);
+	uint32_t beforeF, afterF, before, after, counter =0;
+	SR_set(sr, 0xFF);
+	USART_printf(esp, "Starting\n");
+  /* Infinite loop */
+  while (1)
+  {
+		//continue;
+		before = System_micros();
+		LCD_cls_buffer(lcd);
+		after = System_micros();
+		LCD_locate(lcd, 0,0);
+		
+		if((adcValues = Analog_getValues(adc)) != NULL){
+			
+		
+			for(int i = 0; i< ADC_CHANNEL_COUNT; i++){
+				conv[i]=adcValues[i]/4096.0;
+			}
+			beforeF = System_micros();
+			LCD_cls(lcd);
+			afterF = System_micros();
+			LCD_locate(lcd, 0, 0);
+			
+			LCD_printf(lcd,"Time: %dus\nTime Flush: %dus\nCounter: %d", after-before, afterF-beforeF, counter++);
+			
+			USART_printf(esp, "JSON={\"0\":%f, \"1\":%f, \"2\":%f, \"3\":%f,\"4\":%f, \"5\":%f, \"A+\":%f, \"A-\":%f,\"B+\":%f, \"B-\":%f, \"M\":%f}\r", conv[0], conv[1], conv[2], conv[3],conv[4],conv[5],conv[7],conv[8],conv[9],conv[10],conv[6]);
+			
+			/*
+			USART_printf(esp, "\n\n\n\n\n\n\n         Message %d\n",counter++);
+			USART_printf(esp, "Battery\n---------\n  Voltage: %.3fV, Current: %.4fA \n  Accumulated current: %.2fmAh, Temperature: %.3f*C\n\n", voltage, current, accum*1000, temperature);
+			
+			USART_printf(esp, "Motors\n----------\n  Left               Right\n");
+
+			USART_printf(esp, "  Speed:   %5.2fm/s  Speed:%5.2fm/s\n  Distance:%6.3fm   Distance:%6.3fm\n", Encoder_getSpeed(encoderLeft)*2*3.141592*WHEEL_RADIUS, Encoder_getSpeed(encoderRight)*2*3.141592*WHEEL_RADIUS, Encoder_getRevolutions(encoderLeft)*2*3.141592*WHEEL_RADIUS, Encoder_getRevolutions(encoderRight)*2*3.141592*WHEEL_RADIUS);
+			USART_printf(esp, "  Effort:  %5.2f     Effort:%5.2f        Set speed :%.2f\n", motors->motorLeft->effort, motors->motorRight->effort, speed);
+			USART_printf(esp, "  Encoder: %d         Encoder: %d",TIM5->CNT, TIM2->CNT);
+			*/
+			delay(1);
+		}
+>>>>>>> Stashed changes
 	}
 }
 
@@ -133,6 +196,7 @@ void Init_buggy(){
 	Timers_init();
 }
 
+<<<<<<< Updated upstream
 void startSound(void){
 		for(int freq =200; freq <=800; freq += 100){
 		IO_setSpeakerFreq(freq);
@@ -257,3 +321,15 @@ void EXTI15_10_IRQHandler(void){
 
 
 
+=======
+
+
+void Analog_TransferComplete(){
+	adc->converting = 0;
+}
+
+void Analog_TransferError(){
+
+}
+
+>>>>>>> Stashed changes
