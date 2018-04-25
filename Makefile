@@ -55,7 +55,7 @@ src/Encoders.c \
 src/IO.c \
 src/LCD.c \
 src/LF.c \
-src/LightSensors.c \
+src/LS.c \
 src/Magnet.c \
 src/Motors.c \
 src/OneWire.c \
@@ -113,13 +113,13 @@ BIN = $(CP) -O binary -S
 CPU = -mcpu=cortex-m4
 
 # fpu
-FPU = -mfpu=fpv4-sp-d16
+FPU = -mfpu=fpv4-sp-d16 -mlittle-endian 
 
 # float-abi
 FLOAT-ABI = -mfloat-abi=hard
 
 # mcu
-MCU = $(CPU) -mthumb $(FPU) $(FLOAT-ABI)
+MCU = $(CPU) -mthumb -mthumb-interwork $(FPU) $(FLOAT-ABI)
 
 # macros for gcc
 # AS defines
@@ -138,6 +138,7 @@ AS_INCLUDES = \
 # C includes
 C_INCLUDES =  \
 -IInc \
+-ISystem_Files\
 -IDrivers/LL/Inc \
 -IDrivers/CMSIS/Device/ST/STM32F4xx/Include \
 -IDrivers/CMSIS/Include \
