@@ -2,6 +2,7 @@
 #include "LS.h"
 #include "Motors.h"
 #include "Magnet.h"
+#include "Memory.h"
 #include "LF.h"
 
 #ifndef __ARBITER_H
@@ -22,12 +23,16 @@ typedef struct {
 	LS ls;
 	Magnet magnet;
 	Motors motors;
+	Memory memory;
 	float turningDistance;
   enum buggy_state state;
+	Action * latestAction;
+	
+	uint32_t counter;
 } __Arbiter, *Arbiter;
 
 
-Arbiter Arbiter_init(LF lf, LS ls, Magnet magnet, Motors motors);
+Arbiter Arbiter_init(LF lf, LS ls, Magnet magnet, Motors motors, Memory memory);
 
 void Arbiter_update(Arbiter arbiter);
 
