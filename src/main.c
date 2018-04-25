@@ -19,6 +19,8 @@
 #include "utils.h"
 #include "configuration.h"
 
+#include <stdio.h>
+
 
 /* Uncomment to use simulator - will compile alternative main function */
 //#define USING_SIMULATOR
@@ -26,6 +28,8 @@
 static void Init_buggy(void);
 static void startSound(void);
 static void printDebugInfo(void);
+static void handleCMD(void);
+static void printHelp(void);
 
 DMA_Buffers dma_buffers;
 Motors motors;
@@ -41,6 +45,7 @@ LS ls;
 Magnet magnet;
 
 
+
 int analogConversions = 0;
 int adcErrors = 0;
 
@@ -52,12 +57,18 @@ int main(void){
 	startSound();
 	
 	Motors_setSpeed(motors, 0, 0);
-  
+
+	
 	
 	/* Infinite loop */
 	while(1){
+		
+		
 		printDebugInfo();
-		delay(0.5);
+		
+		handleCMD();
+		
+		delay(0.3);
 	
 	}
 }
@@ -166,11 +177,10 @@ void printDebugInfo(void)
 	double temperature = 0;
 	static uint8_t counter =0;
 	
-	float speed = 1.5;
+	
 	float32_t conv[6];
 	//DS2781_resetAccumulatedCurrent(battery);
 	uint16_t * rawADC = Analog_getValues(adc);
-
 	
 	LS_getProcessedValues(ls, conv);
 	
@@ -181,56 +191,171 @@ void printDebugInfo(void)
 	accum = DS2781_readAccumulatedCurrent(battery);
 	temperature = DS2781_readTemperature(battery);
 			
-			
-			//LCD_cls_buffer(lcd);
-			//LCD_locate(lcd, 0, 0);
-			//LCD_printf(lcd, "LS:%5.2fms, RS:%5.2fms\nLRev:%6.3f, RRev:%6.3f\n", Encoder_getSpeed(encoderLeft)*2*3.141592*WHEEL_RADIUS, Encoder_getSpeed(encoderRight)*2*3.141592*WHEEL_RADIUS, Encoder_getRevolutions(encoderLeft), Encoder_getRevolutions(encoderRight));
-			//LCD_printf(lcd, "EffL:%5.2f, EffR:%5.2f, Sp:%.2f", motors->motorLeft->effort, motors->motorRight->effort, speed);
-			//LCD_printf(lcd, "0:%.2f 1:%.2f 2:%.2f 3:%.2f\n4:%.2f 5:%.2f A+%.2f A-%.2f\nB+%.2f B-%.2f M:%.2f\n", conv[0], conv[1], conv[2], conv[3],conv[4],conv[5],conv[7],conv[8],conv[9],conv[10],conv[6]);
-	USART_printf(esp, "JSON={\"0\":%f, \"1\":%f, \"2\":%f, \"3\":%f,\"4\":%f, \"5\":%f, \"M\":%f}\r", conv[0], conv[1], conv[2], conv[3],conv[4],conv[5], rawADC[6]/4096.0);
-			
-			
-			
-	//USART_printf(esp, "A+:%f, A-:%f,\nB+:%f, B-:%f,\n DiffA: %f, DiffB: %f\n", conv[7],conv[8], conv[9], conv[10], conv[7]-conv[8], conv[9]-conv[10]);
-	USART_printf(esp, "\n\n\n\n\n\n\n         Message %d\n",counter++);
-			
-	USART_printf(esp, "Battery\n---------\n  Voltage: %.3fV, Current: %.4fA \n  Accumulated current: %.2fmAh, Temperature: %.3f*C\n\n", voltage, current, accum*1000, temperature);
-			
-	USART_printf(esp, "Motors\n----------\n  Left               Right\n");
+	USART_printf(esp, "JSON={\"counter\":%d,\"0\":%.4f,\"1\":%.4f,\"2\":%.4f,\"3\":%.4f,\"4\":%.4f,\"5\":%.4f,\"M\":%.4f,",
+					counter++, conv[0], conv[1], conv[2], conv[3],conv[4],conv[5], rawADC[6]/4096.0);
+	USART_printf(esp, "\"battV\":%.4f,\"battC\":%.4f,\"battA\":%.4f,\"battT\":%.4f,", voltage, current, accum*1000, temperature);
+	USART_printf(esp, "\"mSL\":%.4f,\"mSR\":%.4f,\"mDL\":%.4f,\"mDR\":%.4f,\"mEL\":%.4f,\"mER\":%.4f,\"adc\":%d,\"sum\":%.4f,\"state\":%d}\r", Encoder_getSpeed(encoderLeft)*2*3.141592*WHEEL_RADIUS, Encoder_getSpeed(encoderRight)*2*3.141592*WHEEL_RADIUS, Encoder_getRevolutions(encoderLeft)*2*3.141592*WHEEL_RADIUS, Encoder_getRevolutions(encoderRight)*2*3.141592*WHEEL_RADIUS,motors->motorLeft->effort, motors->motorRight->effort,analogConversions,LS_getWeightedSum(ls),arbiter->state);
 
-	USART_printf(esp, "  Speed:   %5.2fm/s  Speed:%5.2fm/s\n  Distance:%6.3fm   Distance:%6.3fm\n", Encoder_getSpeed(encoderLeft)*2*3.141592*WHEEL_RADIUS, Encoder_getSpeed(encoderRight)*2*3.141592*WHEEL_RADIUS, Encoder_getRevolutions(encoderLeft)*2*3.141592*WHEEL_RADIUS, Encoder_getRevolutions(encoderRight)*2*3.141592*WHEEL_RADIUS);
-	USART_printf(esp, "  Effort:  %5.2f     Effort:%5.2f        Set speed :%.2f\n", motors->motorLeft->effort, motors->motorRight->effort, speed);
-	USART_printf(esp, "  Encoder: %d         Encoder: %d\n",TIM5->CNT, TIM2->CNT);
-	USART_printf(esp, "  ADC Conversions: %d, ADC Errors: %d\n", analogConversions, adcErrors);
+
 	//USART_printf(esp, "Raw ADC \"0\":%d, \"1\":%d, \"2\":%d, \"3\":%d\"4\":%d, \"5\":%d, \"M\":%d\n", rawADC[0], rawADC[1], rawADC[2], rawADC[3],rawADC[4],rawADC[5],rawADC[6]);
 	//USART_printf(esp, "Raw LS_A \"0\":%f, \"1\":%f, \"2\":%f, \"3\":%f \"4\":%f, \"5\":%f\n", ls->processedReadingsA[0], ls->processedReadingsA[1], ls->processedReadingsA[2], ls->processedReadingsA[3],ls->processedReadingsA[4],ls->processedReadingsA[5]);
 	//USART_printf(esp, "Raw LS_B \"0\":%f, \"1\":%f, \"2\":%f, \"3\":%f \"4\":%f, \"5\":%f\n", ls->processedReadingsB[0], ls->processedReadingsB[1], ls->processedReadingsB[2], ls->processedReadingsB[3],ls->processedReadingsB[4],ls->processedReadingsB[5]);
 	//USART_printf(esp, "Raw LS_C \"0\":%f, \"1\":%f, \"2\":%f, \"3\":%f \"4\":%f, \"5\":%f\n", ls->processedReadings[0], ls->processedReadings[1], ls->processedReadings[2], ls->processedReadings[3],ls->processedReadings[4],ls->processedReadings[5]);
-	USART_printf(esp, "Sum: %f\n", LS_getWeightedSum(ls));
-	switch(arbiter->state){
-		case STATE_READY:
-			USART_printf(esp, "State: Ready\n");
-			break;
-		case STATE_FORWARD_TRACK:
-			USART_printf(esp, "State: Forwardtrack\n");
-			break;
-		case STATE_BACK_TRACK:
-			USART_printf(esp, "State: Backtrack\n");
-			break;
-		case STATE_TURN:
-			USART_printf(esp, "State: Turn\n");
-			break;
-		case STATE_LOST_F:
-			USART_printf(esp, "State: Lost forward\n");
-			break;
-		case STATE_LOST_B:
-			USART_printf(esp, "State: Lost back\n");
-			break;
-		case STATE_STOP:
-		default:
-			USART_printf(esp, "State: Stop\n");
-			break;
+
+	//USART_printf(esp, "USART Buffer: \"%s\"\n", esp->buffRX.buffer);
+
+}
+
+
+
+void handleCMD(){
+	if(esp->buffRX.send){
+		esp->buffRX.send = 0;
+		char cmd[10];
+		char target[10];
+		double value;
+		
+		sscanf(esp->buffRX.buffer, "%s %s %lf", cmd, target, &value);
+		
+		
+		USART_printf(esp, "\n\n\n\n");
+		if(strcmp(cmd, "stop") == 0){
+		
+			IO_set(IO_MOTOR_EN, 0);
+		
+		
+		} else if(strcmp(target, "MRP") == 0){
+			if(strcmp(cmd, "get") == 0){
+				
+			} else if(strcmp(cmd, "set") == 0){
+				PID_setP(motors->motorRight->pid, value);
+			} else {
+				printHelp();
+			}
+			USART_printf(esp, "Motor right P: %f\n", PID_getP(motors->motorRight->pid));
+		} else if(strcmp(target, "MRI") == 0){
+			if(strcmp(cmd, "get") == 0){
+				
+			} else if(strcmp(cmd, "set") == 0){
+				PID_setI(motors->motorRight->pid, value);
+			} else {
+				printHelp();
+			}
+			USART_printf(esp, "Motor right I: %f\n", PID_getI(motors->motorRight->pid));
+		} else if(strcmp(target, "MRD") == 0){
+			if(strcmp(cmd, "get") == 0){
+				
+			} else if(strcmp(cmd, "set") == 0){
+				PID_setD(motors->motorRight->pid, value);
+			} else {
+				printHelp();
+			}
+			USART_printf(esp, "Motor right D: %f\n", PID_getD(motors->motorRight->pid));
+		} else if(strcmp(target, "MLP") == 0){
+			if(strcmp(cmd, "get") == 0){
+				
+			} else if(strcmp(cmd, "set") == 0){
+				PID_setP(motors->motorLeft->pid, value);
+			} else {
+				printHelp();
+			}
+			USART_printf(esp, "Motor left P: %f\n", PID_getP(motors->motorLeft->pid));
+		} else if(strcmp(target, "MLI") == 0){
+			if(strcmp(cmd, "get") == 0){
+				
+			} else if(strcmp(cmd, "set") == 0){
+				PID_setI(motors->motorLeft->pid, value);
+			} else {
+				printHelp();
+			}
+			USART_printf(esp, "Motor left I: %f\n", PID_getI(motors->motorLeft->pid));
+		} else if(strcmp(target, "MLD") == 0){
+			if(strcmp(cmd, "get") == 0){
+				
+			} else if(strcmp(cmd, "set") == 0){
+				PID_setD(motors->motorLeft->pid, value);
+			} else {
+				printHelp();
+			}
+			USART_printf(esp, "Motor left D: %f\n", PID_getD(motors->motorLeft->pid));
+		} else if(strcmp(target, "LP") == 0){
+			if(strcmp(cmd, "get") == 0){
+				
+			} else if(strcmp(cmd, "set") == 0){
+				PID_setP(lf->ctrl, value);
+			} else {
+				printHelp();
+			}
+			USART_printf(esp, "Light sensor P: %f\n", PID_getD(lf->ctrl));
+		} else if(strcmp(target, "LI") == 0){
+			if(strcmp(cmd, "get") == 0){
+				
+			} else if(strcmp(cmd, "set") == 0){
+				PID_setI(lf->ctrl, value);
+			} else {
+				printHelp();
+			}
+			USART_printf(esp, "Light sensor I: %f\n", PID_getI(lf->ctrl));
+		} else if(strcmp(target, "LD") == 0){
+			if(strcmp(cmd, "get") == 0){
+				
+			} else if(strcmp(cmd, "set") == 0){
+				PID_setD(lf->ctrl, value);
+			} else {
+				printHelp();
+			}
+			USART_printf(esp, "Light sensor D: %f\n", PID_getD(lf->ctrl));
+		} else if(strcmp(target, "MRS") == 0){
+			if(strcmp(cmd, "get") == 0){
+				
+			} else if(strcmp(cmd, "set") == 0){
+				IO_set(IO_MOTOR_EN, 1);
+				Motor_setSpeed(motors->motorRight, value);
+			} else {
+				printHelp();
+			}
+			USART_printf(esp, "Motor right speed: %frev/s\n", value);
+		} else if(strcmp(target, "MLS") == 0){
+				if(strcmp(cmd, "get") == 0){
+				
+			} else if(strcmp(cmd, "set") == 0){
+				IO_set(IO_MOTOR_EN, 1);
+				Motor_setSpeed(motors->motorLeft, value);
+			} else {
+				printHelp();
+			}
+			USART_printf(esp, "Motor left speed: %frev/s\n", value);
+		} else if(strcmp(target, "all") == 0){
+			if(strcmp(cmd, "get") == 0){
+				USART_printf(esp, "Motor right P: %f\n", PID_getP(motors->motorRight->pid));
+				USART_printf(esp, "Motor right I: %f\n", PID_getI(motors->motorRight->pid));
+				USART_printf(esp, "Motor right D: %f\n\n", PID_getD(motors->motorRight->pid));
+				
+				USART_printf(esp, "Motor left P: %f\n", PID_getP(motors->motorLeft->pid));
+				USART_printf(esp, "Motor left I: %f\n", PID_getI(motors->motorLeft->pid));
+				USART_printf(esp, "Motor left D: %f\n\n", PID_getD(motors->motorLeft->pid));
+				
+				USART_printf(esp, "Light sensor P: %f\n", PID_getP(lf->ctrl));
+				USART_printf(esp, "Light sensor I: %f\n", PID_getI(lf->ctrl));
+				USART_printf(esp, "Light sensor D: %f\n", PID_getD(lf->ctrl));
+			} else {
+				printHelp();
+			}
+		} else{
+			printHelp();
+		}
+		
+		//USART_printf(esp, "Executing %s on %s with value %f\n\n", cmd, target, value);
+		USART_printf(esp, "\r");
 	}
+
+}
+
+
+
+void printHelp(){
+	USART_printf(esp, "HELP:\n  set|get [target] [value]\n\n");
+	USART_printf(esp, "Targets:\nML[P|I|D] - Motor left [P|I|D]\nMR[P|I|D] - Motor right [P|I|D]\nL[P|I|D] - Light sensors [P|I|D]\n");
 }
 
 
