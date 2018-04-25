@@ -148,17 +148,6 @@ void startSound(void){
 
 }
 
-void Analog_TransferComplete(){
-	analogConversions++;
-	LS_update(lf->ls);
-	if(ls->newData){
-		Arbiter_update(arbiter);
-	}
-}
-
-void Analog_TransferError(){
-	adcErrors++;
-}
 
 void printDebugInfo(void)
 {
@@ -242,14 +231,23 @@ void EXTI15_10_IRQHandler(void){
 	if(LL_EXTI_IsActiveFlag_0_31(LL_EXTI_LINE_13) != RESET)
   {
     LL_EXTI_ClearFlag_0_31(LL_EXTI_LINE_13);
-		//for(int freq =200; freq <=800; freq += 100){
-			//	IO_setSpeakerFreq(freq);
-			//	delay(0.1);
-		//	}
 		if(arbiter->state == STATE_READY){
 			arbiter->state = STATE_FORWARD_TRACK;
 		} else if(arbiter->state == STATE_STOP){
 			arbiter->state = STATE_READY;
 		} 
   }
+}
+
+
+void Analog_TransferComplete(){
+	analogConversions++;
+	LS_update(lf->ls);
+	if(ls->newData){
+		Arbiter_update(arbiter);
+	}
+}
+
+void Analog_TransferError(){
+	adcErrors++;
 }

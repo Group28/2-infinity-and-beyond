@@ -19,7 +19,7 @@ void Timers_init(void){
 	LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_TIM9); 
 	LL_TIM_SetCounterMode(TIM9, LL_TIM_COUNTERMODE_UP);
 
-  LL_TIM_SetPrescaler(TIM9, __LL_TIM_CALC_PSC(SystemCoreClock, 1000));
+  LL_TIM_SetPrescaler(TIM9, __LL_TIM_CALC_PSC(SystemCoreClock, 8400));
 
   LL_TIM_EnableARRPreload(TIM9);
   LL_TIM_SetAutoReload(TIM9,  __LL_TIM_CALC_ARR(SystemCoreClock, LL_TIM_GetPrescaler(TIM9), MOTOR_SAMPLE_FREQ));
@@ -44,9 +44,9 @@ void Timers_init(void){
 	LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_TIM10); 
 	LL_TIM_SetCounterMode(TIM10, LL_TIM_COUNTERMODE_UP);
 
-  LL_TIM_SetPrescaler(TIM10, __LL_TIM_CALC_PSC(SystemCoreClock, 20000));
+  LL_TIM_SetPrescaler(TIM10, __LL_TIM_CALC_PSC(SystemCoreClock, 80000));
   LL_TIM_EnableARRPreload(TIM10);
-  LL_TIM_SetAutoReload(TIM10,  __LL_TIM_CALC_ARR(SystemCoreClock, LL_TIM_GetPrescaler(TIM10), SENSOR_SAMPLE_FREQ));
+  LL_TIM_SetAutoReload(TIM10,  __LL_TIM_CALC_ARR(SystemCoreClock, LL_TIM_GetPrescaler(TIM10), SENSOR_SAMPLE_FREQ * SENSOR_OVERSAMPLE * 2 ));
 
   /* Enable the update interrupt */
   LL_TIM_EnableIT_UPDATE(TIM10);

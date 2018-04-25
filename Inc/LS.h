@@ -18,16 +18,17 @@ enum LS_pattern {LS_patternA, LS_patternB};
 typedef struct {
   uint16_t * rawReading;      //< Pointer to raw ADC reading values
   
-	float32_t processedReadingsA[IR_SENSOR_COUNT];  //< processed values from first pattern
-	float32_t processedReadingsB[IR_SENSOR_COUNT];  //< processed values from second pattern
+  float32_t readingsPatternA[IR_SENSOR_COUNT * SENSOR_OVERSAMPLE]; //< processed values from first pattern
+  float32_t readingsPatternB[IR_SENSOR_COUNT * SENSOR_OVERSAMPLE]; //< processed values from second pattern
 	
 	float32_t processedReadings[IR_SENSOR_COUNT];  //< combined filterd values form the pattern
 	
 	float32_t weightedSum;   // < The weighted sum of the senosr values
-	
-	uint32_t lcConfidence;   //< Line catch confidence
+  
 	
 	enum LS_pattern state;   //< Current Sensor pattern
+  
+  uint8_t oversampleNumber; //< Current oversample Number
 	
 	bool newData;            //< Is new data available
 	
