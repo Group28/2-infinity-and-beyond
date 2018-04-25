@@ -9,17 +9,19 @@
 */
 
 #define WHEEL_RADIUS 						0.0417 	// Wheel radius [m]
+#define BUGGY_WIDTH             0.20    // Width of buggy [m]
 #define ENCODER_TICKS_PER_REV 	1024 		// Counter ticks per revolution 
 
-#define MOTOR_SAMPLE_FREQ 			20.0 	// Motor speed sample frequency [Hz]
-#define SENSOR_SAMPLE_FREQ 			1000.0 	// Sensor sample frequency [Hz]
+#define MOTOR_SAMPLE_FREQ 			40.0 	// Motor speed sample frequency [Hz]
+#define SENSOR_SAMPLE_FREQ 			2000.0 	// Sensor sample frequency [Hz]
 
 #define DEFAULT_PWM_FREQ 				20000.0 // Default PWM switching frequency [Hz]
 #define DEFAULT_MOTOR_MODE 			0 			// 0 = unipolar, 1 = bipolar
 
-#define HALL_SENSOR_POLARITY 		1 			// Hall sensor polarity -1 = South, 1 = North, 0 = Both
+#define HALL_SENSOR_POLARITY 		0 			// Hall sensor polarity -1 = South, 1 = North, 0 = Both
 
 #define MOTOR_KT 								0.0076 	// Motor Kt [Nm/A] 
+
 
 
 #define ROTATION_SPEED          3
@@ -28,20 +30,20 @@
 #define RIGHT_MOTOR_PID_VALUES	{0.2, 0.003, 0.8} // Default PID values for right motor
 
 #define LS_WEIGHTS							{-1.5, 1.5, -0.9, 0.9, -1, 1} // Sensor weights
-                                   
+                                // 0    1     2    3    4  5     
 
 #define IR_SENSOR_COUNT					6 // Number of infrared sensors
 
 // ADC configuration
-#define ADC_CHANNEL_COUNT 9    // Number of ADC channels to sample
-#define ADC_RESOLUTION LL_ADC_RESOLUTION_12B // ADC resolution (using 12bits)
-#define ADC_SENSOR_SAMPLETIME LL_ADC_SAMPLINGTIME_480CYCLES    // Sample time for Light sensors 
+#define ADC_CHANNEL_COUNT       9    // Number of ADC channels to sample
+#define ADC_RESOLUTION          LL_ADC_RESOLUTION_12B // ADC resolution (using 12bits)
+#define ADC_SENSOR_SAMPLETIME   LL_ADC_SAMPLINGTIME_480CYCLES    // Sample time for Light sensors 
 #define ADC_MAGNETIC_SAMPLETIME LL_ADC_SAMPLINGTIME_480CYCLES  // Sample time for Magnetic sensor
-#define ADC_SENS_SAMPLETIME LL_ADC_SAMPLINGTIME_480CYCLES      // Sample time for current sensing sensors
+#define ADC_SENS_SAMPLETIME     LL_ADC_SAMPLINGTIME_480CYCLES      // Sample time for current sensing sensors
 
 
-#define MAGNET_NORTH_THRESHOLD 2482   // Upper threshold for north magnetic field detection
-#define MAGNET_SOUTH_THRESHOLD 1675   // Lower threshold for south magnetic field detection
+#define MAGNET_NORTH_THRESHOLD  2482   // Upper threshold for north magnetic field detection
+#define MAGNET_SOUTH_THRESHOLD  1675   // Lower threshold for south magnetic field detection
 /* Communication --------------------------------------------------------------------------------------- //
 //
 // Toggles communication channels
@@ -55,7 +57,7 @@
 
 #define USART_RX_INTERBUFFER    64    // Size of USART RX interbuffer
 
-
+#define LCD_ENABLED 						1 		 // Set to 1 to enable, 0 to disable LCD drive
 #define LCD_BUFFER_SIZE 				512    // Size of LCD buffer - determined by size of LCD
 
 /* IO -------------------------------------------------------------------------------------------------- //
