@@ -8,7 +8,7 @@ Action * Action_init(uint8_t actionType, float distance){
   action->actionType = actionType;
   action->distance = distance;
   action->previous = NULL;
-  action->next = NULL:
+  action->next = NULL;
   
   return action;
 }
@@ -19,7 +19,7 @@ Memory Memory_init(void){
   
   // Initialzie memory to 0
   mem->length = 0;
-  action = NULL;
+  mem->action = NULL;
   
   return mem;
 }

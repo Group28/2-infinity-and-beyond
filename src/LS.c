@@ -39,11 +39,11 @@ void LS_update(LS ls){
   // Switch to state based on over sampling 
 	switch(ls->state){
 		case LS_patternA:
-			processedReadings = ls->processedReadingsA;
+			processedReadings = ls->readingsPatternA;
 			
 			break;
 		case LS_patternB:
-			processedReadings = ls->processedReadingsB;
+			processedReadings = ls->readingsPatternB;
 			break;
 	}
 	
@@ -62,7 +62,7 @@ void LS_update(LS ls){
       float32_t filteredReadings[IR_SENSOR_COUNT * SENSOR_OVERSAMPLE];
       
       // Data processing going on here
-      arm_sub_f32(ls->processedReadingsA, ls->processedReadingsB, filteredReadings, IR_SENSOR_COUNT * SENSOR_OVERSAMPLE); // Subtract the values of sensors in the two patterns (Should remove external light sources)
+      arm_sub_f32(ls->readingsPatternA, ls->readingsPatternB, filteredReadings, IR_SENSOR_COUNT * SENSOR_OVERSAMPLE); // Subtract the values of sensors in the two patterns (Should remove external light sources)
       
       averageAndBound(filteredReadings, ls->processedReadings, IR_SENSOR_COUNT); // Average the samples and keep the values in bounds;
       

@@ -3,6 +3,7 @@
 #include "Encoders.h"
 #include "configuration.h"
 #include "stdlib.h"
+#include "Memory.h"
 
 Arbiter Arbiter_init(LF lf, LS ls, Magnet magnet, Motors motors, Memory memory){
   Arbiter arbiter = malloc(sizeof(__Arbiter));

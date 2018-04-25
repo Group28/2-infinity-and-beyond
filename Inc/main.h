@@ -39,11 +39,13 @@
 #ifndef __MAIN_H
 #define __MAIN_H
 
+#define ARM_MATH_CM4
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f4xx.h"
 #include "arm_math.h"
 #include "stdbool.h"
+
 
 
 /* LL drivers common to all LL examples */
@@ -74,8 +76,8 @@
 #include "stm32_assert.h"
 #endif /* USE_FULL_ASSERT */
 
-inline void Analog_TransferComplete(void);
-inline void Analog_TransferError(void);
+void Analog_TransferComplete(void);
+void Analog_TransferError(void);
 
 #endif /* __MAIN_H */
 

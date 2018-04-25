@@ -20,12 +20,12 @@
 /**
  * Sturct used to represent an Action on the track
  */
-typedef struct {
+typedef struct Action{
   uint8_t actionType;  // Type of action ACTION_*******
   float distance; // How long the action took
   
-  Action * previous;  // Previous action in the link list
-  Action * next;  // Next action in the link list
+  struct Action * previous;  // Previous action in the link list
+  struct Action * next;  // Next action in the link list
 } Action;
 
 /**

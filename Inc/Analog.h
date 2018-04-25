@@ -29,7 +29,7 @@ Analog Analog_init(void);
  *
  * @param Analog - ADC handle 
  */
-inline void Analog_enable(Analog adc);
+void Analog_enable(Analog adc);
 
 
 /*
@@ -37,7 +37,7 @@ inline void Analog_enable(Analog adc);
  *
  * @param Analog - ADC handle 
  */
-inline void Analog_startConversion(Analog adc);
+void Analog_startConversion(Analog adc);
 
 /*
  * Gets pointer to most recent raw analog values
