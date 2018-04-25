@@ -60,7 +60,7 @@ int USART_flushBuffer(USART usart);
  *
  * @return USB usart handle
  */
-USART USART_USB_init(void);
+//USART USART_USB_init(void);
 /**
  * Initialize ESP usart
  *

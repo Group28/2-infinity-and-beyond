@@ -13,8 +13,6 @@
 #include "PID.h"
 #include "Motors.h"
 #include "Encoders.h"
-#include "LCD.h"
-//#include "smallfont.h"
 #include "USART.h"
 #include "Timers.h"
 #include "ds2781.h"
@@ -32,8 +30,7 @@ static void printDebugInfo(void);
 DMA_Buffers dma_buffers;
 Motors motors;
 Encoder encoderLeft, encoderRight;
-LCD lcd;
-USART usb, esp;
+USART esp;
 Arbiter arbiter;
 LF lf;
 
@@ -97,11 +94,11 @@ void Init_buggy(){
 	Motors_setSpeed(motors, 0, 0);
 	
 	// Initialize communication peripherial	
-	lcd = LCD_init();
+	//lcd = LCD_init();
 	//LCD_setFont(lcd, (char *)SmallFont);
-	LCD_cls(lcd);
+	//LCD_cls(lcd);
 
-	usb = USART_USB_init();
+	//usb = USART_USB_init();
 	esp = USART_ESP_init();
 	
 	
@@ -122,7 +119,7 @@ void Init_buggy(){
 	battery = DS2781_init(IO_MICROLAN);
 	
 	// Initialize DMA controller
-	DMA_init(DMA_getBuffers(esp, usb, lcd, adc));
+	DMA_init(DMA_getBuffers(esp, adc)); // usb, lcd, adc));
 	
 	lf = LF_init(motors, ls);
 	
