@@ -14,7 +14,7 @@ LF LF_init(Motors motors, LS ls){
 	lf->effort = 0;
 
 
-	lf->ctrl = PID_init(ctrlPID_values, 1/(SENSOR_SAMPLE_FREQ/2), -1, 1);
+	lf->ctrl = PID_init(ctrlPID_values, 1/(SENSOR_SAMPLE_FREQ), -1, 1);
 	PID_setTargetValue(lf->ctrl, 0);
 		
 	return lf;
@@ -34,6 +34,7 @@ void LF_update(LF lf){
 		
 	float32_t diff23 = sensorValues[2] - sensorValues[3]; 	
 	float32_t diff45 = sensorValues[4] - sensorValues[5]; 	
+	
 	
 	if(maxValue < 0.5){
 		lf->lostConfidence += 1;
