@@ -396,6 +396,6 @@ void IO_initSpeaker(void){
 
 void IO_setSpeakerFreq(int freq){
 		LL_TIM_SetAutoReload(TIM4, __LL_TIM_CALC_ARR(SystemCoreClock, LL_TIM_GetPrescaler(TIM4), freq));
-		LL_TIM_GenerateEvent_UPDATE(TIM4);
 		LL_TIM_OC_SetCompareCH1(TIM4, (50)/100.0 * LL_TIM_GetAutoReload(TIM4));
+		LL_TIM_GenerateEvent_UPDATE(TIM4);
 }

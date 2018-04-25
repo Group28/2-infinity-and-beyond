@@ -23,6 +23,9 @@
 #include <stdio.h>
 
 
+#include "Music.h"
+#include "Notes.h"
+
 /* Uncomment to use simulator - will compile alternative main function */
 //#define USING_SIMULATOR
 
