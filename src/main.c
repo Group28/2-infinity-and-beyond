@@ -64,18 +64,21 @@ int main(void){
 	
 	Motors_setSpeed(motors, 0, 0);
 
-	
+	int counter = 0;
 	
 	/* Infinite loop */
 	while(1){
 		
 		
-		printDebugInfo();
+		
 		
 		handleCMD();
 		
-		delay(0.3);
-	
+		delay_ms(100);
+		if(counter%2 == 0){
+			printDebugInfo();
+		}
+		counter++;
 	}
 }
 
@@ -221,9 +224,10 @@ void handleCMD(){
 		sscanf(esp->buffRX.buffer, "%s %s %lf %lf %lf %lf %lf %lf", cmd, target, &value0, &value1, &value2, &value3, &value4, &value5);
 		
 		
-		USART_printf(esp, "\n\n\n\n");
-		if(strcmp(cmd, "stop") == 0 || strcmp(cmd, "STOP") ==0 || strcmp(cmd, "f") ==0 ){
+		USART_printf(esp, "\n");
+		if(strcmp(cmd, "stop") == 0 || strcmp(cmd, "STOP") == 0 || strcmp(cmd, "f") == 0){
 			IO_set(IO_MOTOR_EN, 0);
+			Motors_setSpeed(motors, 0, 0);
 		} else if(strcmp(cmd, "w") == 0){
 			IO_set(IO_MOTOR_EN, 1);
 			Motors_setSpeed(motors, 2, 2);

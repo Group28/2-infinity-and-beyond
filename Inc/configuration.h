@@ -12,7 +12,7 @@
 #define BUGGY_WIDTH             0.20    // Width of buggy [m]
 #define ENCODER_TICKS_PER_REV 	1024 		// Counter ticks per revolution 
 
-#define MOTOR_SAMPLE_FREQ 			40.0 	// Motor speed sample frequency [Hz]
+#define MOTOR_SAMPLE_FREQ 			50.0 	// Motor speed sample frequency [Hz]
 #define SENSOR_SAMPLE_FREQ 			400.0 	// Sensor sample frequency [Hz]
 #define SENSOR_OVERSAMPLE       2     // Number of over samples 
 
@@ -27,8 +27,8 @@
 
 #define ROTATION_SPEED          3
 
-#define LEFT_MOTOR_PID_VALUES		{0.25, 0.005, 0.8} // Default PID values for left motor
-#define RIGHT_MOTOR_PID_VALUES	{0.2, 0.003, 0.8} // Default PID values for right motor
+#define LEFT_MOTOR_PID_VALUES		{1, 0.001, 0.8} // Default PID values for left motor
+#define RIGHT_MOTOR_PID_VALUES	{1, 0.001, 0.8} // Default PID values for right motor
 
 #define LS_WEIGHTS							{-1.5, 1.5, -0.9, 0.9, -1, 1} // Sensor weights
                                 // 0    1     2    3    4  5     

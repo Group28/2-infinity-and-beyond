@@ -128,7 +128,8 @@ AS_DEFS =
 # C defines
 C_DEFS =  \
 -DUSE_FULL_LL_DRIVER \
--DSTM32F401xE
+-DSTM32F401xE \
+-DARM_MATH_CM4
 
 
 # AS includes
