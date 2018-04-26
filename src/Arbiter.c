@@ -29,7 +29,7 @@ void Arbiter_update(Arbiter arbiter){
   arbiter->counter++; // Increase loop counter
 	switch(arbiter->state){
 		case STATE_READY:
-			IO_set(IO_MOTOR_EN, 0);
+			//IO_set(IO_MOTOR_EN, 0);
       
       // Push Start Action to the beginning of the Memory
       if(Memory_getLength(arbiter->memory) != 1){
