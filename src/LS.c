@@ -54,7 +54,7 @@ void LS_update(LS ls){
   
   
 	if(ls->state == LS_patternB){
-    if(ls->oversampleNumber < SENSOR_OVERSAMPLE){
+    if(ls->oversampleNumber < (SENSOR_OVERSAMPLE - 1)){
       ls->oversampleNumber++;
     } else {
       ls->oversampleNumber = 0;
