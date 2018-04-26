@@ -4,6 +4,7 @@
 
 
 static float32_t LS_weights[] = LS_WEIGHTS;
+static float32_t LS_pattern[] = {1, -1, -1, 1, 1, -1};
 
 static void averageAndBound(float32_t * src, float32_t * dest, uint32_t length);
 
@@ -128,13 +129,16 @@ bool LS_catchLine(LS ls){
 }
 
 
-void averageAndBound(float32_t * src, float32_t * dest, uint32_t i){
+void averageAndBound(float32_t * src, float32_t * dest, uint32_t length){
+  uint32_t i = length;
   while(i--){
     dest[i] = (src[i] + src[i + IR_SENSOR_COUNT])/ 2.0;
-    if(i%2){
-      dest[i] *= -1;
-    }
-    
+
+  }
+  
+  arm_mult_f32(dest, LS_pattern, dest, length); // Flip the negative patterns
+  i = length;
+  while(i--){
     if(dest[i] < 0) dest[i] = 0;
     if(dest[i] > 1) dest[i] = 1;
   }
