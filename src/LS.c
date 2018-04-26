@@ -49,7 +49,7 @@ void LS_update(LS ls){
 	
 	
 	for(int i = 0; i< IR_SENSOR_COUNT; i++){
-			processedReadings[SENSOR_OVERSAMPLE * ls->oversampleNumber + i]=ls->rawReading[i]/4096.0;
+			processedReadings[IR_SENSOR_COUNT * ls->oversampleNumber + i]=ls->rawReading[i]/4096.0;
 	}
   
   
