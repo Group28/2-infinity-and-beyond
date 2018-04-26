@@ -17,6 +17,8 @@ typedef struct {
 	int lostConfidence;
 	float speed;
 	float effort;
+	
+	float values[10];
 } __LF, *LF;
 
 LF LF_init(Motors motors, LS ls);
