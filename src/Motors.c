@@ -84,3 +84,9 @@ void Motor_setPWMDutyCycle(Motor motor){
 		IO_set(IO_MOTOR_2_DIR, direction);
 	}
 }
+
+void Motors_reset(Motors motors){
+	PID_reset(motors->motorLeft->pid);
+	PID_reset(motors->motorRight->pid);
+
+}

@@ -143,3 +143,13 @@ void averageAndBound(float32_t * src, float32_t * dest, uint32_t length){
     if(dest[i] > 1) dest[i] = 1;
   }
 }
+
+void LS_reset(LS ls){
+	ls->state = LS_patternA;
+  ls->weightedSum = 0;
+	
+	ls->newData = false;
+	
+  ls->oversampleNumber = 0;
+  
+}
