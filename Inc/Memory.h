@@ -12,10 +12,12 @@
 #define ACTION_MINOR_R    3
 #define ACTION_MAJOR_L    4
 #define ACTION_MAJOR_R    5
-#define ACTION_RAMP_POS   6
-#define ACTION_RAMP_NEG   7
-#define ACTION_LOST       8
-#define ACTION_OTHER      9
+#define ACTION_RAMP_P_S   6
+#define ACTION_RAMP_P_E   7
+#define ACTION_RAMP_N_S   8
+#define ACTION_RAMP_N_E   9
+#define ACTION_LOST       10
+#define ACTION_OTHER      11
 
 /**
  * Sturct used to represent an Action on the track
