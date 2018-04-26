@@ -39,7 +39,6 @@
 #ifndef __MAIN_H
 #define __MAIN_H
 
-#define ARM_MATH_CM4
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f4xx.h"
