@@ -4,24 +4,6 @@
 
 static DMA_Buffers buffers;
 
-void LED_Blinking(void)
-
-{
-
-  /* Toggle LED2 in an infinite loop */
-
-  while (1)
-
-  {
-
-    LL_GPIO_TogglePin(IO_MOTOR_EN);  
-
-    delay_ms(500);
-
-  }
-
-}
-
 void DMA_init(DMA_Buffers buffs) {
 
 	buffers = buffs;
@@ -263,9 +245,6 @@ void DMA1_Stream6_IRQHandler(void){
 
 // USART6 RX Callback
 void DMA2_Stream1_IRQHandler(void){
-	size_t len, tocopy;
-	uint8_t* ptr;
-
 	
 	if(LL_DMA_IsActiveFlag_TC1(DMA2)){
     LL_DMA_ClearFlag_TC1(DMA2);
@@ -282,8 +261,6 @@ void DMA2_Stream1_IRQHandler(void){
   } else if(LL_DMA_IsActiveFlag_TE1(DMA2)){
 
     LL_DMA_DisableStream(DMA2, LL_DMA_STREAM_1);
-		LED_Blinking();
-
   }
 }
 
@@ -303,7 +280,6 @@ void DMA2_Stream6_IRQHandler(void){
 
     /* Call Error function */
 		LL_DMA_DisableStream(DMA2, LL_DMA_STREAM_6);
-		LED_Blinking();
   } else if(LL_DMA_IsActiveFlag_FE6(DMA2)) {
 		LL_DMA_ClearFlag_FE6(DMA2);
 		buffers->espTX->send = 0;

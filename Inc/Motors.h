@@ -95,5 +95,11 @@ void Motors_setSpeed(Motors motors, double speedL, double speedR);
  */
 void Motors_PID_action(Motors motors);
 
-
+/**
+ * Resets the PID controlle of the motors
+ *
+ * @param motors handle
+ * @return 
+ */
+void Motors_reset(Motors motors);
 #endif

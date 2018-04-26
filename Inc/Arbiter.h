@@ -36,5 +36,6 @@ Arbiter Arbiter_init(LF lf, LS ls, Magnet magnet, Motors motors, Memory memory);
 
 void Arbiter_update(Arbiter arbiter);
 
+void Arbiter_reset(Arbiter arbiter);
 
 #endif

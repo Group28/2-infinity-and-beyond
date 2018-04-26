@@ -106,7 +106,7 @@ void Arbiter_update(Arbiter arbiter){
 			IO_set(IO_MOTOR_EN, 1);
 		  // Look for line in latest direction
       
-			//arbiter->state = STATE_STOP;
+			arbiter->state = STATE_STOP;
 			break;
       
       
@@ -123,4 +123,14 @@ void Arbiter_update(Arbiter arbiter){
 			break;
 	}
 
+}
+
+void Arbiter_reset(Arbiter arbiter){
+	arbiter->state = STATE_READY;
+	
+	arbiter->latestAction = Action_init(ACTION_START, 0);
+	
+	arbiter->turningDistance = 0;
+  
+  arbiter->counter = 0;
 }

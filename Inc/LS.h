@@ -96,6 +96,12 @@ void LS_getProcessedValues(LS ls, float32_t * values);
  */
 bool LS_catchLine(LS ls);
 
-
+/**
+ * Reset line sensor;
+ *
+ * @param ls - Handle to the Light sensors controller
+ * @return 
+ */
+void LS_reset(LS ls);
 
 #endif
