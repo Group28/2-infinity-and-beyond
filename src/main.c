@@ -108,6 +108,7 @@ void Init_buggy(){
 	motors = Motors_init(motorLeftPID, motorRightPID, encoderLeft, encoderRight);
 	
 	Motors_setSpeed(motors, 0, 0);
+	IO_set(IO_MOTOR_EN, 0);
 	
 	// Initialize communication peripherial	
 	//lcd = LCD_init();
@@ -209,22 +210,40 @@ void handleCMD(){
 		esp->buffRX.send = 0;
 		char cmd[10];
 		char target[10];
-		double value;
+		double value0;
+		double value1;
+		double value2;
+		double value3;
+		double value4;
+		double value5;
 		
-		sscanf(esp->buffRX.buffer, "%s %s %lf", cmd, target, &value);
+		sscanf(esp->buffRX.buffer, "%s %s %lf %lf %lf %lf %lf %lf", cmd, target, &value0, &value1, &value2, &value3, &value4, &value5);
 		
 		
 		USART_printf(esp, "\n\n\n\n");
-		if(strcmp(cmd, "stop") == 0){
-		
+		if(strcmp(cmd, "stop") == 0 || strcmp(cmd, "STOP") || strcmp(cmd, "f") ){
 			IO_set(IO_MOTOR_EN, 0);
-		
-		
+		} else if(strcmp(target, "w") == 0){
+			IO_set(IO_MOTOR_EN, 1);
+			Motors_setSpeed(motors, 2, 2);
+		} else if(strcmp(target, "s") == 0){
+			IO_set(IO_MOTOR_EN, 1);
+			Motors_setSpeed(motors, -2, -2);
+		} else if(strcmp(target, "a") == 0){
+			IO_set(IO_MOTOR_EN, 1);
+			Motors_setSpeed(motors, 0.8, 2);
+		} else if(strcmp(target, "d") == 0){
+			IO_set(IO_MOTOR_EN, 1);
+			Motors_setSpeed(motors, 2, 0.8);
+		} else if(strcmp(target, "clear") == 0){
+			USART_printf(esp, "\n\n\n\n\n\n\n\n\n\n\n\n");
+		} else if(strcmp(target, "start") == 0){
+			arbiter->state = STATE_FORWARD_TRACK;
 		} else if(strcmp(target, "MRP") == 0){
 			if(strcmp(cmd, "get") == 0){
 				
 			} else if(strcmp(cmd, "set") == 0){
-				PID_setP(motors->motorRight->pid, value);
+				PID_setP(motors->motorRight->pid, value0);
 			} else {
 				printHelp();
 			}
@@ -233,7 +252,7 @@ void handleCMD(){
 			if(strcmp(cmd, "get") == 0){
 				
 			} else if(strcmp(cmd, "set") == 0){
-				PID_setI(motors->motorRight->pid, value);
+				PID_setI(motors->motorRight->pid, value0);
 			} else {
 				printHelp();
 			}
@@ -242,7 +261,7 @@ void handleCMD(){
 			if(strcmp(cmd, "get") == 0){
 				
 			} else if(strcmp(cmd, "set") == 0){
-				PID_setD(motors->motorRight->pid, value);
+				PID_setD(motors->motorRight->pid, value0);
 			} else {
 				printHelp();
 			}
@@ -251,7 +270,7 @@ void handleCMD(){
 			if(strcmp(cmd, "get") == 0){
 				
 			} else if(strcmp(cmd, "set") == 0){
-				PID_setP(motors->motorLeft->pid, value);
+				PID_setP(motors->motorLeft->pid, value0);
 			} else {
 				printHelp();
 			}
@@ -260,7 +279,7 @@ void handleCMD(){
 			if(strcmp(cmd, "get") == 0){
 				
 			} else if(strcmp(cmd, "set") == 0){
-				PID_setI(motors->motorLeft->pid, value);
+				PID_setI(motors->motorLeft->pid, value0);
 			} else {
 				printHelp();
 			}
@@ -269,7 +288,7 @@ void handleCMD(){
 			if(strcmp(cmd, "get") == 0){
 				
 			} else if(strcmp(cmd, "set") == 0){
-				PID_setD(motors->motorLeft->pid, value);
+				PID_setD(motors->motorLeft->pid, value0);
 			} else {
 				printHelp();
 			}
@@ -278,7 +297,7 @@ void handleCMD(){
 			if(strcmp(cmd, "get") == 0){
 				
 			} else if(strcmp(cmd, "set") == 0){
-				PID_setP(lf->ctrl, value);
+				PID_setP(lf->ctrl, value0);
 			} else {
 				printHelp();
 			}
@@ -287,7 +306,7 @@ void handleCMD(){
 			if(strcmp(cmd, "get") == 0){
 				
 			} else if(strcmp(cmd, "set") == 0){
-				PID_setI(lf->ctrl, value);
+				PID_setI(lf->ctrl, value0);
 			} else {
 				printHelp();
 			}
@@ -296,7 +315,7 @@ void handleCMD(){
 			if(strcmp(cmd, "get") == 0){
 				
 			} else if(strcmp(cmd, "set") == 0){
-				PID_setD(lf->ctrl, value);
+				PID_setD(lf->ctrl, value0);
 			} else {
 				printHelp();
 			}
@@ -306,21 +325,38 @@ void handleCMD(){
 				
 			} else if(strcmp(cmd, "set") == 0){
 				IO_set(IO_MOTOR_EN, 1);
-				Motor_setSpeed(motors->motorRight, value);
+				Motor_setSpeed(motors->motorRight, value0);
 			} else {
 				printHelp();
 			}
-			USART_printf(esp, "Motor right speed: %frev/s\n", value);
+			USART_printf(esp, "Motor right speed: %frev/s\n",  motors->motorRight->speed);
 		} else if(strcmp(target, "MLS") == 0){
 				if(strcmp(cmd, "get") == 0){
 				
 			} else if(strcmp(cmd, "set") == 0){
 				IO_set(IO_MOTOR_EN, 1);
-				Motor_setSpeed(motors->motorLeft, value);
+				Motor_setSpeed(motors->motorLeft, value0);
 			} else {
 				printHelp();
 			}
-			USART_printf(esp, "Motor left speed: %frev/s\n", value);
+			USART_printf(esp, "Motor left speed: %frev/s\n",  motors->motorLeft->speed);
+			
+		} else if(strcmp(target, "MS") == 0){
+			if(strcmp(cmd, "get") == 0){
+			
+			} else if(strcmp(cmd, "set") == 0){
+				IO_set(IO_MOTOR_EN, 1);
+				Motors_setSpeed(motors, value0, value1);
+			} else {
+				printHelp();
+			}
+			USART_printf(esp, "Motor left speed: %frev/s\n",  motors->motorLeft->speed);
+			USART_printf(esp, "Motor right speed: %frev/s\n",  motors->motorRight->speed);
+		
+		} else if(strcmp(target, "MEM") == 0){
+			if(strcmp(cmd, "get") == 0){
+				printMemory();
+			} 
 		} else if(strcmp(target, "all") == 0){
 			if(strcmp(cmd, "get") == 0){
 				USART_printf(esp, "Motor right P: %f\n", PID_getP(motors->motorRight->pid));
@@ -333,7 +369,9 @@ void handleCMD(){
 				
 				USART_printf(esp, "Light sensor P: %f\n", PID_getP(lf->ctrl));
 				USART_printf(esp, "Light sensor I: %f\n", PID_getI(lf->ctrl));
-				USART_printf(esp, "Light sensor D: %f\n", PID_getD(lf->ctrl));
+				USART_printf(esp, "Light sensor D: %f\n\n", PID_getD(lf->ctrl));
+				USART_printf(esp, "Motor left speed: %frev/s\n", motors->motorLeft->speed);
+				USART_printf(esp, "Motor right speed: %frev/s\n", motors->motorRight->speed);
 			} else {
 				printHelp();
 			}
@@ -341,16 +379,68 @@ void handleCMD(){
 			printHelp();
 		}
 		
-		//USART_printf(esp, "Executing %s on %s with value %f\n\n", cmd, target, value);
-		USART_printf(esp, "\r");
+		//USART_printf(esp, "Executing %s on %s with value0 %f\n\n", cmd, target, value0);
+		USART_printf(esp, "\r\r\r");
 	}
 
 }
 
+void printMemory(void){
+	Action * act = memory->action;
+	char actionName[15];
+	int counter = 0;
+	while(act != NULL && act->next != NULL){
+		switch(act->actionType){
+			case ACTION_START:
+				strcpy(actionName,  "Start");
+				break;
+			case ACTION_STRAIGHT:
+				strcpy(actionName,  "Straight");
+				break;
+			case ACTION_MINOR_L:
+				strcpy(actionName,  "Minor Left");
+				break;
+			case ACTION_MINOR_R:
+				strcpy(actionName,  "Minor Right");
+				break;
+			case ACTION_MAJOR_L:
+				strcpy(actionName,  "Major Left");
+				break;
+			case ACTION_MAJOR_R:
+				strcpy(actionName,  "Major Right");
+				break;
+			case ACTION_RAMP_P_S:
+				strcpy(actionName,  "RampPosStart");
+				break;
+			case ACTION_RAMP_P_E:
+				strcpy(actionName,  "RampPosEnd");
+				break;
+			case ACTION_RAMP_N_S:
+				strcpy(actionName,  "RampNegStart");
+				break;
+			case ACTION_RAMP_N_E:
+				strcpy(actionName,  "RampNegEnd");
+				break;
+			case ACTION_LOST:
+				strcpy(actionName,  "Lost");
+				break;
+			case ACTION_OTHER:
+				strcpy(actionName,  "Other");
+				break;
+		}
+		USART_printf(esp, "%d: %s %fm\n", counter++, actionName, act->distance);
+		
+		act = act->next;
+	}
+	if(counter == 0){
+		USART_printf(esp, "Memory Empty\n");
+	}
+	
+}
 
 
 void printHelp(){
-	USART_printf(esp, "HELP:\n  set|get [target] [value]\n\n");
+	USART_printf(esp, "HELP:\n  set|get [target] [value0]\n\n");
 	USART_printf(esp, "Targets:\nML[P|I|D] - Motor left [P|I|D]\nMR[P|I|D] - Motor right [P|I|D]\nL[P|I|D] - Light sensors [P|I|D]\n");
 }
 
