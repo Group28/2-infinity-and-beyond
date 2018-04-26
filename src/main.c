@@ -34,6 +34,7 @@ static void startSound(void);
 static void printDebugInfo(void);
 static void handleCMD(void);
 static void printHelp(void);
+static void printMemory(void);
 
 DMA_Buffers dma_buffers;
 Motors motors;

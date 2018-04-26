@@ -38,14 +38,12 @@
 /* Define to prevent recursive inclusion -------------------------------------*/
 #ifndef __MAIN_H
 #define __MAIN_H
-
+  
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f4xx.h"
 #include "arm_math.h"
 #include "stdbool.h"
-
-
 
 /* LL drivers common to all LL examples */
 #include "stm32f4xx_ll_bus.h"
