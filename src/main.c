@@ -222,7 +222,7 @@ void handleCMD(){
 		
 		
 		USART_printf(esp, "\n\n\n\n");
-		if(strcmp(cmd, "stop") == 0 || strcmp(cmd, "STOP") || strcmp(cmd, "f") ){
+		if(strcmp(cmd, "stop") == 0 || strcmp(cmd, "STOP") ==0 || strcmp(cmd, "f") ==0 ){
 			IO_set(IO_MOTOR_EN, 0);
 		} else if(strcmp(target, "w") == 0){
 			IO_set(IO_MOTOR_EN, 1);
