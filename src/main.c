@@ -74,7 +74,7 @@ int main(void){
 		
 		handleCMD();
 		
-		delay_ms(100);
+		delay_ms(200);
 		if(counter%2 == 0){
 			printDebugInfo();
 		}
@@ -203,7 +203,7 @@ void printDebugInfo(void)
 	//USART_printf(esp, "Raw LS_B \"0\":%f, \"1\":%f, \"2\":%f, \"3\":%f \"4\":%f, \"5\":%f\n", ls->processedReadingsB[0], ls->processedReadingsB[1], ls->processedReadingsB[2], ls->processedReadingsB[3],ls->processedReadingsB[4],ls->processedReadingsB[5]);
 	//USART_printf(esp, "Raw LS_C \"0\":%f, \"1\":%f, \"2\":%f, \"3\":%f \"4\":%f, \"5\":%f\n", ls->processedReadings[0], ls->processedReadings[1], ls->processedReadings[2], ls->processedReadings[3],ls->processedReadings[4],ls->processedReadings[5]);
 
-	//USART_printf(esp, "USART Buffer: \"%s\"\n", esp->buffRX.buffer);
+	USART_printf(esp, "LF 23dif: %f, 45dif: %f\n", lf->values[0], lf->values[1]);
 
 }
 
@@ -224,7 +224,7 @@ void handleCMD(){
 		sscanf(esp->buffRX.buffer, "%s %s %lf %lf %lf %lf %lf %lf", cmd, target, &value0, &value1, &value2, &value3, &value4, &value5);
 		
 		
-		USART_printf(esp, "\n");
+		USART_printf(esp, "\n    \n");
 		if(strcmp(cmd, "stop") == 0 || strcmp(cmd, "STOP") == 0 || strcmp(cmd, "f") == 0){
 			IO_set(IO_MOTOR_EN, 0);
 			Motors_setSpeed(motors, 0, 0);
@@ -240,6 +240,12 @@ void handleCMD(){
 		} else if(strcmp(cmd, "d") == 0){
 			IO_set(IO_MOTOR_EN, 1);
 			Motors_setSpeed(motors, 2, 0.8);
+		} else if(strcmp(cmd, "reset") == 0){
+			IO_set(IO_MOTOR_EN, 0);
+			LF_reset(lf);
+			LS_reset(ls);
+			Arbiter_reset(arbiter);
+			Memory_clear(memory);
 		} else if(strcmp(cmd, "clear") == 0){
 			USART_printf(esp, "\n\n\n\n\n\n\n\n\n\n\n\n");
 		} else if(strcmp(cmd, "start") == 0){
@@ -357,6 +363,16 @@ void handleCMD(){
 			}
 			USART_printf(esp, "Motor left speed: %frev/s\n",  motors->motorLeft->speed);
 			USART_printf(esp, "Motor right speed: %frev/s\n",  motors->motorRight->speed);
+		} else if(strcmp(target, "LS") == 0){
+			if(strcmp(cmd, "get") == 0){
+			
+			} else if(strcmp(cmd, "set") == 0){
+				IO_set(IO_MOTOR_EN, 1);
+				lf->speed = value0;
+			} else {
+				printHelp();
+			}
+			USART_printf(esp, "Line Followig speed: %frev/s\n",  lf->speed);
 		
 		} else if(strcmp(target, "MEM") == 0){
 			if(strcmp(cmd, "get") == 0){
@@ -385,7 +401,7 @@ void handleCMD(){
 		}
 		
 		//USART_printf(esp, "Executing %s on %s with value0 %f\n\n", cmd, target, value0);
-		USART_printf(esp, "\r\r\r");
+		
 	}
 
 }
@@ -456,9 +472,9 @@ void EXTI15_10_IRQHandler(void){
   {
     LL_EXTI_ClearFlag_0_31(LL_EXTI_LINE_13);
 		if(arbiter->state == STATE_READY){
-			arbiter->state = STATE_FORWARD_TRACK;
+			//arbiter->state = STATE_FORWARD_TRACK;
 		} else if(arbiter->state == STATE_STOP){
-			arbiter->state = STATE_READY;
+			//arbiter->state = STATE_READY;
 		} 
   }
 }
