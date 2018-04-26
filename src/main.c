@@ -224,21 +224,21 @@ void handleCMD(){
 		USART_printf(esp, "\n\n\n\n");
 		if(strcmp(cmd, "stop") == 0 || strcmp(cmd, "STOP") ==0 || strcmp(cmd, "f") ==0 ){
 			IO_set(IO_MOTOR_EN, 0);
-		} else if(strcmp(target, "w") == 0){
+		} else if(strcmp(cmd, "w") == 0){
 			IO_set(IO_MOTOR_EN, 1);
 			Motors_setSpeed(motors, 2, 2);
-		} else if(strcmp(target, "s") == 0){
+		} else if(strcmp(cmd, "s") == 0){
 			IO_set(IO_MOTOR_EN, 1);
 			Motors_setSpeed(motors, -2, -2);
-		} else if(strcmp(target, "a") == 0){
+		} else if(strcmp(cmd, "a") == 0){
 			IO_set(IO_MOTOR_EN, 1);
 			Motors_setSpeed(motors, 0.8, 2);
-		} else if(strcmp(target, "d") == 0){
+		} else if(strcmp(cmd, "d") == 0){
 			IO_set(IO_MOTOR_EN, 1);
 			Motors_setSpeed(motors, 2, 0.8);
-		} else if(strcmp(target, "clear") == 0){
+		} else if(strcmp(cmd, "clear") == 0){
 			USART_printf(esp, "\n\n\n\n\n\n\n\n\n\n\n\n");
-		} else if(strcmp(target, "start") == 0){
+		} else if(strcmp(cmd, "start") == 0){
 			arbiter->state = STATE_FORWARD_TRACK;
 		} else if(strcmp(target, "MRP") == 0){
 			if(strcmp(cmd, "get") == 0){
