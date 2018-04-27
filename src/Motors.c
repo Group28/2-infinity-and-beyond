@@ -1,5 +1,5 @@
 #include "Motors.h"
-
+#include "Encoders.h"
 #include "main.h"
 #include "configuration.h"
 #include <stdbool.h>
@@ -37,7 +37,7 @@ Motors Motors_init(PID_Values valuesL, PID_Values valuesR, Encoder encL, Encoder
 }
 
 void Motor_PID_action(Motor motor){
-	double realSpeed =  Encoder_getSpeed(motor->encoder);
+	double realSpeed =  Encoder_getAngularSpeed(motor->encoder);
 	PID_setMeasuredValue(motor->pid, realSpeed);
 	
 	motor->effort = PID_compute(motor->pid);
@@ -88,5 +88,18 @@ void Motor_setPWMDutyCycle(Motor motor){
 void Motors_reset(Motors motors){
 	PID_reset(motors->motorLeft->pid);
 	PID_reset(motors->motorRight->pid);
+	
+	Encoder_reset(motors->motorLeft->encoder);
+	Encoder_reset(motors->motorRight->encoder);
 
+}
+
+
+double Motor_getDistance(Motor motor){
+	return Encoder_getDistance(motor->encoder);
+}
+
+
+double Motors_getLinearDistance(Motors motors){
+	return (Encoder_getDistance(motors->motorLeft->encoder) + Encoder_getDistance(motors->motorRight->encoder))/ 2.0;
 }
