@@ -10,9 +10,9 @@ Analog Analog_init(){
   NVIC_SetPriority(ADC_IRQn, 0); /* ADC IRQ greater priority than DMA IRQ */
   NVIC_EnableIRQ(ADC_IRQn);
   
-  LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_ADC1);
+  LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_ADC1); // Turn on all the clocks
   
-  LL_ADC_SetCommonClock(__LL_ADC_COMMON_INSTANCE(ADC1), LL_ADC_CLOCK_SYNC_PCLK_DIV2);
+  LL_ADC_SetCommonClock(__LL_ADC_COMMON_INSTANCE(ADC1), LL_ADC_CLOCK_SYNC_PCLK_DIV2); // Set ADC clock
   
   
   #if (ADC_CHANNEL_COUNT == 9)
@@ -28,19 +28,21 @@ Analog Analog_init(){
   #endif
   
   
-
+  // Set ADC resolution
   LL_ADC_SetResolution(ADC1, ADC_RESOLUTION);
   LL_ADC_SetDataAlignment(ADC1, LL_ADC_DATA_ALIGN_RIGHT);
   
+  // Turn on sequencer
   LL_ADC_SetSequencersScanMode(ADC1, LL_ADC_SEQ_SCAN_ENABLE);
   
+  // Set trigger
   LL_ADC_REG_SetTriggerSource(ADC1, LL_ADC_REG_TRIG_SOFTWARE);
   
   LL_ADC_REG_SetContinuousMode(ADC1, LL_ADC_REG_CONV_SINGLE);
   
   LL_ADC_REG_SetDMATransfer(ADC1, LL_ADC_REG_DMA_TRANSFER_UNLIMITED);
   
-
+  // Configure the sequencer ranks
   LL_ADC_REG_SetSequencerRanks(ADC1, LL_ADC_REG_RANK_1,   ADC_CH_SENSOR_0);
   LL_ADC_REG_SetSequencerRanks(ADC1, LL_ADC_REG_RANK_2,   ADC_CH_SENSOR_1);
   LL_ADC_REG_SetSequencerRanks(ADC1, LL_ADC_REG_RANK_3,   ADC_CH_SENSOR_2);
@@ -77,21 +79,21 @@ Analog Analog_init(){
 
 
 void Analog_enable(Analog adc){  
-  adc->enabled = 1;
-  adc->converting = 0;
-  if (!LL_ADC_IsEnabled(ADC1)) LL_ADC_Enable(ADC1);
+  adc->enabled = 1; 
+  adc->converting = 0;  // We are not converting
+  if (!LL_ADC_IsEnabled(ADC1)) LL_ADC_Enable(ADC1); // Enable the ADC
 }
 
 
 void Analog_startConversion(Analog adc){
   if(LL_ADC_IsEnabled(ADC1)) {
     adc->converting = 1;
-    LL_ADC_REG_StartConversionSWStart(ADC1);
+    LL_ADC_REG_StartConversionSWStart(ADC1 // triggers the Sequencer
   }
 }
 
 uint16_t * Analog_getValues(Analog adc){
-  return adc->buffer.buffer;
+  return adc->buffer.buffer; // Get pointer to buffer
 }
 
 
@@ -121,4 +123,3 @@ void ADC_IRQHandler(void)
     //AdcGrpRegularSequenceConvComplete_Callback();
   }
 }
-

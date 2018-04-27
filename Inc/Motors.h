@@ -102,4 +102,21 @@ void Motors_PID_action(Motors motors);
  * @return 
  */
 void Motors_reset(Motors motors);
+
+/**
+ * Gets distance traveled by motor
+ *
+ * @param motor handle
+ * @return distance traveled [m]
+ */
+double Motor_getDistance(Motor motor);
+
+
+	/**
+	 * Gets linear distance traveled by both motors
+	 *
+	 * @param motors handle
+	 * @return distance traveled [m]
+	 */
+double Motors_getLinearDistance(Motors motors);
 #endif

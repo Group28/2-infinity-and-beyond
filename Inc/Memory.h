@@ -36,6 +36,7 @@ typedef struct Action{
 typedef struct {
   uint32_t length;  // Number of actions in the memory
   Action * action; // Pointer ot the latest action in the memory
+  bool full;       // Memory is full
 } __Memory, *Memory;
 
 /**

@@ -30,10 +30,18 @@ typedef struct {
 Encoder Encoder_init(TIM_TypeDef * timer, double samplePeriod, uint16_t ticks);
 
 /*
- * Get current speed of rotation
+ * Get current angular speed of rotation
  *
  * @param encoder - Encoder handle
  * @return speed in revolutions per second
+ */
+double Encoder_getAngularSpeed(Encoder encoder);
+
+/*
+ * Get current speed of rotation
+ *
+ * @param encoder - Encoder handle
+ * @return speed [m/s]
  */
 double Encoder_getSpeed(Encoder encoder);
 
@@ -44,6 +52,15 @@ double Encoder_getSpeed(Encoder encoder);
  * @return number of revolutions since last reset
  */
 double Encoder_getRevolutions(Encoder encoder);
+
+
+/*
+ * Get distance traveled
+ *
+ * @param encoder - encoder handle
+ * @return distance traveled by wheel [m]
+ */
+double Encoder_getDistance(Encoder encoder);
 
 /*
  * Reset the revolutions counter and hardware counter

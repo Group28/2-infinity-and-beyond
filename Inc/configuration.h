@@ -61,6 +61,8 @@
 #define LCD_ENABLED 						1 		 // Set to 1 to enable, 0 to disable LCD drive
 #define LCD_BUFFER_SIZE 				512    // Size of LCD buffer - determined by size of LCD
 
+#define MAX_ACTIONS             2048  // Maximum number of actions in memory
+
 /* IO -------------------------------------------------------------------------------------------------- //
 //
 // IO map of ports and pins to functions
