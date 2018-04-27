@@ -88,7 +88,7 @@ void Analog_enable(Analog adc){
 void Analog_startConversion(Analog adc){
   if(LL_ADC_IsEnabled(ADC1)) {
     adc->converting = 1;
-    LL_ADC_REG_StartConversionSWStart(ADC1 // triggers the Sequencer
+    LL_ADC_REG_StartConversionSWStart(ADC1); // triggers the Sequencer
   }
 }
 
