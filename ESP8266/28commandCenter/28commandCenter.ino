@@ -261,6 +261,9 @@ String webSite =R"(
               Sum: <span id="sensorsumVal"> </span>
               <br>
               State: <span id="sensorstateVal"> </span>
+              <br>
+              <h4>Other:</h4>
+              <div id="others"></div>
               </div>
             </div>
             <div class="battery">
@@ -321,6 +324,16 @@ String webSite =R"(
         var sensor = document.getElementById('sensor'+sensor);
         sensorSpan.innerHTML = value.toFixed(3);
         sensor.style.backgroundColor = "rgba(0,0,0,"+ (1 - value) +')';    
+    }
+    
+    function clearOther(){
+      var element = document.getElementById("others");
+      element.innerHTML = "";  
+    }
+    
+    function appendOther(name, value){
+      var element = document.getElementById("others");
+      element.innerHTML  += name + ": " + value + "<br>";  
     }
     
     
@@ -404,6 +417,13 @@ String webSite =R"(
           
           setVal("state", state);
 
+          clearOther();
+          if(typeof msg["other"] != undefined){
+            for(var key in msg["other"]){
+              appendOther(key, msg["other"][key]);  
+            }
+          }
+          
           
         } else {
           var element = document.getElementById('rx');
@@ -475,7 +495,6 @@ String webSite =R"(
     
     </body>
    </html>
-
 
 )";
   
