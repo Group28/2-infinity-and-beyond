@@ -63,6 +63,7 @@ void LF_setSpeed(LF lf, float speed){
 	lf->speed = speed;
 }
 
+
 void LF_reset(LF lf){
 	PID_reset(lf->ctrl);
 	lf->lost = false;

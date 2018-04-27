@@ -13,6 +13,8 @@
 static void Arbiter_updateCurrentAction(Arbiter arbiter);
 static void Arbiter_startNewAction(Arbiter arbiter, uint8_t action);
 
+static uint32_t calibrationCounter = 0; // Counter used for calibration procedure
+
 Arbiter Arbiter_init(LF lf, LS ls, Magnet magnet, Motors motors, Memory memory){
   Arbiter arbiter = malloc(sizeof(__Arbiter));
 	
@@ -131,6 +133,14 @@ void Arbiter_update(Arbiter arbiter){
 		
 			break;
       
+    case STATE_CALIBRATE:
+      IO_set(IO_MOTOR_EN, 0);
+      LS_calibrate(arbiter->ls);
+      
+      if(++calibrationCounter > CALIBRATION_TIME * SENSOR_SAMPLE_FREQ){
+        arbiter->state = STATE_READY;
+      }
+      break;  
       
 		case STATE_STOP:
 		default:
@@ -139,6 +149,23 @@ void Arbiter_update(Arbiter arbiter){
 	}
 
 }
+
+void Arbiter_startCalibration(Arbiter arbiter){
+  LS_preCallibration(arbiter->ls);
+  arbiter->state = STATE_CALIBRATE;
+  calibrationCounter = 0;
+  
+}
+
+float Arbiter_calibrationDone(Arbiter arbiter){
+  if(calibrationCounter == 0) {
+    return 100.0;
+  } else {
+    return 100.0 * calibrationCounter/(CALIBRATION_TIME * SENSOR_SAMPLE_FREQ);
+  }
+  
+}
+
 
 void Arbiter_reset(Arbiter arbiter){
 	arbiter->state = STATE_READY;

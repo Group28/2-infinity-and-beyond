@@ -23,7 +23,7 @@
 
 #define MOTOR_KT 								0.0076 	// Motor Kt [Nm/A] 
 
-
+#define CALIBRATION_TIME        10       // Time for calibration [s]
 
 #define ROTATION_SPEED          3
 

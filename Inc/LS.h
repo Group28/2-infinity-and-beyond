@@ -18,6 +18,9 @@ enum LS_pattern {LS_patternA, LS_patternB};
 typedef struct {
   uint16_t * rawReading;      //< Pointer to raw ADC reading values
   
+  float32_t calibrationLow[IR_SENSOR_COUNT];
+  float32_t calibrationHigh[IR_SENSOR_COUNT];
+  
   float32_t readingsPatternA[IR_SENSOR_COUNT * SENSOR_OVERSAMPLE]; //< processed values from first pattern
   float32_t readingsPatternB[IR_SENSOR_COUNT * SENSOR_OVERSAMPLE]; //< processed values from second pattern
 	
@@ -95,6 +98,22 @@ void LS_getProcessedValues(LS ls, float32_t * values);
  * @return line detected
  */
 bool LS_catchLine(LS ls);
+
+
+/*
+ * Calibrate line sensors
+ *
+ * @param ls handle
+ */
+void LS_calibrate(LS ls);
+
+
+/*
+ * CMust be called before callibration
+ *
+ * @param ls handle
+ */
+void LS_preCallibration(LS ls);
 
 /**
  * Reset line sensor;

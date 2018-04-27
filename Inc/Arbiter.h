@@ -20,7 +20,8 @@ enum buggy_state {
 	STATE_BACK_TRACK,
 	STATE_STOP,
 	STATE_LOST_F,
-	STATE_LOST_B
+	STATE_LOST_B,
+	STATE_CALIBRATE
 };
 
 
@@ -75,5 +76,22 @@ void Arbiter_reset(Arbiter arbiter);
  * @return
  */
 void Arbiter_startRace(Arbiter arbiter);
+
+
+/*
+ * Start calibration procedure
+ *
+ * @return
+ */
+void Arbiter_startCalibration(Arbiter arbiter);
+
+
+
+/**
+ * Calibration procedure percentage done
+ *
+ * @return percentage completion
+ */
+float Arbiter_calibrationDone(Arbiter arbiter);
 
 #endif

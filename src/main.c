@@ -194,8 +194,21 @@ void printDebugInfo(void)
 	USART_printf(esp, "JSON={\"counter\":%d,\"0\":%.4f,\"1\":%.4f,\"2\":%.4f,\"3\":%.4f,\"4\":%.4f,\"5\":%.4f,\"M\":%.4f,",
 					counter++, conv[0], conv[1], conv[2], conv[3],conv[4],conv[5], rawADC[6]/4096.0);
 	USART_printf(esp, "\"battV\":%.4f,\"battC\":%.4f,\"battA\":%.4f,\"battT\":%.4f,", voltage, current, accum*1000, temperature);
-	USART_printf(esp, "\"mSL\":%.4f,\"mSR\":%.4f,\"mDL\":%.4f,\"mDR\":%.4f,\"mEL\":%.4f,\"mER\":%.4f,\"adc\":%d,\"sum\":%.4f,\"state\":%d,\"linePos\":%f,", Encoder_getSpeed(encoderLeft), Encoder_getSpeed(encoderRight), Encoder_getDistance(encoderLeft), Encoder_getDistance(encoderRight),motors->motorLeft->effort, motors->motorRight->effort,analogConversions,LS_getWeightedSum(ls),arbiter->state, LS_getWeightedSum(ls));
-	USART_printf(esp, "\"other\":{\"Value1\":%d,\"Value2\":%d,\"Value X\":%d}}\r", 2,3,4);
+	USART_printf(esp, "\"mSL\":%.4f,\"mSR\":%.4f,\"mDL\":%.4f,\"mDR\":%.4f,\"mEL\":%.4f,\"mER\":%.4f,\"adc\":%d,\"sum\":%.4f,\"state\":%d,\"linePos\":%f,\"other\":{", Encoder_getSpeed(encoderLeft), Encoder_getSpeed(encoderRight), Encoder_getDistance(encoderLeft), Encoder_getDistance(encoderRight), motors->motorLeft->effort,  motors->motorRight->effort,analogConversions,LS_getWeightedSum(ls),arbiter->state, LS_getWeightedSum(ls));
+	
+	USART_printf(esp, "\"Calibration Values Low: \":\"%.2f,%.2f,%.2f,%.2f,%.2f,%.2f\",",
+				ls->calibrationLow[0],ls->calibrationLow[1],ls->calibrationLow[2],ls->calibrationLow[3],ls->calibrationLow[4],ls->calibrationLow[5]);
+	USART_printf(esp, "\"Calibration Values Hight: \":\"%.2f,%.2f,%.2f,%.2f,%.2f,%.2f\",",
+				ls->calibrationHigh[0],ls->calibrationHigh[1],ls->calibrationHigh[2],ls->calibrationHigh[3],ls->calibrationHigh[4],ls->calibrationHigh[5]);
+	USART_printf(esp, "\"TIM2 TIM5: \":\"%d %d\",",LL_TIM_GetCounter(TIM2),LL_TIM_GetCounter(TIM5));
+	USART_printf(esp, "\"ELR ELR: \":\"%f %f\"",Encoder_getRevolutions(encoderLeft),Encoder_getRevolutions(encoderRight));
+	
+	if(arbiter->state == STATE_CALIBRATE){
+			USART_printf(esp, ",\"Calibration Done: \": %.1f", Arbiter_calibrationDone(arbiter));
+		
+	}
+	
+	USART_printf(esp, "}}\r");
 }
 
 // Handle CMD input
@@ -250,7 +263,7 @@ void handleCMD(){
 			LS_reset(ls);
 			Arbiter_reset(arbiter);
 			Memory_clear(memory);
-		
+			Motors_reset(motors);
 		
 		
 		} else if(strcmp(cmd, "clear") == 0){ // Clears the screen
@@ -260,6 +273,10 @@ void handleCMD(){
 		
 		} else if(strcmp(cmd, "start") == 0){ // Starts the race
 			Arbiter_startRace(arbiter);
+			
+		} else if(strcmp(cmd, "calib") == 0){ // Starts the race
+			Arbiter_startCalibration(arbiter);
+		
 		
 		
 		
@@ -548,6 +565,7 @@ void Analog_TransferComplete(){
 	analogConversions++; // Count number of conversions
 	LS_update(lf->ls); // Update the line sensor
 	if(ls->newData){ // If there is new data, update the arbiter
+		ls->newData = false;
 		Arbiter_update(arbiter);
 	}
 }

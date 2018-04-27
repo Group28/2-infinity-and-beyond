@@ -28,6 +28,8 @@ LS LS_init(Analog adc, SR sr){
       ls->readingsPatternB[SENSOR_OVERSAMPLE * j + i] = 0;
     }
 		ls->processedReadings[i] = 0;
+    ls->calibrationLow[i] = 0;
+    ls->calibrationHigh[i] = 1;
 	}
   
   return ls;
@@ -111,7 +113,15 @@ float LS_getWeightedSum(LS ls){
 
 void LS_getProcessedValues(LS ls, float32_t * values){
 	ls->newData = false;
-	memcpy(values, ls->processedReadings, IR_SENSOR_COUNT * sizeof(float32_t));
+  arm_sub_f32(ls->processedReadings, ls->calibrationLow, values, IR_SENSOR_COUNT);
+  for(int i = 0; i < IR_SENSOR_COUNT; i++){
+    values[i] /= (ls->calibrationHigh[i] - ls->calibrationLow[i]);
+                
+    if(values[i] > 1)
+      values[i] = 1;
+    else if(values[i] < 0)
+      values[i] = 0;
+  }
 }
 
 bool LS_catchLine(LS ls){
@@ -143,6 +153,25 @@ void averageAndBound(float32_t * src, float32_t * dest, uint32_t length){
     if(dest[i] > 1) dest[i] = 1;
   }
 }
+
+
+void LS_calibrate(LS ls){
+	for(int i = 0; i< IR_SENSOR_COUNT; i++){
+    if(ls->processedReadings[i] < ls->calibrationLow[i]){
+      ls->calibrationLow[i] = ls->processedReadings[i];
+    } else if(ls->processedReadings[i] > ls->calibrationHigh[i]){
+      ls->calibrationHigh[i] = ls->processedReadings[i];
+    }
+  }
+}
+
+void LS_preCallibration(LS ls){
+  for(uint8_t i = 0; i< IR_SENSOR_COUNT; i++){
+    ls->calibrationLow[i] = 1;
+    ls->calibrationHigh[i] = 0;
+  }
+}
+
 
 void LS_reset(LS ls){
 	ls->state = LS_patternA;
