@@ -194,7 +194,7 @@ void printDebugInfo(void)
 	USART_printf(esp, "JSON={\"counter\":%d,\"0\":%.4f,\"1\":%.4f,\"2\":%.4f,\"3\":%.4f,\"4\":%.4f,\"5\":%.4f,\"M\":%.4f,",
 					counter++, conv[0], conv[1], conv[2], conv[3],conv[4],conv[5], rawADC[6]/4096.0);
 	USART_printf(esp, "\"battV\":%.4f,\"battC\":%.4f,\"battA\":%.4f,\"battT\":%.4f,", voltage, current, accum*1000, temperature);
-	USART_printf(esp, "\"mSL\":%.4f,\"mSR\":%.4f,\"mDL\":%.4f,\"mDR\":%.4f,\"mEL\":%.4f,\"mER\":%.4f,\"adc\":%d,\"sum\":%.4f,\"state\":%d,", Encoder_getSpeed(encoderLeft), Encoder_getSpeed(encoderRight), Encoder_getDistance(encoderLeft), Encoder_getDistance(encoderRight),motors->motorLeft->effort, motors->motorRight->effort,analogConversions,LS_getWeightedSum(ls),arbiter->state);
+	USART_printf(esp, "\"mSL\":%.4f,\"mSR\":%.4f,\"mDL\":%.4f,\"mDR\":%.4f,\"mEL\":%.4f,\"mER\":%.4f,\"adc\":%d,\"sum\":%.4f,\"state\":%d,\"linePos\":%f,", Encoder_getSpeed(encoderLeft), Encoder_getSpeed(encoderRight), Encoder_getDistance(encoderLeft), Encoder_getDistance(encoderRight),motors->motorLeft->effort, motors->motorRight->effort,analogConversions,LS_getWeightedSum(ls),arbiter->state, LS_getWeightedSum(ls));
 	USART_printf(esp, "\"other\":{\"Value1\":%d,\"Value2\":%d,\"Value X\":%d}}\r", 2,3,4);
 }
 

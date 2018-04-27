@@ -221,6 +221,28 @@ String webSite =R"(
        .mLValues, .mRValues{
          color: white;
        }
+       #line{
+         margin-left: 295px;
+         transform: rotateZ(0deg);
+         background: white;
+         width: 60px;
+         height: 800px;
+         left: 83px;
+         margin-top: -10px;
+         box-shadow: white 0 0px 39px;
+       }
+       
+       .B-line{
+         background: #8a8e9a;
+          width: 660px;
+          height: 774px;
+          display: inline-block;
+          position: absolute;
+          z-index: -10;
+          margin-left: -330px;
+          border-radius: 10px;
+          margin-top: -114px;
+       }
       </style>
     
     </head>
@@ -237,6 +259,9 @@ String webSite =R"(
       <pre id='rx' style='padding: 10px 0 5px 5px; background: rgb(228,228,228); max-height:30em; overflow: auto'></pre>
       </div>
       <div class="widgets">
+        <div class="B-line">
+          <div id="line"></div>
+        </div>
         <div class="buggy">
           <div class="sensorBoard">
             <h3> Sensors </h3>
@@ -336,6 +361,10 @@ String webSite =R"(
       element.innerHTML  += name + ": " + value + "<br>";  
     }
     
+    function setLinePosition(value){
+      var element = document.getElementById("line");
+      element.style.marginLeft = (295 + (value*160))+"px"
+    }
     
     
     function setStatus(status){
@@ -388,6 +417,8 @@ String webSite =R"(
           setDisp("mER", msg["mER"]);
           setVal("ADC", msg["adc"]);
           setVal("sum", msg["sum"]);
+          
+          setLinePosition(msg["linePos"]);
           
           var state = ""
           switch(msg["state"]){
