@@ -29,17 +29,24 @@ Encoder Encoder_init(TIM_TypeDef * timer, double samplePeriod, uint16_t ticks_pe
 	return encoder;
 }
 
-double Encoder_getSpeed(Encoder encoder){
+double Encoder_getAngularSpeed(Encoder encoder){
 	return encoder->speed;
+}
+double Encoder_getSpeed(Encoder encoder){
+	return encoder->speed * 2 * 3.141592 * WHEEL_RADIUS;
 }
 
 double Encoder_getRevolutions(Encoder encoder){
 	return encoder->revolutions;
 }
+double Encoder_getDistance(Encoder encoder){
+	return encoder->revolutions * 2 * 3.141592 * WHEEL_RADIUS;
+}
 
 void Encoder_reset(Encoder encoder){
 	encoder->speed = 0;
-	encoder->revolutions=0;
+	encoder->revolutions = 0;
+	encoder->lastCount = 0;
 	Encoder_resetCounter(encoder);
 	
 }
