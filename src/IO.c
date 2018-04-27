@@ -203,7 +203,7 @@ void IO_initEncoders(void){
 	
 	LL_TIM_CC_EnableChannel(TIM5, LL_TIM_CHANNEL_CH1);
 	LL_TIM_CC_EnableChannel(TIM5, LL_TIM_CHANNEL_CH2);
-	TIM5->CCMR1 = 0xF1F1;
+	//TIM5->CCMR1 = 0xF1F1;
 	LL_TIM_EnableCounter(TIM5);
 	LL_TIM_GenerateEvent_UPDATE(TIM5);
 
@@ -247,7 +247,7 @@ void IO_initEncoders(void){
 	
 	LL_TIM_CC_EnableChannel(TIM2, LL_TIM_CHANNEL_CH1);
 	LL_TIM_CC_EnableChannel(TIM2, LL_TIM_CHANNEL_CH2);
-	TIM5->CCMR1 = 0xF1F1;
+	//TIM5->CCMR1 = 0xF1F1;
 	LL_TIM_EnableCounter(TIM2);
 	LL_TIM_GenerateEvent_UPDATE(TIM2);
 

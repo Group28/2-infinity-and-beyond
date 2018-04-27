@@ -13,6 +13,7 @@ static void Encoder_resetCounter(Encoder encoder){
 		LL_TIM_SetCounter(encoder->timer, 0);
 		NVIC_EnableIRQ(TIM5_IRQn);	
 	}
+	LL_TIM_GenerateEvent_UPDATE(encoder->timer);
 	
 }
 
