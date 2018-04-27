@@ -76,7 +76,7 @@ DS2781 DS2781_init(GPIO_TypeDef *port, uint32_t pin){
 
 
 
-void DS2781_write8bitReg(DS2781 ds, uint8_t addr, uint8_t data){
+inline void DS2781_write8bitReg(DS2781 ds, uint8_t addr, uint8_t data){
   if(OW_reset(ds->ow)){
     OW_writeByte(ds->ow, DS2781_SKIP_NETADDRESS);
     OW_writeByte(ds->ow, DS2781_WRITE_DATA);
@@ -85,7 +85,7 @@ void DS2781_write8bitReg(DS2781 ds, uint8_t addr, uint8_t data){
   }
 }
 
-void DS2781_write16bitReg(DS2781 ds, uint8_t addr, uint16_t data){
+inline void DS2781_write16bitReg(DS2781 ds, uint8_t addr, uint16_t data){
   if(OW_reset(ds->ow)){
     OW_writeByte(ds->ow, DS2781_SKIP_NETADDRESS);
     OW_writeByte(ds->ow, DS2781_WRITE_DATA);
@@ -96,7 +96,7 @@ void DS2781_write16bitReg(DS2781 ds, uint8_t addr, uint16_t data){
 }
 
 
-uint8_t DS2781_read8bitReg(DS2781 ds, uint8_t addr){
+inline uint8_t DS2781_read8bitReg(DS2781 ds, uint8_t addr){
   uint8_t result = 0;
   if(OW_reset(ds->ow)){
     OW_writeByte(ds->ow, DS2781_SKIP_NETADDRESS);
@@ -108,7 +108,7 @@ uint8_t DS2781_read8bitReg(DS2781 ds, uint8_t addr){
   return result;
 }
 
-uint16_t DS2781_read16bitReg(DS2781 ds, uint8_t addr){
+inline uint16_t DS2781_read16bitReg(DS2781 ds, uint8_t addr){
   uint16_t result = 0;
   if(OW_reset(ds->ow)){
     OW_writeByte(ds->ow, DS2781_SKIP_NETADDRESS);
@@ -120,7 +120,8 @@ uint16_t DS2781_read16bitReg(DS2781 ds, uint8_t addr){
   }
   return result;
 }
-uint32_t DS2781_read32bitReg(DS2781 ds, uint8_t addr){
+
+inline uint32_t DS2781_read32bitReg(DS2781 ds, uint8_t addr){
   uint32_t result = 0;
   if(OW_reset(ds->ow)){
     OW_writeByte(ds->ow, DS2781_SKIP_NETADDRESS);
@@ -135,7 +136,7 @@ uint32_t DS2781_read32bitReg(DS2781 ds, uint8_t addr){
   return result;
 }
 
-uint64_t DS2781_read64bitReg(DS2781 ds, uint8_t addr){
+ inline uint64_t DS2781_read64bitReg(DS2781 ds, uint8_t addr){
   uint64_t result = 0;
   if(OW_reset(ds->ow)){
     OW_writeByte(ds->ow, DS2781_SKIP_NETADDRESS);

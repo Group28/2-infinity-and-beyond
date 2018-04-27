@@ -169,7 +169,7 @@ void DS2781_updateControlRegister (DS2781 ds, uint8_t control);
  * @param 
  * @return 
  */
-inline uint8_t DS2781_readRAM (DS2781 ds, uint8_t addr);
+uint8_t DS2781_readRAM (DS2781 ds, uint8_t addr);
 
 
 /*
@@ -178,7 +178,7 @@ inline uint8_t DS2781_readRAM (DS2781 ds, uint8_t addr);
  * @param 
  * @return 
  */
-inline void DS2781_writeRAM (DS2781 ds, uint8_t addr, uint8_t byte);
+void DS2781_writeRAM (DS2781 ds, uint8_t addr, uint8_t byte);
 
 /*
  * Copies EEPROM content to address
@@ -186,7 +186,7 @@ inline void DS2781_writeRAM (DS2781 ds, uint8_t addr, uint8_t byte);
  * @param ds - sensor handle
  * @param addr - register address
  */
-inline void DS2781_copyEEPROM (DS2781 ds, uint8_t addr);
+void DS2781_copyEEPROM (DS2781 ds, uint8_t addr);
 
 /*
  * Unused
