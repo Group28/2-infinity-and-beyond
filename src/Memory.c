@@ -1,5 +1,7 @@
 #include "Memory.h"
 #include <stdlib.h>
+#include <stdbool.h>
+#include "configuration.h"
 
 Action * Action_init(uint8_t actionType, float distance){
   Action * action = malloc(sizeof(Action)); // Allocate space for action on the Heap
@@ -20,19 +22,25 @@ Memory Memory_init(void){
   // Initialzie memory to 0
   mem->length = 0;
   mem->action = NULL;
-  
+  mem->full = false;
   return mem;
 }
 
 void Memory_push(Memory memory, Action * action){
   
-  // Update current action to point to previous action
-  action->previous = memory->action;
-  action->next = NULL;
+  if(memory->length + 1 < MAX_ACTIONS){
   
-  // Add action to stack
-  memory->action = action;
-  memory->length += 1; // Increment length
+    // Update current action to point to previous action
+    action->previous = memory->action;
+    action->next = NULL;
+    
+    // Add action to stack
+    memory->action = action;
+    memory->length += 1; // Increment length
+  } else {
+    free(action);
+    memory->full = true;
+  }
 }
 
 
@@ -68,4 +76,5 @@ void Memory_clear(Memory memory){
   while(memory->action != NULL){ // While we have actions in the memory
     Memory_popAction(memory); // Remove the top action
   }
+  memory->full = false;
 }
