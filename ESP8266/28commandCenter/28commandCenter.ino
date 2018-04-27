@@ -180,6 +180,7 @@ String webSite =R"(
           position: absolute;
           border-radius: 5px;
           left: -95px;
+           color: white;
         }
         .motorR{
           width: 100px;
@@ -189,6 +190,7 @@ String webSite =R"(
           position: absolute;
           border-radius: 5px;
           right: -95px;
+           color: white;
         }
         
         .microchip{
@@ -210,7 +212,15 @@ String webSite =R"(
           border-radius: 10px;
           right: 20px;
         }
-      
+        
+        .microchipValues, .batteryValues, .mLValues, .mRValues{
+          text-align: left;
+          padding: 5px;
+    
+        }
+       .mLValues, .mRValues{
+         color: white;
+       }
       </style>
     
     </head>
@@ -244,9 +254,27 @@ String webSite =R"(
           <div class="buggyBody">
             <div class="microchip">
               <h3> STM32F401RE </h3>
+              
+              <div class="microchipValues">
+              ADC count: <span id="sensorADCVal"></span>
+              <br>
+              Sum: <span id="sensorsumVal"> </span>
+              <br>
+              State: <span id="sensorstateVal"> </span>
+              </div>
             </div>
             <div class="battery">
               <h3>Battery </h3>
+              <div class="batteryValues">
+              Voltage:  <span id="sensorbattVVal"></span>V
+              <br>
+              Current:  <span id="sensorbattCVal"></span>A
+              <br>
+              Accum I:  <span id="sensorbattAVal"></span>mAh
+              <br>
+              Temperature:  <span id="sensorbattTVal"></span>*C
+              <br>
+              </div>
             </div>
             <div class="motorboard">
               <h3>Motor board </h3>
@@ -255,9 +283,23 @@ String webSite =R"(
             
             <div class="motorL">
               <h3>Motor L  </h3>
+              <div class="mLValues">
+              Speed:<span id="sensormSLVal"></span>m/s
+              <br>
+              Dist:<span id="sensormDLVal"></span>m
+              <br>
+              Effort:<span id="sensormELVal"></span>
+              </div>
             </div>
             <div class="motorR">
               <h3>Motor R </h3>
+              <div class="mRValues">
+              Speed: <span id="sensormSRVal"></span>m/s
+              <br>
+              Dist: <span id="sensormDRVal"></span>m
+              <br>
+              Effort:<span id="sensormERVal"></span>
+              </div>
             </div>
           </div>
         </div>
@@ -265,13 +307,23 @@ String webSite =R"(
     </div>
     <script>
     var tm,websock,connectInterval;
+    
+    function setDisp(sensor, value){
+        var sensorSpan = document.getElementById('sensor' + sensor + 'Val');
+        sensorSpan.innerHTML = value.toFixed(3);  
+    }
+    function setVal(sensor, value){
+        var sensorSpan = document.getElementById('sensor' + sensor + 'Val');
+        sensorSpan.innerHTML = value;  
+    }
     function setSensor(sensor, value){
         var sensorSpan = document.getElementById('sensor' + sensor + 'Val');
         var sensor = document.getElementById('sensor'+sensor);
         sensorSpan.innerHTML = value.toFixed(3);
-        sensor.style.backgroundColor = "rgba(0,0,0,"+ (1 - value) +')';
-        
+        sensor.style.backgroundColor = "rgba(0,0,0,"+ (1 - value) +')';    
     }
+    
+    
     
     function setStatus(status){
       var doc = document.getElementById('status');
@@ -309,6 +361,49 @@ String webSite =R"(
           setSensor("4", msg["4"]);
           setSensor("5", msg["5"]);
           setSensor("M", msg["M"]);
+          
+          setDisp("battV", msg["battV"]);
+          setDisp("battC", msg["battC"]);
+          setDisp("battA", msg["battA"]);
+          setDisp("battT", msg["battT"]);
+          
+          setDisp("mSL", msg["mSL"]);
+          setDisp("mSR", msg["mSR"]);
+          setDisp("mDL", msg["mDL"]);
+          setDisp("mDR", msg["mDR"]);
+          setDisp("mEL", msg["mEL"]);
+          setDisp("mER", msg["mER"]);
+          setVal("ADC", msg["adc"]);
+          setVal("sum", msg["sum"]);
+          
+          var state = ""
+          switch(msg["state"]){
+            case 0:
+              state = "Ready";
+              break;
+            case 1:
+              state = "Forward Tracking";
+              break;
+            case 2:
+              state = "Turn";
+              break;
+            case 3:
+              state = "Back Tracking";
+              break;
+            case 4:
+              state = "Stop";
+              break;
+            case 5:
+              state = "Lost forward tracking";
+              break;
+            case 6:
+              state = "Lost back tracking"
+              break;
+            
+          }
+          
+          setVal("state", state);
+
           
         } else {
           var element = document.getElementById('rx');
@@ -380,6 +475,7 @@ String webSite =R"(
     
     </body>
    </html>
+
 
 )";
   
