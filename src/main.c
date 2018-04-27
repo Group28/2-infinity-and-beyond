@@ -59,35 +59,27 @@ int adcErrors = 0;
 /* Default main function */
 
 int main(void){
-	Init_buggy();
-	startSound();
+	Init_buggy(); // Initialize the buggy
+	startSound(); // Play confirmation sound for buggy ready
 	
-	Motors_setSpeed(motors, 0, 0);
+	Motors_setSpeed(motors, 0, 0); // Stop motors
+	LL_EXTI_ClearFlag_0_31(LL_EXTI_LINE_13); // Clear button interrupt flag triggered by startup=
+	NVIC_EnableIRQ(EXTI15_10_IRQn); // Enable IRQ for EXTI line 13 in NVIC
 
 	int counter = 0;
 	
 	/* Infinite loop */
 	while(1){
+		handleCMD(); // Read commands sent over serial
 		
-		
-		
-		
-		handleCMD();
-		
-		delay_ms(200);
+		delay_ms(200);  // Loop dealy
 		if(counter%2 == 0){
-			printDebugInfo();
+			printDebugInfo(); // Every other time, print debug infromation to the serial
 		}
 		counter++;
 	}
 }
 
-#else
-
-/* Simulated main function -> use to test code */
-
-int main(void){
-}
 #endif
 
 /* Initialize all peripherials of the buggy */
@@ -142,8 +134,10 @@ void Init_buggy(){
 	// Initialize DMA controller
 	DMA_init(DMA_getBuffers(esp, adc)); // usb, lcd, adc));
 	
+	// Initialize line follower
 	lf = LF_init(motors, ls);
 	
+	// Initialize memory handler
 	memory = Memory_init();
 	
 	// Initialize main task arbiter
@@ -153,6 +147,8 @@ void Init_buggy(){
 	Timers_init();
 }
 
+
+// Sound played at Initialization time
 void startSound(void){
 		for(int freq =200; freq <=800; freq += 100){
 		IO_setSpeakerFreq(freq);
@@ -164,93 +160,110 @@ void startSound(void){
 		delay(0.1);
 	
 	}
-	IO_setSpeakerFreq(25000);
+	IO_setSpeakerFreq(25000); // Turn the speaker off by playing high frequency
 
 }
 
-
+// Prints debug information to Wifi Serial
 void printDebugInfo(void)
 {
-
-	double voltage = 0;
-	double current = 0;
-	double accum = 0;
-	double temperature = 0;
-	static uint8_t counter =0;
+	// Init variables used for debugging
+	static double voltage = 0;  // Battery voltage
+	static double current = 0; // Battery current=
+	static double accum = 0;   // Battery accumulated current
+	static double temperature = 0;  // Battery temperature
+	static uint32_t counter =0; // Loop counter
 	
 	
-	float32_t conv[6];
+	float32_t conv[6]; // Sensorvalues array 
 	//DS2781_resetAccumulatedCurrent(battery);
-	uint16_t * rawADC = Analog_getValues(adc);
+	uint16_t * rawADC = Analog_getValues(adc); // Raw ADC values (used for magnetic sensor)
 	
-	LS_getProcessedValues(ls, conv);
+	LS_getProcessedValues(ls, conv); // Get processed values from Line Sensors
 	
-	
-	voltage = DS2781_readVoltage(battery);
-	current = DS2781_readCurrent(battery);
+	// Get battery voltage and current information from chip once every few cycles
+	if(counter % 4 == 0){
+		voltage = DS2781_readVoltage(battery);
+		current = DS2781_readCurrent(battery);
 			
-	accum = DS2781_readAccumulatedCurrent(battery);
-	temperature = DS2781_readTemperature(battery);
-			
+		accum = DS2781_readAccumulatedCurrent(battery);
+		temperature = DS2781_readTemperature(battery);
+	}
+	
+	// Send data to Wifi using JSON
 	USART_printf(esp, "JSON={\"counter\":%d,\"0\":%.4f,\"1\":%.4f,\"2\":%.4f,\"3\":%.4f,\"4\":%.4f,\"5\":%.4f,\"M\":%.4f,",
 					counter++, conv[0], conv[1], conv[2], conv[3],conv[4],conv[5], rawADC[6]/4096.0);
 	USART_printf(esp, "\"battV\":%.4f,\"battC\":%.4f,\"battA\":%.4f,\"battT\":%.4f,", voltage, current, accum*1000, temperature);
-	USART_printf(esp, "\"mSL\":%.4f,\"mSR\":%.4f,\"mDL\":%.4f,\"mDR\":%.4f,\"mEL\":%.4f,\"mER\":%.4f,\"adc\":%d,\"sum\":%.4f,\"state\":%d}\r", Encoder_getSpeed(encoderLeft)*2*3.141592*WHEEL_RADIUS, Encoder_getSpeed(encoderRight)*2*3.141592*WHEEL_RADIUS, Encoder_getRevolutions(encoderLeft)*2*3.141592*WHEEL_RADIUS, Encoder_getRevolutions(encoderRight)*2*3.141592*WHEEL_RADIUS,motors->motorLeft->effort, motors->motorRight->effort,analogConversions,LS_getWeightedSum(ls),arbiter->state);
-
-
-	//USART_printf(esp, "Raw ADC \"0\":%d, \"1\":%d, \"2\":%d, \"3\":%d\"4\":%d, \"5\":%d, \"M\":%d\n", rawADC[0], rawADC[1], rawADC[2], rawADC[3],rawADC[4],rawADC[5],rawADC[6]);
-	//USART_printf(esp, "Raw LS_A \"0\":%f, \"1\":%f, \"2\":%f, \"3\":%f \"4\":%f, \"5\":%f\n", ls->processedReadingsA[0], ls->processedReadingsA[1], ls->processedReadingsA[2], ls->processedReadingsA[3],ls->processedReadingsA[4],ls->processedReadingsA[5]);
-	//USART_printf(esp, "Raw LS_B \"0\":%f, \"1\":%f, \"2\":%f, \"3\":%f \"4\":%f, \"5\":%f\n", ls->processedReadingsB[0], ls->processedReadingsB[1], ls->processedReadingsB[2], ls->processedReadingsB[3],ls->processedReadingsB[4],ls->processedReadingsB[5]);
-	//USART_printf(esp, "Raw LS_C \"0\":%f, \"1\":%f, \"2\":%f, \"3\":%f \"4\":%f, \"5\":%f\n", ls->processedReadings[0], ls->processedReadings[1], ls->processedReadings[2], ls->processedReadings[3],ls->processedReadings[4],ls->processedReadings[5]);
-
-	USART_printf(esp, "LF 23dif: %f, 45dif: %f\n", lf->values[0], lf->values[1]);
-
+	USART_printf(esp, "\"mSL\":%.4f,\"mSR\":%.4f,\"mDL\":%.4f,\"mDR\":%.4f,\"mEL\":%.4f,\"mER\":%.4f,\"adc\":%d,\"sum\":%.4f,\"state\":%d,", Encoder_getSpeed(encoderLeft), Encoder_getSpeed(encoderRight), Encoder_getDistance(encoderLeft), Encoder_getDistance(encoderRight),motors->motorLeft->effort, motors->motorRight->effort,analogConversions,LS_getWeightedSum(ls),arbiter->state);
+	USART_printf(esp, "\"other\":{\"Value1\":%d,\"Value2\":%d,\"Value X\":%d}}\r", 2,3,4);
 }
 
-
-
+// Handle CMD input
 void handleCMD(){
+	//  If there is new data to be read in the buffer
 	if(esp->buffRX.send){
-		esp->buffRX.send = 0;
-		char cmd[10];
-		char target[10];
-		double value0;
+		
+		// Command arguments
+		char cmd[10];    // Command
+		char target[10]; // Target of command
+		double value0;   // Parameters 0-5
 		double value1;
 		double value2;
 		double value3;
 		double value4;
 		double value5;
 		
-		sscanf(esp->buffRX.buffer, "%s %s %lf %lf %lf %lf %lf %lf", cmd, target, &value0, &value1, &value2, &value3, &value4, &value5);
+		esp->buffRX.send = 0; // Reset the flag
+		sscanf(esp->buffRX.buffer, "%s %s %lf %lf %lf %lf %lf %lf", cmd, target, &value0, &value1, &value2, &value3, &value4, &value5); // Parse the message
 		
 		
 		USART_printf(esp, "\n    \n");
+		// Branch on command
 		if(strcmp(cmd, "stop") == 0 || strcmp(cmd, "STOP") == 0 || strcmp(cmd, "f") == 0){
-			IO_set(IO_MOTOR_EN, 0);
+			IO_set(IO_MOTOR_EN, 0); // Emergency stop
 			Motors_setSpeed(motors, 0, 0);
-		} else if(strcmp(cmd, "w") == 0){
+			arbiter->state = STATE_STOP;
+		
+		
+		
+		} else if(strcmp(cmd, "w") == 0){ // w s a d, remote controll
 			IO_set(IO_MOTOR_EN, 1);
 			Motors_setSpeed(motors, 2, 2);
+		
 		} else if(strcmp(cmd, "s") == 0){
 			IO_set(IO_MOTOR_EN, 1);
 			Motors_setSpeed(motors, -2, -2);
+		
 		} else if(strcmp(cmd, "a") == 0){
 			IO_set(IO_MOTOR_EN, 1);
 			Motors_setSpeed(motors, 0.8, 2);
+		
 		} else if(strcmp(cmd, "d") == 0){
 			IO_set(IO_MOTOR_EN, 1);
 			Motors_setSpeed(motors, 2, 0.8);
-		} else if(strcmp(cmd, "reset") == 0){
+		
+		
+		
+		} else if(strcmp(cmd, "reset") == 0){ // Resets the buggy for a new race.
 			IO_set(IO_MOTOR_EN, 0);
 			LF_reset(lf);
 			LS_reset(ls);
 			Arbiter_reset(arbiter);
 			Memory_clear(memory);
-		} else if(strcmp(cmd, "clear") == 0){
+		
+		
+		
+		} else if(strcmp(cmd, "clear") == 0){ // Clears the screen
 			USART_printf(esp, "\n\n\n\n\n\n\n\n\n\n\n\n");
-		} else if(strcmp(cmd, "start") == 0){
-			arbiter->state = STATE_FORWARD_TRACK;
-		} else if(strcmp(target, "MRP") == 0){
+		
+		
+		
+		} else if(strcmp(cmd, "start") == 0){ // Starts the race
+			Arbiter_startRace(arbiter);
+		
+		
+		
+		} else if(strcmp(target, "MRP") == 0){   // Motor Right P value
 			if(strcmp(cmd, "get") == 0){
 				
 			} else if(strcmp(cmd, "set") == 0){
@@ -259,7 +272,10 @@ void handleCMD(){
 				printHelp();
 			}
 			USART_printf(esp, "Motor right P: %f\n", PID_getP(motors->motorRight->pid));
-		} else if(strcmp(target, "MRI") == 0){
+		
+		
+		
+		} else if(strcmp(target, "MRI") == 0){ // Motor Right I value
 			if(strcmp(cmd, "get") == 0){
 				
 			} else if(strcmp(cmd, "set") == 0){
@@ -268,7 +284,11 @@ void handleCMD(){
 				printHelp();
 			}
 			USART_printf(esp, "Motor right I: %f\n", PID_getI(motors->motorRight->pid));
-		} else if(strcmp(target, "MRD") == 0){
+		
+		
+		
+		
+		} else if(strcmp(target, "MRD") == 0){ // Motor Right D value
 			if(strcmp(cmd, "get") == 0){
 				
 			} else if(strcmp(cmd, "set") == 0){
@@ -277,7 +297,10 @@ void handleCMD(){
 				printHelp();
 			}
 			USART_printf(esp, "Motor right D: %f\n", PID_getD(motors->motorRight->pid));
-		} else if(strcmp(target, "MLP") == 0){
+		
+		
+		
+		} else if(strcmp(target, "MLP") == 0){  // Motor Left P value
 			if(strcmp(cmd, "get") == 0){
 				
 			} else if(strcmp(cmd, "set") == 0){
@@ -286,7 +309,10 @@ void handleCMD(){
 				printHelp();
 			}
 			USART_printf(esp, "Motor left P: %f\n", PID_getP(motors->motorLeft->pid));
-		} else if(strcmp(target, "MLI") == 0){
+		
+		
+		
+		} else if(strcmp(target, "MLI") == 0){  // Motor Left I value
 			if(strcmp(cmd, "get") == 0){
 				
 			} else if(strcmp(cmd, "set") == 0){
@@ -295,7 +321,10 @@ void handleCMD(){
 				printHelp();
 			}
 			USART_printf(esp, "Motor left I: %f\n", PID_getI(motors->motorLeft->pid));
-		} else if(strcmp(target, "MLD") == 0){
+		
+		
+		
+		} else if(strcmp(target, "MLD") == 0){  // Motor Left D value
 			if(strcmp(cmd, "get") == 0){
 				
 			} else if(strcmp(cmd, "set") == 0){
@@ -304,7 +333,10 @@ void handleCMD(){
 				printHelp();
 			}
 			USART_printf(esp, "Motor left D: %f\n", PID_getD(motors->motorLeft->pid));
-		} else if(strcmp(target, "LP") == 0){
+		
+		
+		
+		} else if(strcmp(target, "LP") == 0){  // Line sensor P value
 			if(strcmp(cmd, "get") == 0){
 				
 			} else if(strcmp(cmd, "set") == 0){
@@ -313,7 +345,10 @@ void handleCMD(){
 				printHelp();
 			}
 			USART_printf(esp, "Light sensor P: %f\n", PID_getD(lf->ctrl));
-		} else if(strcmp(target, "LI") == 0){
+		
+		
+		
+		} else if(strcmp(target, "LI") == 0){  // Line sensor I value
 			if(strcmp(cmd, "get") == 0){
 				
 			} else if(strcmp(cmd, "set") == 0){
@@ -322,7 +357,10 @@ void handleCMD(){
 				printHelp();
 			}
 			USART_printf(esp, "Light sensor I: %f\n", PID_getI(lf->ctrl));
-		} else if(strcmp(target, "LD") == 0){
+		
+		
+		
+		} else if(strcmp(target, "LD") == 0){  // Line sensor D value
 			if(strcmp(cmd, "get") == 0){
 				
 			} else if(strcmp(cmd, "set") == 0){
@@ -331,7 +369,10 @@ void handleCMD(){
 				printHelp();
 			}
 			USART_printf(esp, "Light sensor D: %f\n", PID_getD(lf->ctrl));
-		} else if(strcmp(target, "MRS") == 0){
+		
+		
+		
+		} else if(strcmp(target, "MRS") == 0){  // Motor Right speed
 			if(strcmp(cmd, "get") == 0){
 				
 			} else if(strcmp(cmd, "set") == 0){
@@ -341,7 +382,10 @@ void handleCMD(){
 				printHelp();
 			}
 			USART_printf(esp, "Motor right speed: %frev/s\n",  motors->motorRight->speed);
-		} else if(strcmp(target, "MLS") == 0){
+		
+		
+		
+		} else if(strcmp(target, "MLS") == 0){  // Motor left speed
 				if(strcmp(cmd, "get") == 0){
 				
 			} else if(strcmp(cmd, "set") == 0){
@@ -352,7 +396,9 @@ void handleCMD(){
 			}
 			USART_printf(esp, "Motor left speed: %frev/s\n",  motors->motorLeft->speed);
 			
-		} else if(strcmp(target, "MS") == 0){
+		
+		
+		} else if(strcmp(target, "MS") == 0){				// Both motrs speed
 			if(strcmp(cmd, "get") == 0){
 			
 			} else if(strcmp(cmd, "set") == 0){
@@ -363,7 +409,10 @@ void handleCMD(){
 			}
 			USART_printf(esp, "Motor left speed: %frev/s\n",  motors->motorLeft->speed);
 			USART_printf(esp, "Motor right speed: %frev/s\n",  motors->motorRight->speed);
-		} else if(strcmp(target, "LS") == 0){
+		
+		
+		
+		} else if(strcmp(target, "LS") == 0){  // Line following speed
 			if(strcmp(cmd, "get") == 0){
 			
 			} else if(strcmp(cmd, "set") == 0){
@@ -374,11 +423,17 @@ void handleCMD(){
 			}
 			USART_printf(esp, "Line Followig speed: %frev/s\n",  lf->speed);
 		
-		} else if(strcmp(target, "MEM") == 0){
+		
+		
+		
+		} else if(strcmp(target, "MEM") == 0){  // Get memory content
 			if(strcmp(cmd, "get") == 0){
 				printMemory();
-			} 
-		} else if(strcmp(target, "all") == 0){
+			}
+			
+			
+			 
+		} else if(strcmp(target, "all") == 0) {   // Get all
 			if(strcmp(cmd, "get") == 0){
 				USART_printf(esp, "Motor right P: %f\n", PID_getP(motors->motorRight->pid));
 				USART_printf(esp, "Motor right I: %f\n", PID_getI(motors->motorRight->pid));
@@ -393,6 +448,10 @@ void handleCMD(){
 				USART_printf(esp, "Light sensor D: %f\n\n", PID_getD(lf->ctrl));
 				USART_printf(esp, "Motor left speed: %frev/s\n", motors->motorLeft->speed);
 				USART_printf(esp, "Motor right speed: %frev/s\n", motors->motorRight->speed);
+				
+				USART_printf(esp, "Line Followig speed: %frev/s\n",  lf->speed);
+				
+				printMemory();
 			} else {
 				printHelp();
 			}
@@ -406,11 +465,19 @@ void handleCMD(){
 
 }
 
+
+// Prints memory content
 void printMemory(void){
 	Action * act = memory->action;
 	char actionName[15];
-	int counter = 0;
-	while(act != NULL && act->next != NULL){
+	int counter = memory->length;
+	// Decide on action name
+	if(counter == 0){
+		USART_printf(esp, "Memory Empty\n"); // If the first action was a NULL, memory was empty
+		return;
+	}
+	USART_printf(esp, "Memory Content:\n");
+	while(act != NULL){
 		switch(act->actionType){
 			case ACTION_START:
 				strcpy(actionName,  "Start");
@@ -449,44 +516,43 @@ void printMemory(void){
 				strcpy(actionName,  "Other");
 				break;
 		}
-		USART_printf(esp, "%d: %s %fm\n", counter++, actionName, act->distance);
+		USART_printf(esp, "%d: %s %.4fm\n", --counter, actionName, act->distance);
 		
-		act = act->next;
+		// Get next action
+		act = act->previous;
 	}
-	if(counter == 0){
-		USART_printf(esp, "Memory Empty\n");
-	}
+	
 	
 }
 
-
+// Prints command line help
 void printHelp(){
 	USART_printf(esp, "HELP:\n  set|get [target] [value0]\n\n");
-	USART_printf(esp, "Targets:\nML[P|I|D] - Motor left [P|I|D]\nMR[P|I|D] - Motor right [P|I|D]\nL[P|I|D] - Light sensors [P|I|D]\n");
+	USART_printf(esp, "Targets:\nML[P|I|D|S] - Motor left [P|I|D|speed]\nMR[P|I|D|S] - Motor right [P|I|D|speed]\nL[P|I|D|S] - Light sensors [P|I|D|speed]\nMEM - print memory\n ");
 }
 
-
+// Button interupt as backup to wifi start
 void EXTI15_10_IRQHandler(void){
 	
 	if(LL_EXTI_IsActiveFlag_0_31(LL_EXTI_LINE_13) != RESET)
   {
     LL_EXTI_ClearFlag_0_31(LL_EXTI_LINE_13);
 		if(arbiter->state == STATE_READY){
-			//arbiter->state = STATE_FORWARD_TRACK;
-		} else if(arbiter->state == STATE_STOP){
-			//arbiter->state = STATE_READY;
-		} 
+			Arbiter_startRace(arbiter); 
+		}
   }
 }
 
+// Analog read complet interrupt
 void Analog_TransferComplete(){
-	analogConversions++;
-	LS_update(lf->ls);
-	if(ls->newData){
+	analogConversions++; // Count number of conversions
+	LS_update(lf->ls); // Update the line sensor
+	if(ls->newData){ // If there is new data, update the arbiter
 		Arbiter_update(arbiter);
 	}
 }
 
+// Analog errors
 void Analog_TransferError(){
 	adcErrors++;
 }
