@@ -347,7 +347,7 @@ void IO_initJoyButton(void){
   } while(0);
 	LL_EXTI_EnableRisingTrig_0_31(LL_EXTI_LINE_13);
 	LL_EXTI_EnableIT_0_31(LL_EXTI_LINE_13);
-	NVIC_EnableIRQ(EXTI15_10_IRQn); // Enable IRQ for EXTI line 13 in NVIC
+	NVIC_SetPriority(EXTI15_10_IRQn, 4);
 }
 
 
