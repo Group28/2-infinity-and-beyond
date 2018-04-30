@@ -43,8 +43,8 @@
 #define ADC_SENS_SAMPLETIME     LL_ADC_SAMPLINGTIME_480CYCLES      // Sample time for current sensing sensors
 
 
-#define MAGNET_NORTH_THRESHOLD  2482   // Upper threshold for north magnetic field detection
-#define MAGNET_SOUTH_THRESHOLD  1675   // Lower threshold for south magnetic field detection
+#define MAGNET_NORTH_THRESHOLD  0.6   // Upper threshold for north magnetic field detection
+#define MAGNET_SOUTH_THRESHOLD  0.4   // Lower threshold for south magnetic field detection
 /* Communication --------------------------------------------------------------------------------------- //
 //
 // Toggles communication channels

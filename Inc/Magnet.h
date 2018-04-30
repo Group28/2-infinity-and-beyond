@@ -1,5 +1,6 @@
 #include "main.h"
 #include "Analog.h"
+#include "RA.h"
 
 #ifndef __MAGNET_H
 #define __MAGNET_H
@@ -11,7 +12,7 @@
  */
 typedef struct {
 
-	uint16_t runningAverage; //< Running average used to filter the magnetic input
+	RAf runningAverage; //< Running average used to filter the magnetic input
   uint16_t * rawReading; //< Raw magnet reading
   Analog adc;            //< ADC handle
   
