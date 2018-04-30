@@ -54,6 +54,7 @@ src/ds2781.c \
 src/Encoders.c \
 src/IO.c \
 src/LF.c \
+src/RA.c \
 src/LS.c \
 src/Magnet.c \
 src/Memory.c \
