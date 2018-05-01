@@ -9,7 +9,7 @@
 */
 
 #define WHEEL_RADIUS 						0.0417 	// Wheel radius [m]
-#define BUGGY_WIDTH             0.20    // Width of buggy [m]
+#define BUGGY_WIDTH             0.22    // Width of buggy [m]
 #define ENCODER_TICKS_PER_REV 	1024 		// Counter ticks per revolution 
 
 #define MOTOR_SAMPLE_FREQ 			40.0 	// Motor speed sample frequency [Hz]
