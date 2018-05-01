@@ -7,11 +7,12 @@
 #include "math.h"
 
 // Angular velocity thresholds
-#define MINOR_SPEED_TH 1        // Minor vs Major turn
-#define STRAIGHT_SPEED_TH 0.5 // Straight speed
+#define MINOR_SPEED_TH 1.5        // Minor vs Major turn
+#define STRAIGHT_SPEED_TH 1 // Straight speed
 
 static void Arbiter_updateCurrentAction(Arbiter arbiter);
 static void Arbiter_startNewAction(Arbiter arbiter, uint8_t action);
+static float Arbiter_getCurrentActionDistance(Arbiter arbiter);
 
 static uint32_t calibrationCounter = 0; // Counter used for calibration procedure
 
@@ -33,7 +34,13 @@ Arbiter Arbiter_init(LF lf, LS ls, Magnet magnet, Motors motors, Memory memory){
   
   arbiter->counter = 0;
   
-  arbiter->speed = 1;
+  arbiter->speed = FORWARD_SPEED;
+  
+  arbiter->dAngle = RAf_init(10);
+  
+  
+  arbiter->lostCounter = 0;
+  
 	
 	return arbiter;
 }
@@ -43,6 +50,7 @@ void Arbiter_update(Arbiter arbiter){
 	switch(arbiter->state){ // Decide on state
 		case STATE_READY:  // Ready state
 			//IO_set(IO_MOTOR_EN, 0);
+      Magnet_update(arbiter->magnet);
 			break;
       
 		case STATE_FORWARD_TRACK:
@@ -71,6 +79,7 @@ void Arbiter_update(Arbiter arbiter){
       // If lost, change to lost state;
 			if(LF_lost(arbiter->lf)){
 				arbiter->state = STATE_LOST_F;
+        arbiter->lostCounter = arbiter->counter;
         arbiter->latestAction->distance = Motors_getLinearDistance(arbiter->motors);
         Memory_push(arbiter->memory, arbiter->latestAction);
         arbiter->latestAction = Action_init(ACTION_LOST, 0);
@@ -102,13 +111,13 @@ void Arbiter_update(Arbiter arbiter){
 			IO_set(IO_MOTOR_EN, 1);
 		
       // Catch the line or bail after set distance
-			if(LS_catchLine(arbiter->ls) || Encoder_getRevolutions(arbiter->motors->motorLeft->encoder)-arbiter->turningDistance > 1.8){
+			if(LS_catchLine(arbiter->ls) || Encoder_getRevolutions(arbiter->motors->motorLeft->encoder)-arbiter->turningDistance > 2){
 				arbiter->state = STATE_BACK_TRACK;
 				LF_reset(arbiter->lf);
 				break;
 			}
 			
-			Motors_setSpeed(arbiter->motors, ROTATION_SPEED/1.5, -ROTATION_SPEED/1.5);
+			Motors_setSpeed(arbiter->motors, ROTATION_SPEED, -ROTATION_SPEED);
 			
 		
 			break;
@@ -118,12 +127,12 @@ void Arbiter_update(Arbiter arbiter){
 			IO_set(IO_MOTOR_EN, 1);
 		  // Look for line in latest direction
       
-      
+      Motors_setSpeed(arbiter->motors, arbiter->speed * arbiter->lf->last * 0.5, arbiter->speed * arbiter->lf->last * -0.5);
       // Push the latest action 
       Memory_push(arbiter->memory, arbiter->latestAction);
       arbiter->latestAction = Action_init(ACTION_STRAIGHT, 0);
       
-			arbiter->state = STATE_STOP;
+    
 			break;
       
       
@@ -140,7 +149,9 @@ void Arbiter_update(Arbiter arbiter){
       if(++calibrationCounter > CALIBRATION_TIME * SENSOR_SAMPLE_FREQ){
         arbiter->state = STATE_READY;
       }
-      break;  
+      break; 
+    case STATE_RC:
+      break;
       
 		case STATE_STOP:
 		default:
@@ -210,38 +221,45 @@ void Arbiter_startRace(Arbiter arbiter) {
 
 
 void Arbiter_updateCurrentAction(Arbiter arbiter){
-  double speedL = Encoder_getSpeed(arbiter->motors->motorLeft->encoder);
-  double speedR = Encoder_getSpeed(arbiter->motors->motorRight->encoder);
-  double dAngle = (speedL - speedR)/ BUGGY_WIDTH; // Angular velocity of truning - Positive turning Right, Negative Turning Left
-  // dAngle = dAngle/arbiter->speed; // Normalize dAngle with speed;
-  
-  if(fabs(dAngle) < STRAIGHT_SPEED_TH){ // Speed the same -> straight
-    if(arbiter->latestAction->actionType != ACTION_STRAIGHT){
-      Arbiter_startNewAction(arbiter, ACTION_STRAIGHT);
-    }
-  } else if(dAngle > -MINOR_SPEED_TH) {// Left slightly faster
-    if(arbiter->latestAction->actionType != ACTION_MINOR_L){
-      Arbiter_startNewAction(arbiter, ACTION_MINOR_L);
-    }
-  } else if(dAngle < MINOR_SPEED_TH) { // Right slightly faster
-    if(arbiter->latestAction->actionType != ACTION_MINOR_R){
-      Arbiter_startNewAction(arbiter, ACTION_MINOR_R);
-    }
-  } else if(dAngle < -MINOR_SPEED_TH) { // Left much faster
-    if(arbiter->latestAction->actionType != ACTION_MAJOR_L){
-      Arbiter_startNewAction(arbiter, ACTION_MAJOR_L);
-    }
-  } else if(dAngle > MINOR_SPEED_TH) { // Right much faster
-    if(arbiter->latestAction->actionType != ACTION_MAJOR_R){
-      Arbiter_startNewAction(arbiter, ACTION_MAJOR_R);
+  if(Arbiter_getCurrentActionDistance(arbiter) > 0.1) {
+    double speedL = Encoder_getSpeed(arbiter->motors->motorLeft->encoder);
+    double speedR = Encoder_getSpeed(arbiter->motors->motorRight->encoder);
+    RAf_push(arbiter->dAngle, 2 * (speedL - speedR)/(speedL+speedR)/ BUGGY_WIDTH); // Angular velocity of truning - Positive turning Right, Negative Turning Left
+    float dAngle = RAf_getAverage(arbiter->dAngle);
+    // dAngle = dAngle/arbiter->speed; // Normalize dAngle with speed;
+    
+    if(fabs(dAngle) < STRAIGHT_SPEED_TH){ // Speed the same -> straight
+      if(arbiter->latestAction->actionType != ACTION_STRAIGHT){
+        Arbiter_startNewAction(arbiter, ACTION_STRAIGHT);
+      }
+    } else if(dAngle > -MINOR_SPEED_TH) {// Left slightly faster
+      if(arbiter->latestAction->actionType != ACTION_MINOR_L){
+        Arbiter_startNewAction(arbiter, ACTION_MINOR_L);
+      }
+    } else if(dAngle < MINOR_SPEED_TH) { // Right slightly faster
+      if(arbiter->latestAction->actionType != ACTION_MINOR_R){
+        Arbiter_startNewAction(arbiter, ACTION_MINOR_R);
+      }
+    } else if(dAngle < -MINOR_SPEED_TH) { // Left much faster
+      if(arbiter->latestAction->actionType != ACTION_MAJOR_L){
+        Arbiter_startNewAction(arbiter, ACTION_MAJOR_L);
+      }
+    } else if(dAngle > MINOR_SPEED_TH) { // Right much faster
+      if(arbiter->latestAction->actionType != ACTION_MAJOR_R){
+        Arbiter_startNewAction(arbiter, ACTION_MAJOR_R);
+      }
     }
   }
   
 }
 
 void Arbiter_startNewAction(Arbiter arbiter, uint8_t action){
-  arbiter->latestAction->distance = Motors_getLinearDistance(arbiter->motors) - arbiter->latestActionStartDistance; // Compute distance of latest action
+  arbiter->latestAction->distance = Arbiter_getCurrentActionDistance(arbiter); // Compute distance of latest action
   Memory_push(arbiter->memory, arbiter->latestAction);
   arbiter->latestAction = Action_init(action, 0);
   arbiter->latestActionStartDistance = Motors_getLinearDistance(arbiter->motors);
+}
+
+float Arbiter_getCurrentActionDistance(Arbiter arbiter){
+  return (float) Motors_getLinearDistance(arbiter->motors) - arbiter->latestActionStartDistance;
 }

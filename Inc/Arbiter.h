@@ -4,6 +4,7 @@
 #include "Magnet.h"
 #include "Memory.h"
 #include "LF.h"
+#include "RA.h"
 
 #ifndef __ARBITER_H
 #define __ARBITER_H
@@ -21,7 +22,8 @@ enum buggy_state {
 	STATE_STOP,
 	STATE_LOST_F,
 	STATE_LOST_B,
-	STATE_CALIBRATE
+	STATE_CALIBRATE,
+	STATE_RC
 };
 
 
@@ -43,6 +45,10 @@ typedef struct {
 	double latestActionStartDistance;
 	
 	double speed;
+	
+	int lostCounter;
+	
+	RAf dAngle;
 	
 	uint32_t counter;
 } __Arbiter, *Arbiter;

@@ -1,17 +1,19 @@
 #include "LF.h"
 #include <stdlib.h>
+#include "configuration.h"
 
-static PID_Values ctrlPID_values = {0.4, 0.00001, 0.00001};
+static PID_Values ctrlPID_values = {0.5, 0, 0.001};
 
 LF LF_init(Motors motors, LS ls){
 	LF lf = malloc(sizeof(__LF));
 	
 	lf->motors = motors;
 	lf->ls = ls;
-	lf->speed = 0.8;
+	lf->speed = FORWARD_SPEED;
 	lf->lost = false;
 	lf->lostConfidence = 0;
 	lf->effort = 0;
+	lf->last = -1;
 
 	lf->ctrl = PID_init(ctrlPID_values, 1/(SENSOR_SAMPLE_FREQ), -1, 1);
 	PID_setTargetValue(lf->ctrl, 0);
@@ -37,6 +39,7 @@ void LF_update(LF lf){
 	lf->values[0] = diff23;
 	lf->values[1] = diff45;
 	if(maxValue < 0.5){
+		lf->effort = lf->last * 2.5;
 		lf->lostConfidence += 1;
 		if(lf->lostConfidence > 60) {
 			lf->lost = true;
@@ -46,13 +49,15 @@ void LF_update(LF lf){
 	} else {
 		lf->lost = false;
 		lf->lostConfidence = 0;
-		if(sensorValues[0] > 0.7){
-			lf->effort = 1;
-		} else if (sensorValues[1] > 0.7){
-			lf->effort = -1;
+		if(sensorValues[0] > 0.5){
+			lf->effort = 2.5;
+			lf->last = 1;
+		} else if (sensorValues[1] > 0.5){
+			lf->effort = -2.5;
+			lf->last = -1;
 		} else {
-			PID_setMeasuredValue(lf->ctrl, weightedSum);
-			lf->effort = PID_compute(lf->ctrl);
+				PID_setMeasuredValue(lf->ctrl, weightedSum);
+				lf->effort = PID_compute(lf->ctrl);
 		}
 	}
 	

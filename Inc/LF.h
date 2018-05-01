@@ -17,6 +17,7 @@ typedef struct {
 	int lostConfidence;
 	float speed;
 	float effort;
+	int last;
 	
 	float values[10];
 } __LF, *LF;
