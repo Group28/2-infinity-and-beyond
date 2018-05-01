@@ -46,12 +46,18 @@ void LF_update(LF lf){
 	} else {
 		lf->lost = false;
 		lf->lostConfidence = 0;
-		PID_setMeasuredValue(lf->ctrl, (diff23+diff45+weightedSum)/3.0 );
-		lf->effort = PID_compute(lf->ctrl);
+		if(sensorValues[0] > 0.7){
+			lf->effort = 1;
+		} else if (sensorValues[1] > 0.7){
+			lf->effort = -1;
+		} else {
+			PID_setMeasuredValue(lf->ctrl, weightedSum);
+			lf->effort = PID_compute(lf->ctrl);
+		}
 	}
 	
-	float motorLeftSpeed =  lf->speed * (1 - 2*lf->effort);
-	float motorRightSpeed = lf->speed * (1 + 2*lf->effort);
+	float motorLeftSpeed =  lf->speed * (1 - lf->effort);
+	float motorRightSpeed = lf->speed * (1 + lf->effort);
 	Motors_setSpeed(lf->motors, motorLeftSpeed, motorRightSpeed);
 }
 
