@@ -123,4 +123,7 @@ void LS_preCallibration(LS ls);
  */
 void LS_reset(LS ls);
 
+
+float LS_computePosition(LS ls);
+
 #endif

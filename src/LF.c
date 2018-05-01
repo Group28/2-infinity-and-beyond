@@ -23,21 +23,17 @@ LF LF_init(Motors motors, LS ls){
 }
 
 void LF_update(LF lf){
-	float weightedSum;
+	float position;
 	float32_t sensorValues[IR_SENSOR_COUNT];
 	
 	LS_getProcessedValues(lf->ls, sensorValues);
-	weightedSum = LS_getWeightedSum(lf->ls);
+	position = LS_computePosition(lf->ls);
 	
 	float32_t maxValue = 0;
 	uint32_t index = 0;		
 	arm_max_f32(sensorValues, IR_SENSOR_COUNT, &maxValue, &index);
 		
-	float32_t diff23 = sensorValues[3] - sensorValues[2]; 	
-	float32_t diff45 = sensorValues[5] - sensorValues[4]; 	
-	
-	lf->values[0] = diff23;
-	lf->values[1] = diff45;
+
 	if(maxValue < 0.5){
 		lf->effort = lf->last * 2.5;
 		lf->lostConfidence += 1;
@@ -49,20 +45,12 @@ void LF_update(LF lf){
 	} else {
 		lf->lost = false;
 		lf->lostConfidence = 0;
-		if(sensorValues[0] > 0.5){
-			lf->effort = 2.5;
-			lf->last = 1;
-		} else if (sensorValues[1] > 0.5){
-			lf->effort = -2.5;
-			lf->last = -1;
-		} else {
-				PID_setMeasuredValue(lf->ctrl, weightedSum);
-				lf->effort = PID_compute(lf->ctrl);
-		}
+		PID_setMeasuredValue(lf->ctrl, position);
+		lf->effort = PID_compute(lf->ctrl);
 	}
 	
-	float motorLeftSpeed =  lf->speed * (1 - lf->effort);
-	float motorRightSpeed = lf->speed * (1 + lf->effort);
+	float motorLeftSpeed =  lf->speed * (0.9 - lf->effort);
+	float motorRightSpeed = lf->speed * (0.9 + lf->effort);
 	Motors_setSpeed(lf->motors, motorLeftSpeed, motorRightSpeed);
 }
 
