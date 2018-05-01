@@ -29,7 +29,7 @@ LS LS_init(Analog adc, SR sr){
     }
 		ls->processedReadings[i] = 0;
     ls->calibrationLow[i] = 0;
-    ls->calibrationHigh[i] = 1;
+    ls->calibrationHigh[i] = 0.49;
 	}
   
   return ls;
@@ -70,6 +70,9 @@ void LS_update(LS ls){
       averageAndBound(filteredReadings, ls->processedReadings, IR_SENSOR_COUNT); // Average the samples and keep the values in bounds;
       
       arm_dot_prod_f32(ls->processedReadings, LS_weights, IR_SENSOR_COUNT, &ls->weightedSum);
+      
+      
+      
       
       ls->newData = true;
     }
