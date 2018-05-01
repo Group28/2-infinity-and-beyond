@@ -62,6 +62,9 @@ int main(void){
 	Init_buggy(); // Initialize the buggy
 	startSound(); // Play confirmation sound for buggy ready
 	
+	Music music = Music_create(EGM2_notes, EGM2_delays, EGM2_length);
+	//Music_play(music, 4, 0);
+	
 	Motors_setSpeed(motors, 0, 0); // Stop motors
 	LL_EXTI_ClearFlag_0_31(LL_EXTI_LINE_13); // Clear button interrupt flag triggered by startup=
 	NVIC_EnableIRQ(EXTI15_10_IRQn); // Enable IRQ for EXTI line 13 in NVIC
@@ -192,7 +195,7 @@ void printDebugInfo(void)
 	
 	// Send data to Wifi using JSON
 	USART_printf(esp, "JSON={\"counter\":%d,\"0\":%.4f,\"1\":%.4f,\"2\":%.4f,\"3\":%.4f,\"4\":%.4f,\"5\":%.4f,\"M\":%.4f,",
-					counter++, conv[0], conv[1], conv[2], conv[3],conv[4],conv[5], rawADC[6]/4096.0);
+					counter++, conv[0], conv[1], conv[2], conv[3],conv[4],conv[5], Magnet_rawValue(magnet));
 	USART_printf(esp, "\"battV\":%.4f,\"battC\":%.4f,\"battA\":%.4f,\"battT\":%.4f,", voltage, current, accum*1000, temperature);
 	USART_printf(esp, "\"mSL\":%.4f,\"mSR\":%.4f,\"mDL\":%.4f,\"mDR\":%.4f,\"mEL\":%.4f,\"mER\":%.4f,\"adc\":%d,\"sum\":%.4f,\"state\":%d,\"linePos\":%f,\"other\":{", Encoder_getSpeed(encoderLeft), Encoder_getSpeed(encoderRight), Encoder_getDistance(encoderLeft), Encoder_getDistance(encoderRight), motors->motorLeft->effort,  motors->motorRight->effort,analogConversions,LS_getWeightedSum(ls),arbiter->state, LS_getWeightedSum(ls));
 	
@@ -200,12 +203,22 @@ void printDebugInfo(void)
 				ls->calibrationLow[0],ls->calibrationLow[1],ls->calibrationLow[2],ls->calibrationLow[3],ls->calibrationLow[4],ls->calibrationLow[5]);
 	USART_printf(esp, "\"Calibration Values Hight: \":\"%.2f,%.2f,%.2f,%.2f,%.2f,%.2f\",",
 				ls->calibrationHigh[0],ls->calibrationHigh[1],ls->calibrationHigh[2],ls->calibrationHigh[3],ls->calibrationHigh[4],ls->calibrationHigh[5]);
-	USART_printf(esp, "\"TIM2 TIM5: \":\"%d %d\",",LL_TIM_GetCounter(TIM2),LL_TIM_GetCounter(TIM5));
-	USART_printf(esp, "\"ELR ELR: \":\"%f %f\"",Encoder_getRevolutions(encoderLeft),Encoder_getRevolutions(encoderRight));
+	USART_printf(esp, "\"LF Effort: \":\"%f\"",lf->effort);
+
 	
 	if(arbiter->state == STATE_CALIBRATE){
 			USART_printf(esp, ",\"Calibration Done: \": %.1f", Arbiter_calibrationDone(arbiter));
-		
+			if(Arbiter_calibrationDone(arbiter) < 95){
+				IO_setSpeakerFreq(((int)Arbiter_calibrationDone(arbiter))/1 + 200);
+			} else {
+				USART_printf(esp, "}}\r");
+				for(int freq =200; freq <=500; freq += 100){
+					IO_setSpeakerFreq(freq);
+					delay(0.1);
+			
+				}
+				IO_setSpeakerFreq(25000);
+			}
 	}
 	
 	USART_printf(esp, "}}\r");
@@ -229,7 +242,6 @@ void handleCMD(){
 		esp->buffRX.send = 0; // Reset the flag
 		sscanf(esp->buffRX.buffer, "%s %s %lf %lf %lf %lf %lf %lf", cmd, target, &value0, &value1, &value2, &value3, &value4, &value5); // Parse the message
 		
-		
 		USART_printf(esp, "\n    \n");
 		// Branch on command
 		if(strcmp(cmd, "stop") == 0 || strcmp(cmd, "STOP") == 0 || strcmp(cmd, "f") == 0){
@@ -240,20 +252,24 @@ void handleCMD(){
 		
 		
 		} else if(strcmp(cmd, "w") == 0){ // w s a d, remote controll
+			arbiter->state = STATE_RC;
 			IO_set(IO_MOTOR_EN, 1);
-			Motors_setSpeed(motors, 2, 2);
+			Motors_setSpeed(motors, arbiter->speed,  arbiter->speed);
 		
 		} else if(strcmp(cmd, "s") == 0){
+			arbiter->state = STATE_RC;
 			IO_set(IO_MOTOR_EN, 1);
-			Motors_setSpeed(motors, -2, -2);
+			Motors_setSpeed(motors, -arbiter->speed, -arbiter->speed);
 		
 		} else if(strcmp(cmd, "a") == 0){
+			arbiter->state = STATE_RC;
 			IO_set(IO_MOTOR_EN, 1);
-			Motors_setSpeed(motors, 0.8, 2);
+			Motors_setSpeed(motors, 0.2 * arbiter->speed,  arbiter->speed);
 		
 		} else if(strcmp(cmd, "d") == 0){
+			arbiter->state = STATE_RC;
 			IO_set(IO_MOTOR_EN, 1);
-			Motors_setSpeed(motors, 2, 0.8);
+			Motors_setSpeed(motors,  arbiter->speed, 0.2 * arbiter->speed);
 		
 		
 		
@@ -433,12 +449,11 @@ void handleCMD(){
 			if(strcmp(cmd, "get") == 0){
 			
 			} else if(strcmp(cmd, "set") == 0){
-				IO_set(IO_MOTOR_EN, 1);
-				lf->speed = value0;
+				arbiter->speed = value0 ;
 			} else {
 				printHelp();
 			}
-			USART_printf(esp, "Line Followig speed: %frev/s\n",  lf->speed);
+			USART_printf(esp, "Line Followig speed: %frev/s\n",  arbiter->speed);
 		
 		
 		
@@ -466,7 +481,7 @@ void handleCMD(){
 				USART_printf(esp, "Motor left speed: %frev/s\n", motors->motorLeft->speed);
 				USART_printf(esp, "Motor right speed: %frev/s\n", motors->motorRight->speed);
 				
-				USART_printf(esp, "Line Followig speed: %frev/s\n",  lf->speed);
+				USART_printf(esp, "Line Followig speed: %frev/s\n",  arbiter->speed);
 				
 				printMemory();
 			} else {
