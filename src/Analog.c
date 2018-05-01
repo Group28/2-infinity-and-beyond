@@ -44,11 +44,11 @@ Analog Analog_init(){
   
   // Configure the sequencer ranks
   LL_ADC_REG_SetSequencerRanks(ADC1, LL_ADC_REG_RANK_1,   ADC_CH_SENSOR_0);
-  LL_ADC_REG_SetSequencerRanks(ADC1, LL_ADC_REG_RANK_2,   ADC_CH_SENSOR_1);
-  LL_ADC_REG_SetSequencerRanks(ADC1, LL_ADC_REG_RANK_3,   ADC_CH_SENSOR_2);
-  LL_ADC_REG_SetSequencerRanks(ADC1, LL_ADC_REG_RANK_4,   ADC_CH_SENSOR_3);
-  LL_ADC_REG_SetSequencerRanks(ADC1, LL_ADC_REG_RANK_5,   ADC_CH_SENSOR_4);
-  LL_ADC_REG_SetSequencerRanks(ADC1, LL_ADC_REG_RANK_6,   ADC_CH_SENSOR_5);
+  LL_ADC_REG_SetSequencerRanks(ADC1, LL_ADC_REG_RANK_2,   ADC_CH_SENSOR_2);
+  LL_ADC_REG_SetSequencerRanks(ADC1, LL_ADC_REG_RANK_3,   ADC_CH_SENSOR_4);
+  LL_ADC_REG_SetSequencerRanks(ADC1, LL_ADC_REG_RANK_4,   ADC_CH_SENSOR_5);
+  LL_ADC_REG_SetSequencerRanks(ADC1, LL_ADC_REG_RANK_5,   ADC_CH_SENSOR_3);
+  LL_ADC_REG_SetSequencerRanks(ADC1, LL_ADC_REG_RANK_6,   ADC_CH_SENSOR_1);
   
   LL_ADC_REG_SetSequencerRanks(ADC1, LL_ADC_REG_RANK_7,   ADC_CH_MAGNETIC);
   

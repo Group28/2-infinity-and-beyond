@@ -30,7 +30,7 @@
 #define LEFT_MOTOR_PID_VALUES		{1.5, 0.001, 0.7} // Default PID values for left motor
 #define RIGHT_MOTOR_PID_VALUES	{1.5, 0.001, 0.7} // Default PID values for right motor
 
-#define LS_WEIGHTS							{-1, 1, -0.9, 0.9, -1, 1} // Sensor weights
+#define LS_WEIGHTS							{-1, -1, -0.9, 0.9, 1, 1} // Sensor weights
                                 // 0    1     2    3    4  5     
 
 #define IR_SENSOR_COUNT					6 // Number of infrared sensors
