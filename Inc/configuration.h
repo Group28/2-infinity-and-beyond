@@ -25,12 +25,12 @@
 
 #define CALIBRATION_TIME        10       // Time for calibration [s]
 
-#define ROTATION_SPEED          3
+#define ROTATION_SPEED          2
 
-#define LEFT_MOTOR_PID_VALUES		{1, 0.001, 0.8} // Default PID values for left motor
-#define RIGHT_MOTOR_PID_VALUES	{1, 0.001, 0.8} // Default PID values for right motor
+#define LEFT_MOTOR_PID_VALUES		{1.5, 0.001, 0.7} // Default PID values for left motor
+#define RIGHT_MOTOR_PID_VALUES	{1.5, 0.001, 0.7} // Default PID values for right motor
 
-#define LS_WEIGHTS							{-1.5, 1.5, -0.9, 0.9, -1, 1} // Sensor weights
+#define LS_WEIGHTS							{-1, 1, -0.9, 0.9, -1, 1} // Sensor weights
                                 // 0    1     2    3    4  5     
 
 #define IR_SENSOR_COUNT					6 // Number of infrared sensors
@@ -45,6 +45,11 @@
 
 #define MAGNET_NORTH_THRESHOLD  0.6   // Upper threshold for north magnetic field detection
 #define MAGNET_SOUTH_THRESHOLD  0.4   // Lower threshold for south magnetic field detection
+
+#define FORWARD_SPEED           4
+#define FORWARD_SPEED_TURN      FORWARD_SPEED * 0.9
+
+#define BACK_SPEED              5
 /* Communication --------------------------------------------------------------------------------------- //
 //
 // Toggles communication channels
