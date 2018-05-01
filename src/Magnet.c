@@ -9,12 +9,22 @@ Magnet Magnet_init(Analog adc){
   magnet->rawReading = &adc->buffer.buffer[6];
 	magnet->runningAverage = RAf_init(10);
   
+  for(int i = 0; i < 10; i++){
+    RAf_push(magnet->runningAverage, 0.5);
+  }
+  
   return magnet;
 }
 
 void Magnet_update(Magnet magnet) {
 	RAf_push(magnet->runningAverage, (float32_t) *magnet->rawReading/4096.0);
 }
+
+
+float Magnet_rawValue(Magnet magnet){
+  return RAf_getAverage(magnet->runningAverage);
+}
+
 
 MagnetValue Magnet_getValue(Magnet magnet){
   MagnetValue returnValue = MAGNET_ERROR;

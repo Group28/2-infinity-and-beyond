@@ -36,6 +36,8 @@ Magnet Magnet_init(Analog adc);
 
 void Magnet_update(Magnet magnet);
 
+float Magnet_rawValue(Magnet magnet);
+
 MagnetValue Magnet_getValue(Magnet magnet);
 
 #endif
