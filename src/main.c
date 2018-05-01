@@ -197,7 +197,7 @@ void printDebugInfo(void)
 	USART_printf(esp, "JSON={\"counter\":%d,\"0\":%.4f,\"1\":%.4f,\"2\":%.4f,\"3\":%.4f,\"4\":%.4f,\"5\":%.4f,\"M\":%.4f,",
 					counter++, conv[0], conv[5], conv[1], conv[4],conv[2],conv[3], Magnet_rawValue(magnet));
 	USART_printf(esp, "\"battV\":%.4f,\"battC\":%.4f,\"battA\":%.4f,\"battT\":%.4f,", voltage, current, accum*1000, temperature);
-	USART_printf(esp, "\"mSL\":%.4f,\"mSR\":%.4f,\"mDL\":%.4f,\"mDR\":%.4f,\"mEL\":%.4f,\"mER\":%.4f,\"adc\":%d,\"sum\":%.4f,\"state\":%d,\"linePos\":%f,\"other\":{", Encoder_getSpeed(encoderLeft), Encoder_getSpeed(encoderRight), Encoder_getDistance(encoderLeft), Encoder_getDistance(encoderRight), motors->motorLeft->effort,  motors->motorRight->effort,analogConversions, LS_computePosition(ls),arbiter->state, LS_getWeightedSum(ls));
+	USART_printf(esp, "\"mSL\":%.4f,\"mSR\":%.4f,\"mDL\":%.4f,\"mDR\":%.4f,\"mEL\":%.4f,\"mER\":%.4f,\"adc\":%d,\"sum\":%.4f,\"state\":%d,\"linePos\":%f,\"other\":{", Encoder_getSpeed(encoderLeft), Encoder_getSpeed(encoderRight), Encoder_getDistance(encoderLeft), Encoder_getDistance(encoderRight), motors->motorLeft->effort,  motors->motorRight->effort,analogConversions, LS_computePosition(ls),arbiter->state, LS_computePosition(ls));
 	
 	USART_printf(esp, "\"Calibration Values Low: \":\"%.2f,%.2f,%.2f,%.2f,%.2f,%.2f\",",
 				ls->calibrationLow[0],ls->calibrationLow[1],ls->calibrationLow[2],ls->calibrationLow[3],ls->calibrationLow[4],ls->calibrationLow[5]);
@@ -264,12 +264,12 @@ void handleCMD(){
 		} else if(strcmp(cmd, "a") == 0){
 			arbiter->state = STATE_RC;
 			IO_set(IO_MOTOR_EN, 1);
-			Motors_setSpeed(motors, 0.2 * arbiter->speed,  arbiter->speed);
+			Motors_setSpeed(motors, -arbiter->speed,  arbiter->speed);
 		
 		} else if(strcmp(cmd, "d") == 0){
 			arbiter->state = STATE_RC;
 			IO_set(IO_MOTOR_EN, 1);
-			Motors_setSpeed(motors,  arbiter->speed, 0.2 * arbiter->speed);
+			Motors_setSpeed(motors,  arbiter->speed, -arbiter->speed);
 		
 		
 		
