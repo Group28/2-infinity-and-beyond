@@ -59,6 +59,7 @@ src/LS.c \
 src/Magnet.c \
 src/Memory.c \
 src/Motors.c \
+src/Music.c \
 src/OneWire.c \
 src/PID.c \
 src/SR.c \
