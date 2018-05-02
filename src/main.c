@@ -203,7 +203,8 @@ void printDebugInfo(void)
 				ls->calibrationLow[0],ls->calibrationLow[1],ls->calibrationLow[2],ls->calibrationLow[3],ls->calibrationLow[4],ls->calibrationLow[5]);
 	USART_printf(esp, "\"Calibration Values Hight: \":\"%.2f,%.2f,%.2f,%.2f,%.2f,%.2f\",",
 				ls->calibrationHigh[0],ls->calibrationHigh[1],ls->calibrationHigh[2],ls->calibrationHigh[3],ls->calibrationHigh[4],ls->calibrationHigh[5]);
-	USART_printf(esp, "\"LF Effort: \":\"%f\"",lf->effort);
+	USART_printf(esp, "\"LF Effort: \":\"%f\",",lf->effort);
+	USART_printf(esp, "\"Last: \":\"%f\"",lf->last);
 
 	
 	if(arbiter->state == STATE_CALIBRATE){
@@ -377,7 +378,7 @@ void handleCMD(){
 			} else {
 				printHelp();
 			}
-			USART_printf(esp, "Light sensor P: %f\n", PID_getD(lf->ctrl));
+			USART_printf(esp, "Light sensor P: %f\n", PID_getP(lf->ctrl));
 		
 		
 		

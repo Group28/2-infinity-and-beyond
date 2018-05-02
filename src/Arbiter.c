@@ -80,9 +80,7 @@ void Arbiter_update(Arbiter arbiter){
 			if(LF_lost(arbiter->lf)){
 				arbiter->state = STATE_LOST_F;
         arbiter->lostCounter = arbiter->counter;
-        arbiter->latestAction->distance = Motors_getLinearDistance(arbiter->motors);
-        Memory_push(arbiter->memory, arbiter->latestAction);
-        arbiter->latestAction = Action_init(ACTION_LOST, 0);
+        Arbiter_startNewAction(arbiter, ACTION_LOST);
         break;
 			}
 			
@@ -127,11 +125,13 @@ void Arbiter_update(Arbiter arbiter){
 			IO_set(IO_MOTOR_EN, 1);
 		  // Look for line in latest direction
       
-      Motors_setSpeed(arbiter->motors, arbiter->speed * arbiter->lf->last * 0.5, arbiter->speed * arbiter->lf->last * -0.5);
-      // Push the latest action 
-      Memory_push(arbiter->memory, arbiter->latestAction);
-      arbiter->latestAction = Action_init(ACTION_STRAIGHT, 0);
+      LF_setSpeed(arbiter->lf, FORWARD_SPEED_LOST);
+      LF_update(arbiter->lf);
       
+      if(!LF_lost(arbiter->lf)){
+        Arbiter_startNewAction(arbiter, ACTION_STRAIGHT);
+        arbiter->state = STATE_FORWARD_TRACK;
+      }
     
 			break;
       
@@ -156,6 +156,7 @@ void Arbiter_update(Arbiter arbiter){
 		case STATE_STOP:
 		default:
 			IO_set(IO_MOTOR_EN, 0);
+      Motors_setSpeed(arbiter->motors, 0, 0);
 			break;
 	}
 

@@ -39,11 +39,11 @@ LS LS_init(Analog adc, SR sr){
       ls->readingsPatternB[SENSOR_OVERSAMPLE * j + i] = 0;
     }
 		ls->processedReadings[i] = 0;
-    //ls->calibrationLow[i] = 0;
-    ls->calibrationLow[i] = 0.15;
+    ls->calibrationLow[i] = 0;
+    //ls->calibrationLow[i] = 0.15;
     //ls->calibrationHigh[i] = 1;
-    //ls->calibrationHigh[i] = 0.49;
-    ls->calibrationHigh[i] = 0.90;
+    ls->calibrationHigh[i] = 0.49;
+    //ls->calibrationHigh[i] = 0.90;
 	}
   
   return ls;

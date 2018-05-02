@@ -34,20 +34,20 @@ void LF_update(LF lf){
 	arm_max_f32(sensorValues, IR_SENSOR_COUNT, &maxValue, &index);
 		
 
-	if(maxValue < 0.5){
-		lf->effort = lf->last * 2.5;
+	if(maxValue < 0.4){
 		lf->lostConfidence += 1;
-		if(lf->lostConfidence > 60) {
+		if(lf->lostConfidence > SENSOR_SAMPLE_FREQ * 0.5) {
 			lf->lost = true;
 		}
-		//lf->effort *= 1.1;
-		
+		position = lf->last * 3;
 	} else {
+		lf->last = copysignf(1.0, position);
+		
 		lf->lost = false;
 		lf->lostConfidence = 0;
-		PID_setMeasuredValue(lf->ctrl, position);
 		lf->effort = PID_compute(lf->ctrl);
 	}
+	PID_setMeasuredValue(lf->ctrl, position);
 	
 	float motorLeftSpeed =  lf->speed * (0.9 - lf->effort);
 	float motorRightSpeed = lf->speed * (0.9 + lf->effort);

@@ -47,6 +47,7 @@
 #define MAGNET_SOUTH_THRESHOLD  0.4   // Lower threshold for south magnetic field detection
 
 #define FORWARD_SPEED           4
+#define FORWARD_SPEED_LOST      2
 #define FORWARD_SPEED_TURN      FORWARD_SPEED * 0.9
 
 #define BACK_SPEED              5
