@@ -56,7 +56,12 @@ void Motors_PID_action(Motors motors){
 
 void Motor_setSpeed(Motor motor, double speed){
 	motor->speed = speed;
-	PID_setTargetValue(motor->pid, speed);
+	
+	motor->effort = speed/5.0;
+	
+	Motor_setPWMDutyCycle(motor);
+	
+	//PID_setTargetValue(motor->pid, speed);
 }
 
 void Motors_setSpeed(Motors motors, double speedL, double speedR){
@@ -102,4 +107,10 @@ double Motor_getDistance(Motor motor){
 
 double Motors_getLinearDistance(Motors motors){
 	return (Encoder_getDistance(motors->motorLeft->encoder) + Encoder_getDistance(motors->motorRight->encoder))/ 2.0;
+}
+
+
+
+double Motors_getLinearSpeed(Motors motors){
+	return (Encoder_getSpeed(motors->motorLeft->encoder) + Encoder_getSpeed(motors->motorRight->encoder))/ 2.0;
 }

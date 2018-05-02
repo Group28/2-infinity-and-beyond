@@ -290,7 +290,11 @@ void handleCMD(){
 		
 		} else if(strcmp(cmd, "start") == 0){ // Starts the race
 			Arbiter_startRace(arbiter);
-			
+		
+		} else if(strcmp(cmd, "st") == 0){ // Starts the race
+			Arbiter_startRace(arbiter);	
+			arbiter->state = STATE_BACK_TRACK;
+		
 		} else if(strcmp(cmd, "calib") == 0){ // Starts the race
 			Arbiter_startCalibration(arbiter);
 		

@@ -46,7 +46,9 @@ Arbiter Arbiter_init(LF lf, LS ls, Magnet magnet, Motors motors, Memory memory){
 }
 
 void Arbiter_update(Arbiter arbiter){
+  static int stopCount = 0;
   arbiter->counter++; // Increase loop counter
+  float speed = arbiter->speed;
 	switch(arbiter->state){ // Decide on state
 		case STATE_READY:  // Ready state
 			//IO_set(IO_MOTOR_EN, 0);
@@ -65,10 +67,15 @@ void Arbiter_update(Arbiter arbiter){
 				arbiter->turningDistance = Encoder_getRevolutions(arbiter->motors->motorLeft->encoder);
 				break;
 			}
+    
+      
+      if(Motors_getLinearSpeed(arbiter->motors) < 0.4){
+        speed *= 1.5;
+      }
 			
       
       // Do line following
-      LF_setSpeed(arbiter->lf, arbiter->speed);
+      LF_setSpeed(arbiter->lf, speed);
 			LF_update(arbiter->lf);
       
       // Add current actio to memmory if change
@@ -90,15 +97,20 @@ void Arbiter_update(Arbiter arbiter){
       
 		case STATE_BACK_TRACK:
 			IO_set(IO_MOTOR_EN, 1);
+      
+      if(Motors_getLinearSpeed(arbiter->motors) > 1){
+        speed *= -0.3;
+      }
 		  
       // Do line following
-      LF_setSpeed(arbiter->lf, arbiter->speed);
+      LF_setSpeed(arbiter->lf, speed);
 			LF_update(arbiter->lf);
       
       
       // If lost, change to lost state 
       if(LF_lost(arbiter->lf)){
         arbiter->state = STATE_LOST_B;
+        stopCount = arbiter->counter;
       
         break;
       }
@@ -107,10 +119,11 @@ void Arbiter_update(Arbiter arbiter){
       
 		case STATE_TURN:
 			IO_set(IO_MOTOR_EN, 1);
-		
+		  
       // Catch the line or bail after set distance
-			if(LS_catchLine(arbiter->ls) || Encoder_getRevolutions(arbiter->motors->motorLeft->encoder)-arbiter->turningDistance > 2){
+			if(LS_catchLine(arbiter->ls) || Encoder_getRevolutions(arbiter->motors->motorLeft->encoder)-arbiter->turningDistance > ROTATION_DISTANCE){
 				arbiter->state = STATE_BACK_TRACK;
+        Motors_setSpeed(arbiter->motors, 1, 1);
 				LF_reset(arbiter->lf);
 				break;
 			}
@@ -138,7 +151,10 @@ void Arbiter_update(Arbiter arbiter){
       
 		case STATE_LOST_B:
 			IO_set(IO_MOTOR_EN, 1);
-			arbiter->state = STATE_STOP;
+      Motors_setSpeed(arbiter->motors, -4, -4);
+      if(stopCount > 600)
+			   arbiter->state = STATE_STOP;
+      stopCount++;
 		
 			break;
       

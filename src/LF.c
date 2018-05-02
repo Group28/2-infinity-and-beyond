@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include "configuration.h"
 
-static PID_Values ctrlPID_values = {0.5, 0, 0.001};
+static PID_Values ctrlPID_values = {1.55, 0, 0.04};
 
 LF LF_init(Motors motors, LS ls){
 	LF lf = malloc(sizeof(__LF));
@@ -23,6 +23,8 @@ LF LF_init(Motors motors, LS ls){
 }
 
 void LF_update(LF lf){
+	float motorLeftSpeed;
+	float motorRightSpeed;
 	float position;
 	float32_t sensorValues[IR_SENSOR_COUNT];
 	
@@ -36,10 +38,10 @@ void LF_update(LF lf){
 
 	if(maxValue < 0.4){
 		lf->lostConfidence += 1;
-		if(lf->lostConfidence > SENSOR_SAMPLE_FREQ * 0.5) {
+		if(lf->lostConfidence > SENSOR_SAMPLE_FREQ * 0.1) {
 			lf->lost = true;
 		}
-		position = lf->last * 3;
+		position = lf->last * 3.5;
 	} else {
 		lf->last = copysignf(1.0, position);
 		
@@ -48,9 +50,13 @@ void LF_update(LF lf){
 		lf->effort = PID_compute(lf->ctrl);
 	}
 	PID_setMeasuredValue(lf->ctrl, position);
-	
-	float motorLeftSpeed =  lf->speed * (0.9 - lf->effort);
-	float motorRightSpeed = lf->speed * (0.9 + lf->effort);
+	if(lf->speed >= 0){
+		motorLeftSpeed =  lf->speed * (1 - lf->effort);
+		motorRightSpeed = lf->speed * (1 + lf->effort);
+	} else {
+		motorLeftSpeed =  lf->speed * (1 + lf->effort);
+		motorRightSpeed = lf->speed * (1 - lf->effort);
+	}
 	Motors_setSpeed(lf->motors, motorLeftSpeed, motorRightSpeed);
 }
 

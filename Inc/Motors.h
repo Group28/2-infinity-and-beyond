@@ -119,4 +119,7 @@ double Motor_getDistance(Motor motor);
 	 * @return distance traveled [m]
 	 */
 double Motors_getLinearDistance(Motors motors);
+
+
+double Motors_getLinearSpeed(Motors motors);
 #endif

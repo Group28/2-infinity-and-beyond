@@ -67,7 +67,7 @@ void Timers_init(void){
 void Timer_updateMotors(){
 	Encoder_update(encoderRight);
 	Encoder_update(encoderLeft);
-	Motors_PID_action(motors);
+	//Motors_PID_action(motors);
 
 }
 

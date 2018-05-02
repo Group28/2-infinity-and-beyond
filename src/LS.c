@@ -42,7 +42,7 @@ LS LS_init(Analog adc, SR sr){
     ls->calibrationLow[i] = 0;
     //ls->calibrationLow[i] = 0.15;
     //ls->calibrationHigh[i] = 1;
-    ls->calibrationHigh[i] = 0.49;
+    ls->calibrationHigh[i] = 0.59;
     //ls->calibrationHigh[i] = 0.90;
 	}
   
@@ -167,16 +167,10 @@ void LS_getProcessedValues(LS ls, float32_t * values){
 
 bool LS_catchLine(LS ls){
   static uint32_t lcConfidence = 0;
-	if(ls->processedReadings[5] > 0.6){
-		lcConfidence += 1;
-	}
-	
-	if(lcConfidence > 2){
+	if(ls->processedReadings[5] > 0.3){
 		return true;
-	} else {
-		return false;
 	}
-
+	return false;
 }
 
 
@@ -229,12 +223,13 @@ void LS_reset(LS ls){
 float weightedAverage(float32_t * ar){
   float32_t result;
   float32_t sum = 0;
+  float32_t weights[] = {-5, -3, -2, -1, 1, 2, 3, 5};
   
   for(int i = 0; i < IR_SENSOR_COUNT + 2; i++){
     sum += ar[i];
   }
   
-  result = 4*(ar[7]-ar[0]) + 3*(ar[6]-ar[1]) + 2 * (ar[5] - ar[2]) + (ar[4] - ar[3]);
+  arm_dot_prod_f32(ar, weights, IR_SENSOR_COUNT + 2, &result);
   
   return result/sum;
 }
